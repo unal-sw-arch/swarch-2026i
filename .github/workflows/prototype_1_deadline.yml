@@ -1,0 +1,26 @@
+name: Prototype 1 Deadline Check
+
+on:
+  pull_request:
+    branches:
+      - prototype_1
+
+jobs:
+  deadline-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check submission deadline
+        run: |
+          DEADLINE="2026-03-10T04:59:00Z"  # 23:59 Colombia (UTC-5)
+          NOW=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+          echo "Current time (UTC): $NOW"
+          echo "Deadline (UTC): $DEADLINE"
+
+          if [[ "$NOW" > "$DEADLINE" ]]; then
+            echo "❌ Deadline exceeded. Pull requests are no longer allowed."
+            exit 1
+          else
+            echo "✅ Submission is within the allowed time."
+          fi

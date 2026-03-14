@@ -10,7 +10,7 @@ El equipo puede conectarse a esta base de datos de dos maneras: a través de la 
 
 La base de datos ya se encuentra desplegada en MongoDB Atlas con los índices y datos de prueba cargados. No es necesario levantar contenedores locales para usarla. 
 
-* **URI de conexión:** `mongodb+srv://tracking_service_user:tracking_password_2026@TU_CLUSTER_AQUI.mongodb.net/tracking_context?retryWrites=true&w=majority`
+* **URI de conexión:** `mongodb+srv://tracking_service_user:fl7Evm9lczJvO8zN@arquisoftcluster.pmpyoih.mongodb.net/tracking_context?retryWrites=true&w=majority`
 * **Nombre de la base de datos:** `tracking_context`
 * **Colección principal:** `activity_events`
 

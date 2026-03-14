@@ -10,6 +10,7 @@ db.createCollection('activity_events');
 
 db.activity_events.createIndex({ "orderId": 1 });
 db.activity_events.createIndex({ "restaurantId": 1 });
+db.activity_events.createIndex({ "entityId": 1 });
 db.activity_events.createIndex({ "eventType": 1 });
 db.activity_events.createIndex({ "timestamp": -1 }); 
 
@@ -75,7 +76,7 @@ db.activity_events.insertMany([
     "orderId": "5001",
     "timestamp": new Date(new Date().getTime() - 110000),
     "sourceService": "order-service",
-    "payload": { "customerName": "Laura", "previousStatus": "CREATED", "newStatus": "PREPARING" }
+    "payload": { "customerName": "Laura", "totalAmount": 36000, "previousStatus": "CREATED", "newStatus": "IN_PREPARATION" }
   },
   {
     "_id": "evt_0007",
@@ -86,7 +87,7 @@ db.activity_events.insertMany([
     "orderId": "5001",
     "timestamp": new Date(new Date().getTime() - 90000),
     "sourceService": "order-service",
-    "payload": { "customerName": "Laura", "previousStatus": "PREPARING", "newStatus": "READY" }
+    "payload": { "customerName": "Laura", "totalAmount": 36000, "previousStatus": "IN_PREPARATION", "newStatus": "READY" }
   },
   {
     "_id": "evt_0008",
@@ -97,7 +98,7 @@ db.activity_events.insertMany([
     "orderId": "5001",
     "timestamp": new Date(new Date().getTime() - 85000),
     "sourceService": "order-service",
-    "payload": { "customerName": "Laura", "previousStatus": "READY", "newStatus": "DELIVERED" }
+    "payload": { "customerName": "Laura", "totalAmount": 36000, "previousStatus": "READY", "newStatus": "DELIVERED" }
   },
 
   {
@@ -143,6 +144,6 @@ db.activity_events.insertMany([
     "orderId": "5003",
     "timestamp": new Date(new Date().getTime() - 5000), // Hace 5 min
     "sourceService": "order-service",
-    "payload": { "customerName": "Andrés", "previousStatus": "CREATED", "newStatus": "PREPARING" }
+    "payload": { "customerName": "Andrés", "totalAmount": 54000, "previousStatus": "CREATED", "newStatus": "IN_PREPARATION" }
   }
 ]);

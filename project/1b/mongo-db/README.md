@@ -33,7 +33,7 @@ La base de datos (tanto en Atlas como en local) se inicializa con sus respectivo
 
 Estos registros incluyen explícitamente los **5 estados oficiales del ciclo de vida de un pedido**:
 * `CREATED` (Creado)
-* `PREPARING` (En preparación)
+* `IN_PREPARATION` (En preparación)
 * `READY` (Listo para entrega)
 * `DELIVERED` (Entregado)
 * `CANCELLED` (Cancelado)
@@ -41,8 +41,8 @@ Estos registros incluyen explícitamente los **5 estados oficiales del ciclo de 
 Estos estados están distribuidos en los siguientes **escenarios cronológicos** para facilitar las pruebas del Frontend y Backend:
 
 1. **Configuración inicial:** Eventos de creación de restaurante, menú, y productos.
-2. **Pedido completado:** El ciclo de vida íntegro de un pedido pasando por CREATED, PREPARING, READY y DELIVERED.
-3. **Pedido en curso:** Un pedido activo que ha transicionado de CREATED a PREPARING.
+2. **Pedido completado:** El ciclo de vida íntegro de un pedido pasando por CREATED, IN_PREPARATION, READY y DELIVERED.
+3. **Pedido en curso:** Un pedido activo que ha transicionado de CREATED a IN_PREPARATION.
 4. **Pedido cancelado:** Un pedido que pasa de CREATED a CANCELLED con su respectivo motivo.
 
 Para visualizar, filtrar y gestionar estos datos cronológicos en cualquiera de los entornos se recomienda el uso de **MongoDB Compass**.

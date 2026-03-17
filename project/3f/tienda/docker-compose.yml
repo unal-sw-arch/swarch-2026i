@@ -1,0 +1,78 @@
+services:
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "3000:3000"
+    depends_on:
+      - product-service
+      - order-service
+    networks:
+      - app-network
+
+  product-service:
+    build: ./product-service
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+
+  postgres:
+    image: postgres:15
+    container_name: products-postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: giftshop
+    volumes:
+      - products_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+  order-service:
+    build: ./order-service
+    depends_on:
+      - orders-postgres
+    networks:
+      - app-network
+  orders-postgres:
+    image: postgres:15
+    container_name: orders-postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: ordersdb
+    volumes:
+      - orders_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - app-network
+  review-service:
+    build: ./review-service
+    depends_on:
+      - mongo
+    networks:
+      - app-network
+
+  mongo:
+    image: mongo:6
+    container_name: reviews-mongo
+    volumes:
+      - reviews_data:/data/db
+    networks:
+      - app-network
+
+networks:
+  app-network:
+
+
+volumes:
+  products_data:
+  orders_data:
+  reviews_data:

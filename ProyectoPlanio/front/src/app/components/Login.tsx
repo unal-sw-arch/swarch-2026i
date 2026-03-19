@@ -1,23 +1,49 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
+import { toast } from 'sonner';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Users } from 'lucide-react';
+import {
+  loginWithEmailAndPassword,
+  loginWithGoogle,
+  mapFirebaseError,
+} from '../auth/authService';
 
 export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
+  const [password, setPassword] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleGoogleLogin = () => {
-    // Mock Google login
-    navigate('/rooms');
+  const handleGoogleLogin = async () => {
+    setIsSubmitting(true);
+
+    try {
+      await loginWithGoogle();
+      navigate('/rooms');
+    } catch (error) {
+      toast.error(mapFirebaseError(error));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleContinue = () => {
-    if (email && name) {
+  const handleContinue = async () => {
+    if (!email || !password) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      await loginWithEmailAndPassword(email, password);
       navigate('/rooms');
+    } catch (error) {
+      toast.error(mapFirebaseError(error));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -40,6 +66,7 @@ export default function Login() {
             onClick={handleGoogleLogin}
             variant="outline"
             className="w-full h-12 text-base"
+            disabled={isSubmitting}
           >
             <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
               <path
@@ -59,7 +86,7 @@ export default function Login() {
                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
               />
             </svg>
-            Login with Google
+            Continue with Google
           </Button>
 
           {/* Divider */}
@@ -72,7 +99,7 @@ export default function Login() {
             </div>
           </div>
 
-          {/* Email Form */}
+          {/* Login Form */}
           <div className="space-y-4">
             <div>
               <Label htmlFor="email">Email</Label>
@@ -87,13 +114,13 @@ export default function Login() {
             </div>
 
             <div>
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="password">Password</Label>
               <Input
-                id="name"
-                type="text"
-                placeholder="Your name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                id="password"
+                type="password"
+                placeholder="Your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="mt-1"
               />
             </div>
@@ -101,11 +128,22 @@ export default function Login() {
             <Button
               onClick={handleContinue}
               className="w-full h-12 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
-              disabled={!email || !name}
+              disabled={!email || !password || isSubmitting}
             >
-              Continue
+              {isSubmitting ? 'Signing in...' : 'Sign in'}
             </Button>
           </div>
+
+          <p className="text-sm text-center text-gray-600">
+            New here?{' '}
+            <button
+              type="button"
+              onClick={() => navigate('/register')}
+              className="font-medium text-blue-600 hover:text-blue-700"
+            >
+              Create an account
+            </button>
+          </p>
         </div>
       </div>
     </div>

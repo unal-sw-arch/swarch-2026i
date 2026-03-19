@@ -11,6 +11,38 @@
 - Sonner (toast notifications)
 - React DnD (drag and drop)
 - Lucide React (icons)
+- Firebase Auth
+
+## Firebase Auth Integration
+
+This makes global auth context, protected/public routes, and gateway bearer-token requests using Firebase Auth.
+
+- `src/app/auth/firebase.ts`: Initializes Firebase app and Auth instance from env variables.
+- `src/app/auth/authService.ts`: Handles login, register, Google login, logout, and auth error mapping.
+- `src/app/auth/token.ts`: Gets the current Firebase ID token and builds Authorization headers.
+- `src/app/auth/authFetch.ts`: Wraps fetch and injects `Authorization: Bearer <firebase-id-token>`.
+- `src/app/context/AuthContext.tsx`: Stores global session state (`user`, `loading`, `signOut`) via Firebase listener.
+- `src/app/components/routing/AuthGuards.tsx`: Defines `RequireAuth` and `PublicOnly` route guards.
+- `src/app/routes.ts`: Applies guards so login/register are public-only and rooms routes are private.
+
+### Environment Variables
+
+Copy `.env.example` to `.env` and fill with your Firebase project values:
+
+```bash
+VITE_FIREBASE_API_KEY=
+VITE_FIREBASE_AUTH_DOMAIN=
+VITE_FIREBASE_PROJECT_ID=
+VITE_FIREBASE_STORAGE_BUCKET=
+VITE_FIREBASE_MESSAGING_SENDER_ID=
+VITE_FIREBASE_APP_ID=
+```
+
+### Token For API Gateway
+
+Use `authFetch` to send `Authorization: Bearer <firebase-id-token>` in API requests.
+
+API gateway must verify this token with Firebase Admin SDK.
 
 ## Current Data Source
 

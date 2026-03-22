@@ -16,6 +16,17 @@ services:
       - planio_network
     restart: on-failure
 
+  notification_service:
+    build: ./backend/notification_service
+    container_name: planio_notification
+    ports:
+      - "8002:8002"
+    environment:
+      - PORT=8002
+    networks:
+      - planio_network
+    restart: on-failure
+
   postgres:
     image: postgres:15
     container_name: planio_postgres
@@ -24,7 +35,7 @@ services:
       POSTGRES_PASSWORD: planio_pass
       POSTGRES_DB: activity_db
     volumes:
-      - ./database/DBpostgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./database/DBpostgre/init.sql:/docker-entrypoint-initdb.d/init.sql
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"

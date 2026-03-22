@@ -1,6 +1,20 @@
-version: '3.8'
-
 services:
+
+  activity_service:
+    build: ./backend/activity_service
+    container_name: planio_activity
+    ports:
+      - "8001:8001"
+    environment:
+      - PORT=8001
+      - DATABASE_URL=postgresql://planio_user:planio_pass@postgres:5432/activity_db
+      - FIREBASE_PROJECT_ID=planio-social-todo
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - planio_network
+    restart: on-failure
 
   postgres:
     image: postgres:15
@@ -10,7 +24,7 @@ services:
       POSTGRES_PASSWORD: planio_pass
       POSTGRES_DB: activity_db
     volumes:
-      - ./database/DBpostgre/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./database/DBpostgres/init.sql:/docker-entrypoint-initdb.d/init.sql
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"

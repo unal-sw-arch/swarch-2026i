@@ -1,4 +1,5 @@
 const pool = require('../db/connection');
+const { notifyRoom } = require('../services/notifier');
 
 // Obtener todos los hábitos de una sala con el estado de cada miembro para hoy
 const getHabitsByRoom = async (req, res, next) => {
@@ -118,6 +119,13 @@ const createHabit = async (req, res, next) => {
 
     await client.query('COMMIT');
 
+    notifyRoom(roomId, {
+      type: 'HABIT_CREATED',
+      habitId: habit.id,
+      habitName: habit.name,
+      createdBy: userId,
+    });
+
     res.status(201).json(habit);
   } catch (err) {
     await client.query('ROLLBACK');
@@ -228,6 +236,13 @@ const completeHabit = async (req, res, next) => {
 
     await client.query('COMMIT');
 
+    notifyRoom(roomId, {
+      type: 'HABIT_COMPLETED',
+      habitId: habitId,
+      habitName: habit.name,
+      completedBy: userId,
+    });
+
     res.status(200).json({ message: 'Habit completed successfully' });
   } catch (err) {
     await client.query('ROLLBACK');
@@ -284,6 +299,13 @@ const deleteHabit = async (req, res, next) => {
     );
 
     await client.query('COMMIT');
+
+    notifyRoom(roomId, {
+      type: 'HABIT_DELETED',
+      habitId: habitId,
+      habitName: habitCheck.rows[0].name,
+      deletedBy: userId,
+    });
 
     res.status(200).json({ message: 'Habit deleted successfully' });
   } catch (err) {

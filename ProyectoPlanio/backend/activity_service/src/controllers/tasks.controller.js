@@ -1,4 +1,5 @@
 const pool = require('../db/connection');
+const { notifyRoom, notifyUser } = require('../services/notifier');
 
 // Obtener todas las tareas de una sala
 const getTasksByRoom = async (req, res, next) => {
@@ -100,6 +101,22 @@ const createTask = async (req, res, next) => {
 
     await client.query('COMMIT');
 
+    notifyRoom(roomId, {
+      type: 'TASK_CREATED',
+      taskId: task.id,
+      taskTitle: task.title,
+      createdBy: userId,
+    });
+
+    if (assigned_to) {
+      notifyUser(roomId, assigned_to, {
+        type: 'TASK_ASSIGNED',
+        taskId: task.id,
+        taskTitle: task.title,
+        assignedBy: userId,
+      });
+    }
+
     res.status(201).json(task);
   } catch (err) {
     await client.query('ROLLBACK');
@@ -176,6 +193,24 @@ const updateTask = async (req, res, next) => {
     }
 
     await client.query('COMMIT');
+
+    // notificar a la sala que se actualizó una tarea
+    notifyRoom(roomId, {
+      type: 'TASK_UPDATED',
+      taskId: taskId,
+      taskTitle: updatedTask.title,
+      updatedBy: userId,
+    });
+
+    // si cambió el asignado, notificar al nuevo usuario 
+    if (assigned_to && assigned_to !== oldTask.assigned_to) {
+      notifyUser(roomId, assigned_to, {
+        type: 'TASK_ASSIGNED',
+        taskId: taskId,
+        taskTitle: updatedTask.title,
+        assignedBy: userId,
+      });
+    }
 
     res.status(200).json(updatedTask);
   } catch (err) {
@@ -305,6 +340,14 @@ const updateTaskStatus = async (req, res, next) => {
 
     await client.query('COMMIT');
 
+    notifyRoom(roomId, {
+      type: 'TASK_STATUS_CHANGED',
+      taskId: taskId,
+      taskTitle: updatedTask.title,
+      status: status,
+      changedBy: userId,
+    });
+
     res.status(200).json(updatedTask);
   } catch (err) {
     await client.query('ROLLBACK');
@@ -361,6 +404,13 @@ const deleteTask = async (req, res, next) => {
     );
 
     await client.query('COMMIT');
+
+    notifyRoom(roomId, {
+      type: 'TASK_DELETED',
+      taskId: taskId,
+      taskTitle: taskCheck.rows[0].title,
+      deletedBy: userId,
+    });
 
     res.status(200).json({ message: 'Task deleted successfully' });
   } catch (err) {

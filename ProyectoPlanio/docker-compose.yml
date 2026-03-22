@@ -9,9 +9,21 @@ services:
       - PORT=8001
       - DATABASE_URL=postgresql://planio_user:planio_pass@postgres:5432/activity_db
       - FIREBASE_PROJECT_ID=planio-social-todo
+      - NOTIFICATION_SERVICE_URL=http://planio_notification:8002
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      - planio_network
+    restart: on-failure
+
+  notification_service:
+    build: ./backend/notification_service
+    container_name: planio_notification
+    ports:
+      - "8002:8002"
+    environment:
+      - PORT=8002
     networks:
       - planio_network
     restart: on-failure
@@ -24,7 +36,8 @@ services:
       POSTGRES_PASSWORD: planio_pass
       POSTGRES_DB: activity_db
     volumes:
-      - ./database/DBpostgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./database/DBpostgre/init.sql:/docker-entrypoint-initdb.d/01_init.sql
+      - ./database/DBpostgre/seed.sql:/docker-entrypoint-initdb.d/02_seed.sql  
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"

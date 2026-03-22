@@ -1,0 +1,16 @@
+# variables de entorno
+.env
+.env.local
+.env.production
+
+# docker volúmenes locales
+postgres_data
+mongo_data
+
+# sistema operativo
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode
+.idea

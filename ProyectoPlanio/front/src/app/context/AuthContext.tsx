@@ -13,9 +13,11 @@ import {
 import { onAuthStateChanged, type User } from 'firebase/auth';
 import { firebaseAuth } from '../auth/firebase';
 import { logout } from '../auth/authService';
+import { usersApi } from '../services/api';
 
 interface AuthContextValue {
   user: User | null;
+  dbUserId: number | null;
   loading: boolean;
   signOut: () => Promise<void>;
 }
@@ -24,14 +26,25 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [dbUserId, setDbUserId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(firebaseAuth, (nextUser) => {
+    const unsubscribe = onAuthStateChanged(firebaseAuth, async (nextUser) => {
       setUser(nextUser);
+      if (nextUser) {
+        try {
+          await nextUser.getIdToken(true);
+          const dbUser = await usersApi.login();
+          setDbUserId(dbUser.id);
+        } catch (e) {
+          console.error('Error syncing user with backend:', e);
+        }
+      } else {
+        setDbUserId(null);
+      }
       setLoading(false);
     });
-
     return unsubscribe;
   }, []);
 
@@ -40,12 +53,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({
-      user,
-      loading,
-      signOut,
-    }),
-    [user, loading, signOut],
+    () => ({ user, dbUserId, loading, signOut }),
+    [user, dbUserId, loading, signOut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

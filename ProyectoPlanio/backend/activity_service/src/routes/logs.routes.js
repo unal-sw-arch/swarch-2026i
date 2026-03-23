@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router({ mergeParams: true });
 const { getActivityLogs } = require('../controllers/logs.controller');
-const authMiddleware = require('../middleware/auth.middleware.dev');
+const authMiddleware = require('../middleware/auth.middleware');
 
 router.use(authMiddleware);
 

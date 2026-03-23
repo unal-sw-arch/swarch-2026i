@@ -6,7 +6,7 @@ const {
   getUserRooms,
   getRoomById,
 } = require('../controllers/rooms.controller');
-const authMiddleware = require('../middleware/auth.middleware.dev');
+const authMiddleware = require('../middleware/auth.middleware');
 
 // todos los endpoints de salas requieren autenticación
 router.use(authMiddleware);

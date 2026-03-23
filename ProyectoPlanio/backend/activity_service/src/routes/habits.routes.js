@@ -6,7 +6,7 @@ const {
   completeHabit,
   deleteHabit,
 } = require('../controllers/habits.controller');
-const authMiddleware = require('../middleware/auth.middleware.dev');
+const authMiddleware = require('../middleware/auth.middleware');
 
 // todos los endpoints requieren autenticación
 router.use(authMiddleware);

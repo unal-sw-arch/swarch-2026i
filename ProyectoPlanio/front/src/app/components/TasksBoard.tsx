@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { Button } from './ui/button';
 import { Avatar, AvatarFallback } from './ui/avatar';
@@ -9,6 +9,8 @@ import confetti from 'canvas-confetti';
 import { tasksApi } from '../services/api';
 import type { Task as ApiTask, RoomMember } from '../types';
 import { toast } from 'sonner';
+import { useRoomSocket } from '../hooks/useRoomSocket';
+import { useAuth } from '../context/AuthContext';
 
 // Colores para avatares
 const memberColors = [
@@ -199,6 +201,25 @@ export default function TasksBoard({ roomId, members, onCurrencyReward }: TasksB
 
     loadTasks();
   }, [roomId, members]);
+
+  const { dbUserId } = useAuth();
+
+  const handleSocketMessage = useCallback((msg: any) => {
+    if (msg.type === 'TASK_ASSIGNED') {
+      // mostrar notificación solo al usuario asignado
+      toast.info('Te asignaron una tarea', {
+        description: msg.taskTitle || 'Revisá el tablero',
+      });
+    }
+
+    if (['TASK_CREATED', 'TASK_UPDATED', 'TASK_DELETED', 'TASK_STATUS_CHANGED', 'TASK_ASSIGNED'].includes(msg.type)) {
+      tasksApi.getByRoom(roomId).then((apiTasks) => {
+        setTasks(apiTasks.map((t) => apiTaskToDisplay(t, members)));
+      }).catch(console.error);
+    }
+  }, [roomId, members]);
+
+  useRoomSocket(roomId, dbUserId, handleSocketMessage);
 
   const triggerConfetti = () => {
     confetti({

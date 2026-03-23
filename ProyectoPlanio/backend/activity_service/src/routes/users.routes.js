@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { loginOrRegister, getUserById } = require('../controllers/users.controller');
-const authMiddleware = require('../middleware/auth.middleware.dev');
+const authMiddleware = require('../middleware/auth.middleware');
 
 // POST /users/login — login o registro con Firebase
 // no requiere auth porque es el primer endpoint que se llama

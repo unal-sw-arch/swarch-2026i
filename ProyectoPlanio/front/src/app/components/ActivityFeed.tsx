@@ -13,6 +13,8 @@ import {
 import { logsApi } from '../services/api';
 import type { ActivityLog } from '../types';
 import { toast } from 'sonner';
+import { useRoomSocket } from '../hooks/useRoomSocket';
+import { useAuth } from '../context/AuthContext';
 
 // Colores para avatares
 const memberColors = [
@@ -134,6 +136,15 @@ export default function ActivityFeed({ roomId }: ActivityFeedProps) {
 
     loadLogs();
   }, [roomId]);
+
+  const { dbUserId } = useAuth();
+
+  useRoomSocket(roomId, dbUserId, (_msg) => {
+    // recargar logs ante cualquier evento
+    logsApi.getByRoom(roomId, 20, 0).then((data) => {
+      setLogs(data.logs);
+    }).catch(console.error);
+  });
 
   const hasMore = logs.length < total;
 

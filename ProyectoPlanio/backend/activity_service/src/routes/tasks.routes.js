@@ -7,7 +7,7 @@ const {
   updateTaskStatus,
   deleteTask,
 } = require('../controllers/tasks.controller');
-const authMiddleware = require('../middleware/auth.middleware.dev');
+const authMiddleware = require('../middleware/auth.middleware');
 
 // todos los endpoints requieren autenticación
 router.use(authMiddleware);

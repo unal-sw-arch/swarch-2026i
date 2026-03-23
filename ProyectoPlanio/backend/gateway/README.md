@@ -118,5 +118,3 @@ docker-compose up --build
 ```
 
 El gateway queda en `http://localhost:8000`.
-
-Hola

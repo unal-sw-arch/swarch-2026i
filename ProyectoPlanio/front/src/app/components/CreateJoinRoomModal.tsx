@@ -3,39 +3,84 @@ import { useNavigate } from 'react-router';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
-import { X, Copy, Check } from 'lucide-react';
+import { X, Copy, Check, Loader2 } from 'lucide-react';
+import { roomsApi } from '../services/api';
+import type { Room } from '../types';
+import { toast } from 'sonner';
 
 interface CreateJoinRoomModalProps {
   mode: 'create' | 'join';
   onClose: () => void;
+  onRoomCreated?: (room: Room) => void;
+  onRoomJoined?: (room: Room) => void;
 }
 
-export default function CreateJoinRoomModal({ mode, onClose }: CreateJoinRoomModalProps) {
+export default function CreateJoinRoomModal({
+  mode,
+  onClose,
+  onRoomCreated,
+  onRoomJoined,
+}: CreateJoinRoomModalProps) {
   const navigate = useNavigate();
   const [roomName, setRoomName] = useState('');
   const [inviteCode, setInviteCode] = useState('');
-  const [generatedCode, setGeneratedCode] = useState('');
+  const [createdRoom, setCreatedRoom] = useState<Room | null>(null);
   const [copied, setCopied] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleCreateRoom = () => {
-    if (roomName) {
-      // Generate random invite code
-      const code = Math.random().toString(36).substring(2, 8).toUpperCase();
-      setGeneratedCode(code);
+  const handleCreateRoom = async () => {
+    if (!roomName.trim()) return;
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const newRoom = await roomsApi.create({ name: roomName.trim() });
+      setCreatedRoom(newRoom);
+      onRoomCreated?.(newRoom);
+      toast.success('Room created successfully!');
+    } catch (err) {
+      console.error('Error creating room:', err);
+      setError(err instanceof Error ? err.message : 'Error creating room');
+      toast.error('Error creating room');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleJoinRoom = () => {
-    if (inviteCode) {
-      // Mock join - navigate to room 1
-      navigate('/room/1');
+  const handleJoinRoom = async () => {
+    if (inviteCode.length !== 6) return;
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const room = await roomsApi.join({ invite_code: inviteCode });
+      onRoomJoined?.(room);
+      toast.success('Joined room successfully!');
+      navigate(`/room/${room.id}`);
+    } catch (err) {
+      console.error('Error joining room:', err);
+      setError(err instanceof Error ? err.message : 'Error joining room');
+      toast.error(err instanceof Error ? err.message : 'Error joining room');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleCopyCode = () => {
-    navigator.clipboard.writeText(generatedCode);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    if (createdRoom) {
+      navigator.clipboard.writeText(createdRoom.invite_code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleGoToRoom = () => {
+    if (createdRoom) {
+      navigate(`/room/${createdRoom.id}`);
+    }
   };
 
   return (
@@ -56,7 +101,7 @@ export default function CreateJoinRoomModal({ mode, onClose }: CreateJoinRoomMod
 
         {/* Content */}
         <div className="p-6">
-          {mode === 'create' && !generatedCode && (
+          {mode === 'create' && !createdRoom && (
             <div className="space-y-4">
               <div>
                 <Label htmlFor="roomName">Room Name</Label>
@@ -68,40 +113,42 @@ export default function CreateJoinRoomModal({ mode, onClose }: CreateJoinRoomMod
                   onChange={(e) => setRoomName(e.target.value)}
                   className="mt-1"
                   autoFocus
+                  disabled={loading}
                 />
               </div>
+              {error && <p className="text-sm text-red-600">{error}</p>}
               <Button
                 onClick={handleCreateRoom}
                 className="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
-                disabled={!roomName}
+                disabled={!roomName.trim() || loading}
               >
-                Create Room
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  'Create Room'
+                )}
               </Button>
             </div>
           )}
 
-          {mode === 'create' && generatedCode && (
+          {mode === 'create' && createdRoom && (
             <div className="space-y-4">
               <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                 <p className="text-sm text-green-800 font-medium mb-2">
-                  Room created successfully! 🎉
+                  Room created successfully!
                 </p>
-                <p className="text-sm text-green-700">
-                  Share this invite code with others:
-                </p>
+                <p className="text-sm text-green-700">Share this invite code with others:</p>
               </div>
 
               <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                 <div className="flex items-center justify-between">
                   <code className="text-2xl font-mono font-bold text-gray-900">
-                    {generatedCode}
+                    {createdRoom.invite_code}
                   </code>
-                  <Button
-                    onClick={handleCopyCode}
-                    variant="outline"
-                    size="sm"
-                    className="gap-2"
-                  >
+                  <Button onClick={handleCopyCode} variant="outline" size="sm" className="gap-2">
                     {copied ? (
                       <>
                         <Check className="w-4 h-4" />
@@ -118,7 +165,7 @@ export default function CreateJoinRoomModal({ mode, onClose }: CreateJoinRoomMod
               </div>
 
               <Button
-                onClick={() => navigate(`/room/${Math.floor(Math.random() * 100)}`)}
+                onClick={handleGoToRoom}
                 className="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
               >
                 Go to Room
@@ -139,14 +186,23 @@ export default function CreateJoinRoomModal({ mode, onClose }: CreateJoinRoomMod
                   className="mt-1 font-mono"
                   maxLength={6}
                   autoFocus
+                  disabled={loading}
                 />
               </div>
+              {error && <p className="text-sm text-red-600">{error}</p>}
               <Button
                 onClick={handleJoinRoom}
                 className="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
-                disabled={inviteCode.length !== 6}
+                disabled={inviteCode.length !== 6 || loading}
               >
-                Join Room
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Joining...
+                  </>
+                ) : (
+                  'Join Room'
+                )}
               </Button>
             </div>
           )}

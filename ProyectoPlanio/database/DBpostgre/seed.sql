@@ -1,4 +1,5 @@
 -- SOLO PARA DESARROLLO — datos de prueba
+
 -- 3 usuarios
 INSERT INTO users (id, email, name, google_id) 
 VALUES 
@@ -25,3 +26,7 @@ ON CONFLICT DO NOTHING;
 INSERT INTO room_coins (room_id, balance)
 VALUES (1, 0)
 ON CONFLICT DO NOTHING;
+
+-- actualizar las secuencias para que los nuevos registros no choquen con los del seed
+SELECT setval('users_id_seq', (SELECT MAX(id) FROM users));
+SELECT setval('rooms_id_seq', (SELECT MAX(id) FROM rooms));

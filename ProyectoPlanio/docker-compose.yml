@@ -1,4 +1,22 @@
 services:
+  gateway:
+    build: ./backend/gateway
+    container_name: planio_gateway
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - FIREBASE_PROJECT_ID=planio-social-todo
+      - ACTIVITY_SERVICE_URL=http://activity_service:8001
+      - NOTIFICATION_SERVICE_URL=http://notification_service:8002
+      - PERSONALIZATION_SERVICE_URL=http://personalization_service:8003
+    depends_on:
+      - activity_service
+    networks:
+      - planio_network
+    restart: on-failure
+
+    
   activity_service:
     build: ./backend/activity_service
     container_name: planio_activity

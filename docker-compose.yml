@@ -1,0 +1,27 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: tracking-mongo
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: tracking_db
+    volumes:
+      - mongo_data:/data/db
+
+  tracking-service:
+    build: .
+    container_name: tracking-service
+    ports:
+      - "8000:8000"
+    environment:
+      DEBUG: "False"
+      ALLOWED_HOSTS: "*"
+      MONGO_URI: "mongodb://mongo:27017/"
+      MONGO_DB_NAME: "tracking_db"
+      MONGO_COLLECTION_NAME: "activity_events"
+    depends_on:
+      - mongo
+
+volumes:
+  mongo_data:

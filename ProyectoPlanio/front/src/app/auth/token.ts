@@ -3,7 +3,16 @@
 import { firebaseAuth } from './firebase';
 
 export async function getIdToken(forceRefresh = false): Promise<string | null> {
-  const user = firebaseAuth.currentUser;
+  // Wait for Firebase auth state to be ready if currentUser is not immediately available
+  const user =
+    firebaseAuth.currentUser ??
+    (await new Promise<typeof firebaseAuth.currentUser>((resolve) => {
+      const unsubscribe = firebaseAuth.onAuthStateChanged((u) => {
+        unsubscribe();
+        resolve(u);
+      });
+    }));
+
   if (!user) {
     return null;
   }

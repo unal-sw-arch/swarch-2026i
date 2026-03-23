@@ -1,18 +1,46 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { Button } from './ui/button';
 import { Avatar, AvatarFallback } from './ui/avatar';
-import { Plus, GripVertical } from 'lucide-react';
+import { Plus, GripVertical, Loader2 } from 'lucide-react';
 import TaskDetailsModal from './TaskDetailsModal';
 import AddTaskModal from './AddTaskModal';
 import confetti from 'canvas-confetti';
+import { tasksApi } from '../services/api';
+import type { Task as ApiTask, RoomMember } from '../types';
+import { toast } from 'sonner';
 
-interface Task {
-  id: string;
+// Colores para avatares
+const memberColors = [
+  'bg-purple-500',
+  'bg-blue-500',
+  'bg-green-500',
+  'bg-pink-500',
+  'bg-orange-500',
+  'bg-teal-500',
+];
+
+function getInitials(name: string): string {
+  return name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+}
+
+function getMemberColor(memberId: number, members: RoomMember[]): string {
+  const index = members.findIndex((m) => m.id === memberId);
+  return memberColors[index >= 0 ? index % memberColors.length : 0];
+}
+
+// Tipo interno para el componente
+interface TaskDisplay {
+  id: number;
   title: string;
   description?: string;
   assignedTo?: {
-    id: string;
+    id: number;
     name: string;
     avatar: string;
     color: string;
@@ -20,47 +48,33 @@ interface Task {
   status: 'TODO' | 'DONE';
 }
 
-const members = [
-  { id: '1', name: 'Laura', avatar: 'L', color: 'bg-purple-500' },
-  { id: '2', name: 'Juan', avatar: 'J', color: 'bg-blue-500' },
-  { id: '3', name: 'Jerónimo', avatar: 'JE', color: 'bg-green-500' },
-];
+// Convertir tarea de API a formato de display
+function apiTaskToDisplay(task: ApiTask, members: RoomMember[]): TaskDisplay {
+  let assignedTo: TaskDisplay['assignedTo'];
+  if (task.assigned_to && task.assigned_to_name) {
+    assignedTo = {
+      id: task.assigned_to,
+      name: task.assigned_to_name,
+      avatar: getInitials(task.assigned_to_name),
+      color: getMemberColor(task.assigned_to, members),
+    };
+  }
 
-const initialTasks: Task[] = [
-  {
-    id: '1',
-    title: 'Wash dishes',
-    description: 'Clean all dishes from dinner',
-    assignedTo: { id: '2', name: 'Juan', avatar: 'J', color: 'bg-blue-500' },
-    status: 'TODO',
-  },
-  {
-    id: '2',
-    title: 'Buy groceries',
-    description: 'Milk, eggs, bread',
-    assignedTo: { id: '1', name: 'Laura', avatar: 'L', color: 'bg-purple-500' },
-    status: 'TODO',
-  },
-  {
-    id: '3',
-    title: 'Sweep floor',
-    assignedTo: { id: '3', name: 'Jerónimo', avatar: 'JE', color: 'bg-green-500' },
-    status: 'DONE',
-  },
-  {
-    id: '4',
-    title: 'Take out trash',
-    assignedTo: { id: '2', name: 'Juan', avatar: 'J', color: 'bg-blue-500' },
-    status: 'DONE',
-  },
-];
+  return {
+    id: task.id,
+    title: task.title,
+    description: task.description || undefined,
+    assignedTo,
+    status: task.status,
+  };
+}
 
 const ITEM_TYPE = 'TASK';
 
 interface TaskCardProps {
-  task: Task;
-  onMove: (taskId: string, newStatus: 'TODO' | 'DONE') => void;
-  onClick: (task: Task) => void;
+  task: TaskDisplay;
+  onMove: (taskId: number, newStatus: 'TODO' | 'DONE') => void;
+  onClick: (task: TaskDisplay) => void;
 }
 
 function TaskCard({ task, onMove, onClick }: TaskCardProps) {
@@ -106,16 +120,16 @@ function TaskCard({ task, onMove, onClick }: TaskCardProps) {
 interface ColumnProps {
   title: string;
   status: 'TODO' | 'DONE';
-  tasks: Task[];
-  onMove: (taskId: string, newStatus: 'TODO' | 'DONE') => void;
+  tasks: TaskDisplay[];
+  onMove: (taskId: number, newStatus: 'TODO' | 'DONE') => void;
   onAddTask: () => void;
-  onTaskClick: (task: Task) => void;
+  onTaskClick: (task: TaskDisplay) => void;
 }
 
 function Column({ title, status, tasks, onMove, onAddTask, onTaskClick }: ColumnProps) {
   const [{ isOver }, drop] = useDrop(() => ({
     accept: ITEM_TYPE,
-    drop: (item: { id: string; status: 'TODO' | 'DONE' }) => {
+    drop: (item: { id: number; status: 'TODO' | 'DONE' }) => {
       if (item.status !== status) {
         onMove(item.id, status);
       }
@@ -158,13 +172,33 @@ function Column({ title, status, tasks, onMove, onAddTask, onTaskClick }: Column
 }
 
 interface TasksBoardProps {
+  roomId: number;
+  members: RoomMember[];
   onCurrencyReward: (amount: number, message: string) => void;
 }
 
-export default function TasksBoard({ onCurrencyReward }: TasksBoardProps) {
-  const [tasks, setTasks] = useState(initialTasks);
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+export default function TasksBoard({ roomId, members, onCurrencyReward }: TasksBoardProps) {
+  const [tasks, setTasks] = useState<TaskDisplay[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedTask, setSelectedTask] = useState<TaskDisplay | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
+
+  // Cargar tareas
+  useEffect(() => {
+    async function loadTasks() {
+      try {
+        const apiTasks = await tasksApi.getByRoom(roomId);
+        setTasks(apiTasks.map((t) => apiTaskToDisplay(t, members)));
+      } catch (error) {
+        console.error('Error loading tasks:', error);
+        toast.error('Error loading tasks');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadTasks();
+  }, [roomId, members]);
 
   const triggerConfetti = () => {
     confetti({
@@ -175,54 +209,110 @@ export default function TasksBoard({ onCurrencyReward }: TasksBoardProps) {
     });
   };
 
-  const handleMove = (taskId: string, newStatus: 'TODO' | 'DONE') => {
+  const handleMove = async (taskId: number, newStatus: 'TODO' | 'DONE') => {
     const task = tasks.find((t) => t.id === taskId);
-    const wasNotDone = task?.status !== 'DONE';
-    
+    if (!task || task.status === newStatus) return;
+
+    const wasNotDone = task.status !== 'DONE';
+
+    // Actualización optimista
     setTasks((prevTasks) =>
-      prevTasks.map((task) =>
-        task.id === taskId ? { ...task, status: newStatus } : task
-      )
+      prevTasks.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t))
     );
 
-    // If moved to DONE from TODO, trigger celebration
-    if (newStatus === 'DONE' && wasNotDone) {
-      triggerConfetti();
-      onCurrencyReward(15, 'Task completed!');
+    try {
+      await tasksApi.updateStatus(roomId, taskId, { status: newStatus });
+
+      // Si se completó la tarea, celebrar
+      if (newStatus === 'DONE' && wasNotDone) {
+        triggerConfetti();
+        onCurrencyReward(15, 'Task completed!');
+      }
+    } catch (error) {
+      console.error('Error updating task status:', error);
+      toast.error('Error updating task');
+      // Revertir cambio
+      setTasks((prevTasks) =>
+        prevTasks.map((t) => (t.id === taskId ? { ...t, status: task.status } : t))
+      );
     }
   };
 
-  const handleTaskClick = (task: Task) => {
+  const handleTaskClick = (task: TaskDisplay) => {
     setSelectedTask(task);
   };
 
-  const handleSaveTask = (updatedTask: Task) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((task) => (task.id === updatedTask.id ? updatedTask : task))
-    );
+  const handleSaveTask = async (updatedTask: TaskDisplay) => {
+    try {
+      await tasksApi.update(roomId, updatedTask.id, {
+        title: updatedTask.title,
+        description: updatedTask.description,
+        assigned_to: updatedTask.assignedTo?.id,
+      });
+
+      setTasks((prevTasks) =>
+        prevTasks.map((task) => (task.id === updatedTask.id ? updatedTask : task))
+      );
+      setSelectedTask(null);
+      toast.success('Task updated');
+    } catch (error) {
+      console.error('Error updating task:', error);
+      toast.error('Error updating task');
+    }
   };
 
-  const handleDeleteTask = (taskId: string) => {
-    setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+  const handleDeleteTask = async (taskId: number) => {
+    try {
+      await tasksApi.delete(roomId, taskId);
+      setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+      setSelectedTask(null);
+      toast.success('Task deleted');
+    } catch (error) {
+      console.error('Error deleting task:', error);
+      toast.error('Error deleting task');
+    }
   };
 
-  const handleAddTask = (newTaskData: {
+  const handleAddTask = async (newTaskData: {
     title: string;
     description?: string;
-    assignedTo?: { id: string; name: string; avatar: string; color: string };
+    assignedTo?: { id: number; name: string; avatar: string; color: string };
   }) => {
-    const newTask: Task = {
-      id: Date.now().toString(),
-      title: newTaskData.title,
-      description: newTaskData.description,
-      assignedTo: newTaskData.assignedTo,
-      status: 'TODO',
-    };
-    setTasks([...tasks, newTask]);
+    try {
+      const createdTask = await tasksApi.create(roomId, {
+        title: newTaskData.title,
+        description: newTaskData.description,
+        assigned_to: newTaskData.assignedTo?.id,
+      });
+
+      const displayTask = apiTaskToDisplay(createdTask, members);
+      setTasks([displayTask, ...tasks]);
+      setShowAddModal(false);
+      toast.success('Task created');
+    } catch (error) {
+      console.error('Error creating task:', error);
+      toast.error('Error creating task');
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
+      </div>
+    );
+  }
 
   const todoTasks = tasks.filter((t) => t.status === 'TODO');
   const doneTasks = tasks.filter((t) => t.status === 'DONE');
+
+  // Convertir members a formato esperado por los modales
+  const membersForModal = members.map((m, idx) => ({
+    id: String(m.id),
+    name: m.name,
+    avatar: getInitials(m.name),
+    color: memberColors[idx % memberColors.length],
+  }));
 
   return (
     <div className="space-y-4">
@@ -249,20 +339,41 @@ export default function TasksBoard({ onCurrencyReward }: TasksBoardProps) {
       {/* Task Details Modal */}
       {selectedTask && (
         <TaskDetailsModal
-          task={selectedTask}
-          members={members}
+          task={{
+            ...selectedTask,
+            id: String(selectedTask.id),
+            assignedTo: selectedTask.assignedTo
+              ? { ...selectedTask.assignedTo, id: String(selectedTask.assignedTo.id) }
+              : undefined,
+          }}
+          members={membersForModal}
           onClose={() => setSelectedTask(null)}
-          onSave={handleSaveTask}
-          onDelete={handleDeleteTask}
+          onSave={(task) =>
+            handleSaveTask({
+              ...task,
+              id: Number(task.id),
+              assignedTo: task.assignedTo
+                ? { ...task.assignedTo, id: Number(task.assignedTo.id) }
+                : undefined,
+            })
+          }
+          onDelete={(id) => handleDeleteTask(Number(id))}
         />
       )}
 
       {/* Add Task Modal */}
       {showAddModal && (
         <AddTaskModal
-          members={members}
+          members={membersForModal}
           onClose={() => setShowAddModal(false)}
-          onAdd={handleAddTask}
+          onAdd={(data) =>
+            handleAddTask({
+              ...data,
+              assignedTo: data.assignedTo
+                ? { ...data.assignedTo, id: Number(data.assignedTo.id) }
+                : undefined,
+            })
+          }
         />
       )}
     </div>

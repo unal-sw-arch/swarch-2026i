@@ -1,5 +1,4 @@
 services:
-
   activity_service:
     build: ./backend/activity_service
     container_name: planio_activity
@@ -13,6 +12,22 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      - planio_network
+    restart: on-failure
+
+  personalization_service:
+    build: ./backend/personalization_service
+    container_name: planio_personalization
+    ports:
+      - "8003:8003"
+    environment:
+      - PORT=8003
+      - MONGO_URL=mongodb://planio_user:planio_pass@mongo:27017/personalization_db?authSource=admin
+      - ACTIVITY_SERVICE_URL=http://planio_activity:8001
+    depends_on:
+      - mongo
+      - activity_service
     networks:
       - planio_network
     restart: on-failure
@@ -37,7 +52,7 @@ services:
       POSTGRES_DB: activity_db
     volumes:
       - ./database/DBpostgre/init.sql:/docker-entrypoint-initdb.d/01_init.sql
-      - ./database/DBpostgre/seed.sql:/docker-entrypoint-initdb.d/02_seed.sql  
+      - ./database/DBpostgre/seed.sql:/docker-entrypoint-initdb.d/02_seed.sql
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"

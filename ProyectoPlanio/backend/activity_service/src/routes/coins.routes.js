@@ -8,7 +8,7 @@ const {
   spendUserCoins, 
   spendRoomCoins, 
 } = require('../controllers/coins.controller');
-const authMiddleware = require('../middleware/auth.middleware.dev');
+const authMiddleware = require('../middleware/auth.middleware');
 
 router.use(authMiddleware);
 

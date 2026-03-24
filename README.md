@@ -1,5 +1,5 @@
 ```
-● Team :
+● Team : Team B 
 ```
 ```
 ● Full names:

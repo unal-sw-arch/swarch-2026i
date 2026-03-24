@@ -1,73 +1,86 @@
-# React + TypeScript + Vite
+```
+● Team :
+```
+```
+● Full names:
+○ Manuel Alejandro Navas Bohorquez
+○ German Camilo Bernal Ladino
+○ Edwin Felipe Pinilla Peralta
+○ Juan David Rivera Buitrago
+○ Obed Felipe Espinosa Angarita
+```
+```
+● Software System:
+○ Name: DELIUNAL
+○ logo: <img width="2117" height="1849" alt="LOGO FORMATO ESCALA 500x500px" src="https://github.com/user-attachments/assets/c6e77041-fc53-41b5-a0ae-87a3ca69d4d5" />
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+○ Description: This project focuses on creating a delivery platform where there
+is two main users first restaurants can publish their menus, and items with its
+respective prices, descriptions and other information, and second one is the
+customer which can select their preferred item or items offered in the app,
+place the order requesting this items and do the corresponding followup
+```
+```
+● Architectural Structures:
+○ Component-and Connector (C&C) Structure:
+■ C&C View: ![4097ff58-1e23-493c-a4fb-0826dbd1d105](https://github.com/user-attachments/assets/8d82db71-b9ad-4df9-b28e-22b3763c074c)
 
-Currently, two official plugins are available:
+```
+```
+■ Description of architectural styles used:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+The diagram shows a layered architecture combined with a microservices-oriented style.
+The system is organized into three clear layers: a presentation layer, a logic layer, and a
+data layer. This separation improves maintainability by assigning a specific responsibility to
 
-## React Compiler
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+each layer. at the same time, the logic layer is split into two independent services: order
+Service and Tracking Service. This reflects a microservices or service-based architecture,
+where each service is responsible for a specific business capability. the diagram also
+suggests a Domain-Driven Design (DDD) influence, since each service is associated with a
+bounded context: Order Management and Activity Tracking.the data design follows a
+polyglot persistence approach. the Order Service uses PostgreSQL, a relational database
+suited for transactional business data, while the Tracking Service uses MongoDB, a
+document database better suited for logs, trace events, and operational history.In addition,
+the system is deployed in a local Docker Compose environment, which indicates a
+containerized architectural approach for development and integration.
+```
+# ■ Description of architectural elements and relations.
 
-## Expanding the ESLint configuration
+The main architectural elements are:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+```
+● Web App (React):
+This is the presentation component used by users to create orders, view orders, and
+check tracking history.
+● Order Service (Spring Boot):
+This service belongs to the Order Management bounded context. It is responsible
+for creating orders, updating order status, querying orders, and applying business
+rules.
+● Tracking Service (Python + Django):
+This service belongs to the Activity Tracking bounded context. It stores activity
+events, exposes trace history, and records operational actions.
+● PostgreSQL:
+This is the relational data store for core business entities such as orders ,
+order_items , customers , and statuses.
+● MongoDB:
+This is the document data store for activity_logs , trace_events , and
+```
+## operational_history.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+The relations in the diagram are expressed through connectors:
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+● The Web App communicates with both backend services through REST
+HTTP/JSON connectors. These are synchronous interactions, as indicated by the
+solid lines.
+● The Order Service communicates with the Tracking Service through an internal
+HTTP POST connector. This relation is shown as an internal service integration,
+represented by the dashed line.
+● The Order Service connects to PostgreSQL through JPA/JDBC , which defines how
+it persists and retrieves relational data.
+● The Tracking Service connects to MongoDB through a Mongo Client / ODM , which
+supports document-oriented storage and retrieval.
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```

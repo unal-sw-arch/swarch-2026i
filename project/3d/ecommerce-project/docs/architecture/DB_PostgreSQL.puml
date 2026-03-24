@@ -1,0 +1,184 @@
+@startuml DB_PostgreSQL
+!theme plain
+skinparam linetype ortho
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+skinparam backgroundColor #FAFAFA
+skinparam entity {
+    BackgroundColor #FFFFFF
+    BorderColor #4A7BBF
+    FontColor #1a1a1a
+    HeaderBackgroundColor #4A7BBF
+    HeaderFontColor #FFFFFF
+    HeaderFontStyle bold
+}
+skinparam arrow {
+    Color #4A7BBF
+    FontColor #333333
+    FontSize 10
+}
+skinparam note {
+    BackgroundColor #FFF9C4
+    BorderColor #F0C040
+    FontColor #333333
+    FontSize 10
+}
+
+title <b>Base de Datos PostgreSQL 15 + pgvector</b>\nE-commerce — Grupo D
+
+' ── USERS DOMAIN ────────────────────────────────────────
+entity "users" as users {
+    * id : UUID <<PK>>
+    --
+    * email : VARCHAR(255) <<UNIQUE>>
+    * password_hash : VARCHAR(255)
+    * full_name : VARCHAR(100)
+    phone : VARCHAR(20)
+    role : VARCHAR(20) DEFAULT 'customer'
+    avatar_url : TEXT
+    is_active : BOOLEAN DEFAULT TRUE
+    * created_at : TIMESTAMPTZ
+    updated_at : TIMESTAMPTZ
+}
+
+entity "addresses" as addresses {
+    * id : UUID <<PK>>
+    --
+    * user_id : UUID <<FK>>
+    * street : VARCHAR(255)
+    * city : VARCHAR(100)
+    * department : VARCHAR(100)
+    postal_code : VARCHAR(10)
+    is_default : BOOLEAN DEFAULT FALSE
+    * created_at : TIMESTAMPTZ
+}
+
+' ── CATALOG DOMAIN ──────────────────────────────────────
+entity "categories" as categories {
+    * id : UUID <<PK>>
+    --
+    * name : VARCHAR(100) <<UNIQUE>>
+    * slug : VARCHAR(100) <<UNIQUE>>
+    description : TEXT
+    image_url : TEXT
+    parent_id : UUID <<FK self>>
+    is_active : BOOLEAN DEFAULT TRUE
+}
+
+entity "products" as products {
+    * id : UUID <<PK>>
+    --
+    * category_id : UUID <<FK>>
+    * name : VARCHAR(255)
+    * slug : VARCHAR(255) <<UNIQUE>>
+    description : TEXT
+    * price : NUMERIC(12,2)
+    * stock : INTEGER DEFAULT 0
+    images : TEXT[]
+    tags : TEXT[]
+    is_active : BOOLEAN DEFAULT TRUE
+    * created_at : TIMESTAMPTZ
+    updated_at : TIMESTAMPTZ
+}
+
+entity "product_embeddings" as embeddings {
+    * id : UUID <<PK>>
+    --
+    * product_id : UUID <<FK, UNIQUE>>
+    * embedding : VECTOR(768)
+    model_version : VARCHAR(50)
+    * created_at : TIMESTAMPTZ
+}
+
+note right of embeddings
+  pgvector — búsqueda semántica
+  Google text-embedding-004
+end note
+
+' ── ORDERS DOMAIN ───────────────────────────────────────
+entity "orders" as orders {
+    * id : UUID <<PK>>
+    --
+    * user_id : UUID <<FK>>
+    * status : VARCHAR(20)
+    * total_amount : NUMERIC(12,2)
+    currency : CHAR(3) DEFAULT 'COP'
+    shipping_address_id : UUID <<FK>>
+    wompi_transaction_id : VARCHAR(100)
+    * created_at : TIMESTAMPTZ
+    updated_at : TIMESTAMPTZ
+}
+
+note right of orders
+  status: pending | paid
+  shipped | delivered | cancelled
+end note
+
+entity "order_items" as order_items {
+    * id : UUID <<PK>>
+    --
+    * order_id : UUID <<FK>>
+    * product_id : UUID <<FK>>
+    * quantity : INTEGER
+    * unit_price : NUMERIC(12,2)
+    * subtotal : NUMERIC(12,2)
+}
+
+' ── PAYMENTS DOMAIN ─────────────────────────────────────
+entity "payments" as payments {
+    * id : UUID <<PK>>
+    --
+    * order_id : UUID <<FK, UNIQUE>>
+    * wompi_id : VARCHAR(100) <<UNIQUE>>
+    * method : VARCHAR(10)
+    * status : VARCHAR(20)
+    * amount : NUMERIC(12,2)
+    currency : CHAR(3) DEFAULT 'COP'
+    wompi_payload : JSONB
+    * created_at : TIMESTAMPTZ
+    updated_at : TIMESTAMPTZ
+}
+
+note right of payments
+  method: PSE | NEQUI | CARD
+  status: pending | approved
+         declined | voided
+end note
+
+' ── REVIEWS DOMAIN ──────────────────────────────────────
+entity "reviews" as reviews {
+    * id : UUID <<PK>>
+    --
+    * user_id : UUID <<FK>>
+    * product_id : UUID <<FK>>
+    * order_id : UUID <<FK>>
+    * rating : SMALLINT
+    * body : TEXT
+    moderation_status : VARCHAR(20) DEFAULT 'pending'
+    moderation_note : TEXT
+    * created_at : TIMESTAMPTZ
+}
+
+note right of reviews
+  moderation_status:
+  pending | approved | rejected
+  (moderado por ai-service / Gemini)
+end note
+
+' ── RELATIONS ───────────────────────────────────────────
+users        ||--o{ addresses    : "tiene"
+users        ||--o{ orders       : "realiza"
+users        ||--o{ reviews      : "publica"
+
+categories   ||--o{ products     : "contiene"
+categories   |o--o{ categories   : "subcategoría"
+
+products     ||--o{ order_items  : "incluido en"
+products     ||--o| embeddings   : "embedding"
+products     ||--o{ reviews      : "recibe"
+
+orders       ||--o{ order_items  : "compone"
+orders       ||--o| payments     : "pago"
+orders       |o--o| addresses    : "dirección envío"
+
+@enduml

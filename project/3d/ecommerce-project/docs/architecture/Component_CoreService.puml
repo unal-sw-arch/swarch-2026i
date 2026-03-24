@@ -1,0 +1,78 @@
+@startuml C4_L3_Component_CoreService
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_TOP_DOWN()
+
+title Component Diagram — core-service (Clean Architecture)
+
+' ── External callers ─────────────────────────────────────────────────
+Container_Ext(frontend, "Next.js Frontend", "Next.js 14", "Web application")
+Container_Ext(ai_service, "ai-service", "FastAPI", "AI microservice")
+
+' ── core-service boundary ────────────────────────────────────────────
+Container_Boundary(core, "core-service") {
+
+    Boundary(b_presentation, "Presentation Layer", "FastAPI") {
+        Component(api, "REST API Controllers", "FastAPI Router", "POST /auth/register  POST /auth/login\nGET /products  POST /orders/checkout\nPOST /payments/webhook  GET /reviews/{id}")
+    }
+
+    Boundary(b_application, "Application Layer", "Python") {
+        Component(auth_svc,    "AuthService",    "Use Case", "register()  login()  refresh_token()  validate_jwt()")
+        Component(product_svc, "ProductService", "Use Case", "create()  update()  list_by_category()  get_detail()")
+        Component(order_svc,   "OrderService",   "Use Case", "create_order()  process_checkout()  update_status()")
+        Component(payment_svc, "PaymentService", "Use Case", "initiate()  handle_webhook()  verify_hmac()")
+        Component(review_svc,  "ReviewService",  "Use Case", "submit()  approve()  reject()  list_by_product()")
+    }
+
+    Boundary(b_domain, "Domain Layer — Pure Python (zero external imports)", "Entities / Interfaces") {
+        Component(entities,   "Entities",               "Python Classes", "User · Product · Order · OrderItem · Review · Payment · Cart")
+        Component(value_objs, "Value Objects",           "Python Classes", "Money(COP) · Email · OrderStatus · RiskScore · Sentiment")
+        Component(interfaces, "Repository Interfaces",   "Python ABCs",   "IUserRepo · IProductRepo · IOrderRepo · IPaymentGateway")
+    }
+
+    Boundary(b_infra, "Infrastructure Layer", "Adapters") {
+        Component(user_repo,     "UserRepository",    "SQLAlchemy async", "Implements IUserRepo")
+        Component(product_repo,  "ProductRepository", "SQLAlchemy async", "Implements IProductRepo")
+        Component(order_repo,    "OrderRepository",   "SQLAlchemy async", "Implements IOrderRepo — ACID transactions")
+        Component(wompi_adapter, "WompiAdapter",      "httpx async",      "Implements IPaymentGateway — validates HMAC-SHA256")
+        Component(redis_cache,   "RedisCache",        "redis-py async",   "JWT sessions · cart state · rate limits")
+    }
+}
+
+' ── External systems ─────────────────────────────────────────────────
+ContainerDb_Ext(db,        "PostgreSQL",     "Supabase PostgreSQL 15", "Relational database")
+ContainerDb_Ext(cache_ext, "Redis",          "Redis Cloud",            "NoSQL key-value cache")
+System_Ext(wompi_ext,      "Wompi Colombia", "Payment gateway",        "")
+
+' ── Relations ────────────────────────────────────────────────────────
+Rel_D(frontend,    api,         "Calls REST endpoints",     "JSON/HTTPS")
+Rel_D(api,         auth_svc,    "Auth logic",               "invokes")
+Rel_D(api,         product_svc, "Product logic",            "invokes")
+Rel_D(api,         order_svc,   "Order logic",              "invokes")
+Rel_D(api,         payment_svc, "Payment logic",            "invokes")
+Rel_D(api,         review_svc,  "Review logic",             "invokes")
+
+Rel_R(order_svc,   ai_service,  "Fraud detection",          "Internal REST (httpx)")
+Rel_R(review_svc,  ai_service,  "LLM moderation",           "Internal REST (httpx)")
+
+Rel_D(auth_svc,    entities,    "Uses User",                "")
+Rel_D(product_svc, entities,    "Uses Product",             "")
+Rel_D(order_svc,   entities,    "Uses Order / OrderItem",   "")
+Rel_D(auth_svc,    interfaces,  "IUserRepo",                "depends on")
+Rel_D(product_svc, interfaces,  "IProductRepo",             "depends on")
+Rel_D(order_svc,   interfaces,  "IOrderRepo",               "depends on")
+Rel_D(payment_svc, interfaces,  "IPaymentGateway",          "depends on")
+
+Rel_U(user_repo,     interfaces, "implements IUserRepo",      "")
+Rel_U(product_repo,  interfaces, "implements IProductRepo",   "")
+Rel_U(order_repo,    interfaces, "implements IOrderRepo",     "")
+Rel_U(wompi_adapter, interfaces, "implements IPaymentGateway","")
+
+Rel_D(user_repo,     db,        "SQL queries",              "TLS")
+Rel_D(product_repo,  db,        "SQL queries",              "TLS")
+Rel_D(order_repo,    db,        "SQL transactions",         "TLS")
+Rel_D(wompi_adapter, wompi_ext, "Payments + webhooks",      "HTTPS / REST")
+Rel_D(redis_cache,   cache_ext, "Read/write cache",         "Redis (TLS)")
+
+SHOW_LEGEND()
+@enduml

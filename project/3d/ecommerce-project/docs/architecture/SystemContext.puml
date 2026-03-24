@@ -1,0 +1,31 @@
+@startuml C4_L1_SystemContext
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+LAYOUT_TOP_DOWN()
+SHOW_PERSON_OUTLINE()
+
+title System Context Diagram — E-commerce Platform (Grupo D)
+
+' ── Actors (top) ─────────────────────────────────────────────────────
+Person(customer, "Customer", "Browses the product catalog, manages the shopping cart, completes purchases and receives AI-powered recommendations.")
+Person(admin, "Admin", "Manages the product catalog, monitors orders and moderates user reviews.")
+
+' ── Core System (center) ─────────────────────────────────────────────
+System(platform, "E-commerce Platform", "Intelligent B2C e-commerce platform for the Colombian market. Multi-category catalog, cart, checkout and AI-powered personalized recommendations via Gemini.")
+
+' ── External Systems (bottom) ────────────────────────────────────────
+System_Ext(gemini, "Google Gemini Flash API", "LLM for conversational assistant, recommendations, semantic search embeddings and review moderation.")
+System_Ext(wompi, "Wompi Colombia", "Colombian payment gateway — PSE, Nequi and credit/debit cards.")
+SystemDb_Ext(supabase, "Supabase", "PostgreSQL 15 + pgvector for semantic search. Object storage for product images.")
+System_Ext(redis, "Redis Cloud", "NoSQL key-value cache — JWT sessions, shopping carts and search TTL.")
+
+' ── Relations ────────────────────────────────────────────────────────
+Rel_D(customer, platform, "Browses, buys, uses AI chatbot", "HTTPS")
+Rel_D(admin, platform, "Manages catalog and orders", "HTTPS")
+Rel_D(platform, gemini, "Chat, recommendations, embeddings, moderation", "HTTPS / Gemini SDK")
+Rel_D(platform, wompi, "Processes payments, receives webhooks", "HTTPS / REST")
+Rel_D(platform, supabase, "Stores and queries data and images", "PostgreSQL (TLS)")
+Rel_D(platform, redis, "Caches sessions, carts and queries", "Redis (TLS)")
+
+SHOW_LEGEND()
+@enduml

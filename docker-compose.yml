@@ -18,7 +18,7 @@ services:
 
   # El servicio real de pedidos (Java)
   order-service:
-    build: ./project
+    build: ./order-service
     ports:
       - "8080:8080"
     environment:

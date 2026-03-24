@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: MenuService
+  jmx:
+    enabled: false
+
+  data:
+    mongodb:
+      uri: mongodb://mike:secret@localhost:27018/menu_db
+      database: menu_db
+
+server:
+  port: 8084
+
+logging:
+  level:
+    root: INFO
+    org.springframework.data.mongodb: DEBUG
+
+restaurant:
+    service:
+        url: http://localhost:8082

@@ -1,0 +1,30 @@
+{
+  "name": "gateway-service",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsup src/index.ts --format esm --dts",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "vitest": {
+    "environment": "node"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13",
+    "amqplib": "^0.10",
+    "dotenv": "^16",
+    "hono": "^4.6",
+    "ioredis": "^5"
+  },
+  "devDependencies": {
+    "@types/amqplib": "^0.10",
+    "@types/node": "^22",
+    "tsup": "^8",
+    "tsx": "^4",
+    "typescript": "^5",
+    "vitest": "^4.1.1"
+  }
+}

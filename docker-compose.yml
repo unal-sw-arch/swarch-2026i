@@ -1,0 +1,78 @@
+
+services:
+  # Tu parte: El Frontend
+  frontend:
+    build:
+      context: .
+      args:
+        # Se asume que el backend order-service será mockeado localmente o levantado por fuera mientras
+        - VITE_ORDER_SERVICE_URL=http://localhost:8080
+        # El tracking service se expone en localhost:8000 para que el NAVEGADOR del cliente pueda accederlo
+        - VITE_TRACKING_SERVICE_URL=http://localhost:8000
+    ports:
+      - "5173:80"
+    depends_on:
+      - tracking-service
+    networks:
+      - deliunal-network
+
+  # # La parte de tus compañeros: Order Service comentado hasta estar disponible # #
+  # order-service:
+  #   build: ./project
+  #   ports:
+  #     - "8080:8080"
+  #   environment:
+  #     - DB_URL=jdbc:postgresql://postgres-db:5432/orders_db
+  #     - DB_USER=postgres
+  #     - DB_PASSWORD=postgres
+  #     - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/orders_db
+  #     - SPRING_DATASOURCE_USERNAME=postgres
+  #     - SPRING_DATASOURCE_PASSWORD=postgres
+  #   depends_on:
+  #     - postgres-db
+  #   networks:
+  #     - deliunal-network
+
+  tracking-service:
+    build:
+      context: ./tracking-service
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - mongo-db
+    networks:
+      - deliunal-network
+
+  # Bases de datos
+  postgres-db:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=orders_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    networks:
+      - deliunal-network
+
+  mongo-db:
+    image: mongo:7
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo-data:/data/db
+      - ./project/1b/mongo-db/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - deliunal-network
+
+networks:
+  deliunal-network:
+    driver: bridge
+
+volumes:
+  pg-data:
+  mongo-data:

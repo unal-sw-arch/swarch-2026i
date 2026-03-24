@@ -1,0 +1,65 @@
+@startuml C4_L3_Component_AIService
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_TOP_DOWN()
+
+title Component Diagram — ai-service (Clean Architecture)
+
+' ── External callers ─────────────────────────────────────────────────
+Container_Ext(frontend,      "Next.js Frontend", "Next.js 14", "Web application")
+Container_Ext(core_service,  "core-service",     "FastAPI",    "Core business microservice")
+
+' ── ai-service boundary ──────────────────────────────────────────────
+Container_Boundary(ai, "ai-service") {
+
+    Boundary(b_presentation, "Presentation Layer", "FastAPI") {
+        Component(api, "REST API Controllers", "FastAPI Router", "GET /search?q=\nGET /recommendations/{user_id}\nPOST /chat\nPOST /moderation/review")
+    }
+
+    Boundary(b_application, "Application Layer", "Python") {
+        Component(search_svc,     "SemanticSearchService",  "Use Case", "Hybrid search: pgvector cosine similarity\n+ PostgreSQL full-text + RRF re-ranking.")
+        Component(recom_svc,      "RecommendationService",  "Use Case", "Content-based (similar products)\n+ Collaborative (purchase history).")
+        Component(chat_svc,       "ChatService",            "Use Case", "Gemini conversation with context.\nMaintains session history.")
+        Component(moderation_svc, "ModerationService",      "Use Case", "Sends review text to Gemini.\nSentiment analysis + policy check.")
+    }
+
+    Boundary(b_domain, "Domain Layer — Pure Python", "Entities / Interfaces") {
+        Component(entities,   "Entities",          "Python Classes", "ChatSession · Message · Recommendation · SearchResult")
+        Component(interfaces, "Service Interfaces","Python ABCs",    "IAIService (embed, chat, moderate)\nIVectorRepository (similarity search)")
+    }
+
+    Boundary(b_infra, "Infrastructure Layer", "Adapters") {
+        Component(gemini_adapter, "GeminiAdapter",    "google-generativeai", "Implements IAIService.\nchat_completion()  get_embedding()  moderate_content()")
+        Component(vector_repo,    "VectorRepository", "SQLAlchemy + pgvector","Implements IVectorRepository.\nCosine similarity search.")
+        Component(redis_cache,    "RedisCache",       "redis-py async",       "Caches Gemini responses (TTL 24h)\nand rate limiting counters.")
+    }
+}
+
+' ── External systems ─────────────────────────────────────────────────
+ContainerDb_Ext(db,        "PostgreSQL + pgvector", "Supabase PostgreSQL 15", "Relational DB + vector store")
+ContainerDb_Ext(cache_ext, "Redis",                 "Redis Cloud",            "NoSQL key-value cache")
+System_Ext(gemini_ext,     "Google Gemini Flash API","LLM + text-embedding-004","")
+
+' ── Relations ────────────────────────────────────────────────────────
+Rel_D(frontend,     api, "Calls AI endpoints",              "JSON/HTTPS")
+Rel_D(core_service, api, "Recommendations + moderation",    "Internal REST (httpx)")
+
+Rel_D(api, search_svc,     "Semantic search",   "invokes")
+Rel_D(api, recom_svc,      "Recommendations",   "invokes")
+Rel_D(api, chat_svc,       "Chat",              "invokes")
+Rel_D(api, moderation_svc, "Moderation",        "invokes")
+
+Rel_D(search_svc,     interfaces, "IVectorRepository", "depends on")
+Rel_D(recom_svc,      interfaces, "IVectorRepository", "depends on")
+Rel_D(chat_svc,       interfaces, "IAIService",        "depends on")
+Rel_D(moderation_svc, interfaces, "IAIService",        "depends on")
+
+Rel_U(gemini_adapter, interfaces, "implements IAIService",        "")
+Rel_U(vector_repo,    interfaces, "implements IVectorRepository", "")
+
+Rel_D(gemini_adapter, gemini_ext, "Chat, embeddings, moderation", "HTTPS / Gemini SDK")
+Rel_D(vector_repo,    db,         "Reads/writes vectors",         "SQL + pgvector (TLS)")
+Rel_D(redis_cache,    cache_ext,  "Read/write cache",             "Redis (TLS)")
+
+SHOW_LEGEND()
+@enduml

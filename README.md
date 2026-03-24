@@ -12,7 +12,10 @@
 ```
 ● Software System:
 ○ Name: DELIUNAL
-○ logo: <img width="2117" height="1849" alt="LOGO FORMATO ESCALA 500x500px" src="https://github.com/user-attachments/assets/c6e77041-fc53-41b5-a0ae-87a3ca69d4d5" />
+○ logo:
+```
+![Descripción de la imagen](./images/LOGO%20FORMATO%20ESCALA%20500x500px.png)
+```
 
 ○ Description: This project focuses on creating a delivery platform where there
 is two main users first restaurants can publish their menus, and items with its
@@ -23,9 +26,8 @@ place the order requesting this items and do the corresponding followup
 ```
 ● Architectural Structures:
 ○ Component-and Connector (C&C) Structure:
-■ C&C View: ![4097ff58-1e23-493c-a4fb-0826dbd1d105](https://github.com/user-attachments/assets/8d82db71-b9ad-4df9-b28e-22b3763c074c)
-
 ```
+■ C&C View: ![C&C VIEW](./images/4097ff58-1e23-493c-a4fb-0826dbd1d105.jpg)
 ```
 ■ Description of architectural styles used:
 

@@ -16,22 +16,24 @@ services:
     networks:
       - deliunal-network
 
-  # # La parte de tus compañeros: Order Service comentado hasta estar disponible # #
-  # order-service:
-  #   build: ./project
-  #   ports:
-  #     - "8080:8080"
-  #   environment:
-  #     - DB_URL=jdbc:postgresql://postgres-db:5432/orders_db
-  #     - DB_USER=postgres
-  #     - DB_PASSWORD=postgres
-  #     - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/orders_db
-  #     - SPRING_DATASOURCE_USERNAME=postgres
-  #     - SPRING_DATASOURCE_PASSWORD=postgres
-  #   depends_on:
-  #     - postgres-db
-  #   networks:
-  #     - deliunal-network
+  # El servicio real de pedidos (Java)
+  order-service:
+    build: ./project
+    ports:
+      - "8080:8080"
+    environment:
+      - SERVER_PORT=8080
+      - DB_URL=jdbc:postgresql://ep-falling-darkness-add1enig-pooler.c-2.us-east-1.aws.neon.tech/order-service-db?sslmode=require&channelBinding=require
+      - DB_USERNAME=neondb_owner
+      - DB_PASSWORD=npg_PwcpikZ64rWn
+      - JPA_DDL_AUTO=none
+      - JPA_SHOW_SQL=false
+      - SQL_INIT_MODE=always
+      # IMPORTANTE: Reemplazar el url local por el del contenedor tracking-service
+      - TRACKING_SERVICE_URL=http://tracking-service:8000
+      - LOG_LEVEL=INFO
+    networks:
+      - deliunal-network
 
   tracking-service:
     build:
@@ -42,20 +44,6 @@ services:
       - .env
     depends_on:
       - mongo-db
-    networks:
-      - deliunal-network
-
-  # Bases de datos
-  postgres-db:
-    image: postgres:15
-    environment:
-      - POSTGRES_DB=orders_db
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-    ports:
-      - "5432:5432"
-    volumes:
-      - pg-data:/var/lib/postgresql/data
     networks:
       - deliunal-network
 
@@ -74,5 +62,4 @@ networks:
     driver: bridge
 
 volumes:
-  pg-data:
   mongo-data:

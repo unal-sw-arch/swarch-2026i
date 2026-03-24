@@ -85,4 +85,12 @@ it persists and retrieves relational data.
 supports document-oriented storage and retrieval.
 ```
 
+## Prototype
+
+```
+● To run the prototype load the .env file upload separatedly on the google classroom and then place yourself in the directory with the docker-compose.yml and run the command docker compose up -d
+```
+
+
+
 

@@ -1,0 +1,20 @@
+# Compilados
+target/
+
+# Perfiles con credenciales locales
+src/main/resources/application-local.properties
+
+# Variables de entorno (credenciales)
+.env
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

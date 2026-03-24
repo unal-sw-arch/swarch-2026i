@@ -23,17 +23,16 @@
   <img src="./images/LogoPlanio.png" width="200">
 </p>
 
-
 ### Description
-Planio es una aplicación web social diseñada para familias, amistades y grupos pequeños que desean organizar su vida diaria en un solo lugar.
+Planio is a social web application designed for families, friends, and small groups who want to organize their daily activities in one place.
 
-Permite crear salas compartidas donde los miembros pueden:
-- Gestionar tareas tipo Kanban (TODO / DONE)
-- Registrar hábitos diarios grupales
-- Visualizar actividad en tiempo real  
-- Obtener recompensas mediante monedas  
+It allows users to create shared rooms where members can:
+- Manage tasks using a Kanban-style board (TODO / DONE)
+- Track daily group habits
+- View activity in real time  
+- Earn rewards through a coin system  
 
-Las monedas permiten personalizar avatares y decorar salas virtuales, fomentando la participación y colaboración.
+Coins can be used to customize avatars and decorate shared virtual rooms, encouraging collaboration and engagement.
 
 ---
 
@@ -47,69 +46,69 @@ Las monedas permiten personalizar avatares y decorar salas virtuales, fomentando
 
 ### 🔹 Architectural Styles
 
-El sistema sigue una **arquitectura de microservicios**, en la cual la aplicación se divide en servicios pequeños, independientes y especializados.
+The system follows a **microservices architecture**, where the application is divided into small, independent, and specialized services.
 
-Características principales:
-- Despliegue independiente por servicio  
-- Comunicación mediante HTTP REST y WebSocket  
-- Persistencia desacoplada por servicio  
+Key characteristics:
+- Independent deployment per service  
+- Communication via HTTP REST and WebSocket  
+- Decoupled data persistence per service  
 
-También se basa en principios de **SOA (Service-Oriented Architecture)**, permitiendo reutilización y desacoplamiento de funcionalidades.
+It also incorporates principles from **Service-Oriented Architecture (SOA)**, enabling service reuse and loose coupling.
 
 ---
 
 ### 🔹 Architectural Elements and Relations
 
-#### 🧩 Componentes
+#### 🧩 Components
 
 - **Web UI**  
-  Interfaz de usuario que corre en el navegador.  
-  Se comunica con el backend mediante HTTP y WebSocket.
+  Client-side application running in the browser.  
+  Communicates with the backend using HTTP and WebSocket.
 
 - **API Gateway**  
-  Punto de entrada único al sistema.  
-  Maneja autenticación (Google OAuth), generación de JWT y enrutamiento.
+  Single entry point to the backend.  
+  Handles authentication (Google OAuth), JWT generation, and request routing.
 
 - **Activity Service**  
-  Núcleo del sistema. Gestiona:
-  - Salas  
-  - Tareas  
-  - Hábitos  
-  - Monedas  
-  - Historial de actividad  
+  Core of the system. Manages:
+  - Rooms  
+  - Tasks  
+  - Habits  
+  - Coins  
+  - Activity logs  
 
 - **Personalization Service**  
-  Maneja:
-  - Avatares  
+  Manages:
+  - Avatars  
   - Items  
-  - Salas virtuales  
+  - Virtual rooms  
 
 - **Notification Service**  
-  Maneja notificaciones en tiempo real usando WebSocket.
+  Handles real-time updates using WebSocket.
 
 - **Databases**
-  - **PostgreSQL (Activity DB):** datos transaccionales  
-  - **MongoDB (Personalization DB):** datos flexibles  
+  - **PostgreSQL (Activity DB):** transactional data  
+  - **MongoDB (Personalization DB):** flexible data  
 
 ---
 
-#### 🔗 Conectores
+#### 🔗 Connectors
 
 - **HTTP REST**
-  - Comunicación síncrona entre servicios  
+  - Used for synchronous communication between services  
 
 - **WebSocket**
-  - Comunicación en tiempo real (notificaciones)  
+  - Used for real-time communication (notifications)  
 
 ---
 
-#### ⚙️ Decisiones arquitectónicas clave
+#### ⚙️ Key Architectural Decisions
 
-- API Gateway como punto único de entrada  
-- Separación de bases de datos por servicio  
-- Uso de transacciones ACID en el núcleo  
-- WebSocket solo para notificaciones  
-- Bajo acoplamiento entre servicios  
+- API Gateway as a single entry point  
+- Database separation per service  
+- Use of ACID transactions in the core service  
+- WebSocket used only for notifications  
+- Minimal and controlled coupling between services  
 
 ---
 
@@ -117,25 +116,25 @@ También se basa en principios de **SOA (Service-Oriented Architecture)**, permi
 
 ### 🔧 Instructions to run locally
 
-1. Clonar el repositorio:
+1. Clone the repository:
 - git clone https://github.com/unal-sw-arch/swarch-2026i
 
-2. Entrar al repositorio:
+2. Navigate to the repository:
 - cd swarch-2026i
 
-3. Cambiar a la rama del proyecto:
+3. Switch to the project branch:
 - git checkout prototype1_E_group_workbranch
 
-4. Ir a la carpeta del sistema:
+4. Go to the project folder:
 - cd ProyectoPlanio
 
-5. Levantar los servicios con Docker:
+5. Start the services with Docker:
 - docker-compose up -d --build
 
-6. Ejecutar el frontend:
+6. Run the frontend:
 - cd front
 - npm install
 - npm run dev
 
-7. Abrir la aplicación en el navegador:
+7. Open the application in your browser:
 - http://localhost:5173/

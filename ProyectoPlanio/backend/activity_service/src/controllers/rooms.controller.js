@@ -1,4 +1,5 @@
 const pool = require('../db/connection');
+const { notifyRoom } = require('../services/notifier');
 
 // Crear una sala nueva
 // El usuario que la crea se agrega automáticamente como miembro
@@ -120,6 +121,11 @@ const joinRoom = async (req, res, next) => {
     );
 
     await client.query('COMMIT');
+
+    notifyRoom(room.id, {
+      type: 'MEMBER_JOINED',
+      userId: userId,
+    });
 
     res.status(200).json(room);
   } catch (err) {

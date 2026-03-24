@@ -109,7 +109,7 @@ const createTask = async (req, res, next) => {
     });
 
     if (assigned_to) {
-      notifyUser(roomId, assigned_to, {
+      notifyUser(roomId, String(assigned_to), {
         type: 'TASK_ASSIGNED',
         taskId: task.id,
         taskTitle: task.title,
@@ -204,7 +204,7 @@ const updateTask = async (req, res, next) => {
 
     // si cambió el asignado, notificar al nuevo usuario 
     if (assigned_to && assigned_to !== oldTask.assigned_to) {
-      notifyUser(roomId, assigned_to, {
+      notifyUser(roomId, String(assigned_to), {
         type: 'TASK_ASSIGNED',
         taskId: taskId,
         taskTitle: updatedTask.title,

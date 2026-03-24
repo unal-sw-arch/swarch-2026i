@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Button } from './ui/button';
@@ -22,6 +22,8 @@ import LivingRoom from './LivingRoom';
 import { toast } from 'sonner';
 import { roomsApi, coinsApi } from '../services/api';
 import type { Room, RoomMember } from '../types';
+import { useAuth } from '../context/AuthContext';
+import { useRoomSocket } from '../hooks/useRoomSocket';
 
 // Colores para avatares de miembros
 const memberColors = [
@@ -53,27 +55,36 @@ export default function RoomDashboard() {
   const [room, setRoom] = useState<Room | null>(null);
   const [currency, setCurrency] = useState(0);
   const [loading, setLoading] = useState(true);
+  const { dbUserId } = useAuth();
 
   // Cargar datos de la sala
-  useEffect(() => {
-    async function loadRoom() {
-      if (!roomId) return;
-
-      try {
-        const roomData = await roomsApi.getById(Number(roomId));
-        setRoom(roomData);
-        setCurrency(roomData.coins || 0);
-      } catch (error) {
-        console.error('Error loading room:', error);
-        toast.error('Error loading room');
-        navigate('/rooms');
-      } finally {
-        setLoading(false);
-      }
+  const loadRoom = useCallback(async () => {
+    if (!roomId) return;
+    try {
+      const roomData = await roomsApi.getById(Number(roomId));
+      setRoom(roomData);
+      setCurrency(roomData.coins || 0);
+    } catch (error) {
+      console.error('Error loading room:', error);
+      toast.error('Error loading room');
+      navigate('/rooms');
+    } finally {
+      setLoading(false);
     }
-
-    loadRoom();
   }, [roomId, navigate]);
+
+  useEffect(() => {
+    loadRoom();
+  }, [loadRoom]);
+
+  useRoomSocket(Number(roomId), dbUserId, useCallback((msg) => {
+    loadRoom();
+    if (msg.type === 'TASK_ASSIGNED') {
+      toast.info('Te asignaron una tarea', {
+        description: msg.taskTitle || 'Revisá el tablero',
+      });
+    }
+  }, [loadRoom]));
 
   // Refrescar balance de coins
   const refreshCoins = async () => {
@@ -238,6 +249,7 @@ export default function RoomDashboard() {
         <Tabs value={activeTab} className="space-y-4">
           <TabsContent value="tasks" className="mt-0">
             <TasksBoard
+              key={`tasks-${members.length}-${room?.coins}`}
               roomId={Number(roomId)}
               members={members}
               onCurrencyReward={handleCurrencyReward}
@@ -245,10 +257,11 @@ export default function RoomDashboard() {
           </TabsContent>
           <TabsContent value="habits" className="mt-0">
             <HabitsPanel
+              key={`habits-${members.length}`}
               roomId={Number(roomId)}
               roomOwnerId={String(room.created_by)}
               onCurrencyReward={handleCurrencyReward}
-            />
+            />            
           </TabsContent>
           <TabsContent value="activity" className="mt-0">
             <ActivityFeed roomId={Number(roomId)} />

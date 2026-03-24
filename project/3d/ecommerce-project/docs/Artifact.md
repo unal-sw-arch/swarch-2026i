@@ -240,6 +240,40 @@ docker compose up --build
 docker compose down
 ```
 
+### Instrucciones de Despliegue Local (cuando `ecommerce-project` está dentro de otro repositorio)
+
+Este escenario aplica cuando el proyecto fue subido como subcarpeta de un repositorio mayor (por ejemplo: `swarch-2026i/project/3d/ecommerce-project`).
+
+**Prerequisitos:**
+- Docker Desktop instalado y en ejecución
+- Git
+
+**Pasos (Windows PowerShell):**
+
+```powershell
+# 1. Clonar el repositorio contenedor
+git clone <URL_DEL_REPO_CONTENEDOR>
+
+# 2. Entrar a la carpeta del proyecto desplegable
+cd swarch-2026i\project\3d\ecommerce-project
+
+# 3. Copiar variables de entorno (si no existe .env)
+Copy-Item .env.example .env
+# Editar .env y completar con:
+#  POSTGRES_USER=ecommerce_user
+#  POSTGRES_PASSWORD=ecommerce_password
+#  POSTGRES_DB=ecommerce_db
+
+# 4. Levantar todos los servicios
+docker compose up --build
+
+# 5. Acceder a la aplicación
+# Frontend:                    http://localhost:3000
+# Documentación core-service:  http://localhost:8000/docs
+```
+
+**Nota importante:** el comando `docker compose up --build` debe ejecutarse siempre desde la carpeta `ecommerce-project`, ya que allí está el archivo `docker-compose.yml`.
+
 ---
 
 *Documento generado en la primer entrega — Grupo D, Arquisoft.*

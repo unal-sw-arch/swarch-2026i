@@ -1,0 +1,84 @@
+@startuml CC_View
+!theme plain
+skinparam backgroundColor #1a1a1a
+skinparam defaultFontColor #ffffff
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+
+skinparam component {
+    BackgroundColor #1a1a1a
+    BorderColor #ffffff
+    FontColor #ffffff
+}
+skinparam database {
+    BackgroundColor #1a1a1a
+    BorderColor #ffffff
+    FontColor #ffffff
+}
+skinparam rectangle {
+    BackgroundColor #1a1a1a
+    BorderColor #ffffff
+    FontColor #ffffff
+}
+skinparam arrow {
+    Color #ffffff
+    FontColor #ffffff
+}
+skinparam note {
+    BackgroundColor #2a2a2a
+    BorderColor #ffffff
+    FontColor #ffffff
+}
+
+title C&C View — E-commerce Platform (Grupo D)
+
+' ── Actors ───────────────────────────────────────────────────────────
+actor "Client Browser" as browser
+
+' ── Frontend ─────────────────────────────────────────────────────────
+rectangle "<<web app>>\nFrontend\n(Next.js 14)" as frontend
+
+' ── API Gateway ──────────────────────────────────────────────────────
+component "API Gateway\n(Next.js BFF)" as gateway
+
+' ── Microservices ────────────────────────────────────────────────────
+component "<<service>>\ncore-service\n(FastAPI)" as core
+component "<<service>>\nai-service\n(FastAPI)" as ai
+
+' ── Databases ────────────────────────────────────────────────────────
+database "Products_DB\n<<RDBMS>>\nPostgreSQL" as products_db
+database "Orders_DB\n<<RDBMS>>\nPostgreSQL" as orders_db
+database "Users_DB\n<<RDBMS>>\nPostgreSQL" as users_db
+database "Session_Cache\n<<NoSQL>>\nRedis" as redis
+database "Vector_DB\n<<RDBMS + pgvector>>\nPostgreSQL" as vector_db
+
+' ── External Systems ─────────────────────────────────────────────────
+rectangle "API key\nprovider\n(Gemini Flash)" as gemini
+rectangle "Payment\nProvider\n(Wompi)" as wompi
+
+' ── HTTP Relations ───────────────────────────────────────────────────
+browser -down-> frontend : HTTP
+frontend -down-> gateway : HTTP
+
+gateway -down-o core   : HTTP
+gateway -down-o ai     : HTTP
+
+' ── core-service → DBs ───────────────────────────────────────────────
+core -down-> products_db : SQL
+core -down-> orders_db   : SQL
+core -down-> users_db    : SQL
+core -down-> redis       : Redis
+
+' ── core-service → ai-service ────────────────────────────────────────
+core -right-o ai : HTTP\n(recommendations,\nmoderation)
+
+' ── ai-service → DBs ─────────────────────────────────────────────────
+ai -down-> vector_db : SQL + pgvector
+ai -down-> redis     : Redis (TTL cache)
+
+' ── External connections ─────────────────────────────────────────────
+gemini -right-> ai    : HTTP\n(LLM API)
+wompi  -left->  core  : HTTP\n(Webhook)
+core   -right-> wompi : HTTP\n(Payments)
+
+@enduml

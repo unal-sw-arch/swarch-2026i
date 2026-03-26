@@ -1,0 +1,1 @@
+This service handles all personalization actions (Avatar, rooms decoration). Business logic.

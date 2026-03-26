@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detalle del Producto</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Lexend', sans-serif;
+    }
+    .font-alfa {
+      font-family: 'Alfa Slab One', cursive;
+    }
+  </style>
+</head>
+
+<body class="bg-pink-50 text-gray-800">
+
+  <header class="bg-yellow-400 text-white text-center py-4 shadow-md">
+    <h1 class="text-2xl font-alfa">Detalles del producto</h1>
+    <p class="text-lg">
+      Recuerda preguntar por la personalización.
+      ¡Muchos productos pueden personalizarse sin costo adicional!
+    </p>
+  </header>
+
+  <a href="index.html"
+     class="fixed top-4 left-4 bg-yellow-400 hover:bg-yellow-500 text-white p-3 rounded-full shadow-lg">
+    ←
+  </a>
+
+  <main class="max-w-4xl mx-auto text-center p-6">
+    <!-- Aquí se inyecta el producto -->
+        <div id="producto"></div>
+        <!-- Sección de reseñas -->
+    <div id="seccionReseñas" class="mt-10 text-left">
+      <h3 class="text-2xl font-alfa text-yellow-500 mb-6">Reseñas del producto</h3>
+      <!-- Lista de reseñas -->
+      <div id="listaReseñas" class="space-y-4 mb-8"></div>
+
+      <!-- Formulario nueva reseña -->
+      <div class="bg-white rounded-xl shadow p-6 space-y-4">
+        <h4 class="text-lg font-semibold text-gray-700">Deja tu reseña ✍️</h4>
+
+        <input id="autorReseña" type="text" placeholder="Tu nombre"
+          class="border border-gray-200 rounded-lg p-3 w-full bg-pink-50
+                focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-100">
+
+        <textarea id="comentarioReseña" placeholder="¿Qué te pareció el producto?" rows="3"
+          class="border border-gray-200 rounded-lg p-3 w-full bg-pink-50
+                focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-100"></textarea>
+
+        <!-- Estrellas -->
+        <div class="flex gap-2 text-3xl" id="selectorEstrellas">
+          <span class="cursor-pointer star" data-valor="1">☆</span>
+          <span class="cursor-pointer star" data-valor="2">☆</span>
+          <span class="cursor-pointer star" data-valor="3">☆</span>
+          <span class="cursor-pointer star" data-valor="4">☆</span>
+          <span class="cursor-pointer star" data-valor="5">☆</span>
+        </div>
+        <input type="hidden" id="estrellasReseña" value="0">
+
+        <button onclick="enviarReseña()"
+          class="w-full bg-yellow-400 hover:bg-yellow-500 text-white font-semibold
+                py-3 px-6 rounded-xl shadow transition">
+          Enviar reseña 🌟
+        </button>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="bg-yellow-400 text-white text-center py-6 mt-10">
+    <h2 class="text-xl font-semibold mb-2">Dónde encontrarnos</h2>
+    <p class="mb-2">Carrera 5 # 3-15, Villapinzón, Colombia</p>
+  </footer>
+
+  <script src="producto.js"></script>
+
+  <div id="modalImagen"
+     class="hidden fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+
+  <img id="imagenAmpliada"
+       src=""
+       alt="Imagen ampliada"
+       class="max-w-[90%] max-h-[90%] rounded-lg shadow-lg">
+
+  </div>
+
+
+</body>
+</html>

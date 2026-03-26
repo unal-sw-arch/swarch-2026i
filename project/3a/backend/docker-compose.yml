@@ -1,0 +1,181 @@
+services:
+  auth-db:
+    image: postgres:16
+    container_name: auth-db
+    restart: always
+    environment:
+      POSTGRES_DB: auth_db
+      POSTGRES_USER: mike
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5433:5432"
+    volumes:
+      - auth_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mike -d auth_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - appnet
+
+  restaurant-db:
+    image: postgres:16
+    container_name: restaurant-db
+    restart: always
+    environment:
+      POSTGRES_DB: restaurant_db
+      POSTGRES_USER: mike
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5434:5432"
+    volumes:
+      - restaurant_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mike -d restaurant_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - appnet
+
+  geo-db:
+    image: postgis/postgis:16-3.4
+    container_name: geo-db
+    restart: always
+    environment:
+      POSTGRES_DB: geo_db
+      POSTGRES_USER: mike
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5435:5432"
+    volumes:
+      - geo_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mike -d geo_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - appnet
+
+  menu-db:
+    image: mongo:7
+    container_name: menu-db
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mike
+      MONGO_INITDB_ROOT_PASSWORD: secret
+      MONGO_INITDB_DATABASE: menu_db
+    ports:
+      - "27018:27017"
+    volumes:
+      - menu_data:/data/db
+    healthcheck:
+      test: ["CMD-SHELL", "echo 'db.runCommand({ ping: 1 }).ok' | mongosh mongodb://mike:secret@localhost:27017/admin --quiet"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    networks:
+      - appnet
+
+  apigateway:
+    build: ./APIGateway
+    container_name: apigateway
+    ports:
+      - "8080:8080"
+    environment:
+      SERVICES_AUTH_URL: http://authservice:8081
+      SERVICES_RESTAURANT_URL: http://restaurantservice:8082
+      SERVICES_MENU_URL: http://menuservice:8084
+    depends_on:
+      authservice:
+        condition: service_healthy
+      restaurantservice:
+        condition: service_healthy
+      menuservice:
+        condition: service_healthy
+    networks:
+      - appnet
+
+  authservice:
+    build: ./AuthService
+    container_name: authservice
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://auth-db:5432/auth_db
+      SPRING_DATASOURCE_USERNAME: mike
+      SPRING_DATASOURCE_PASSWORD: secret
+    depends_on:
+      auth-db:
+        condition: service_healthy
+    networks:
+      - appnet
+
+  restaurantservice:
+    build: ./RestaurantService
+    container_name: restaurantservice
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://restaurant-db:5432/restaurant_db
+      SPRING_DATASOURCE_USERNAME: mike
+      SPRING_DATASOURCE_PASSWORD: secret
+      AUTH_SERVICE_URL: http://authservice:8081
+      GEO_SERVICE_URL: http://geoservice:8083
+    depends_on:
+      restaurant-db:
+        condition: service_healthy
+      authservice:
+        condition: service_healthy
+      geoservice:
+        condition: service_healthy
+    networks:
+      - appnet
+
+  geoservice:
+    build: ./GeoService
+    container_name: geoservice
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://geo-db:5432/geo_db
+      SPRING_DATASOURCE_USERNAME: mike
+      SPRING_DATASOURCE_PASSWORD: secret
+    depends_on:
+      geo-db:
+        condition: service_healthy
+    networks:
+      - appnet
+
+  menuservice:
+    build: ./MenuService
+    container_name: menuservice
+    ports:
+      - "8084:8084"
+    environment:
+      SPRING_MONGODB_URI: mongodb://mike:secret@menu-db:27017/menu_db?authSource=admin
+      SPRING_MONGODB_DATABASE: menu_db
+      RESTAURANT_SERVICE_URL: http://restaurantservice:8082
+    depends_on:
+      menu-db:
+        condition: service_healthy
+      restaurantservice:
+        condition: service_healthy
+    networks:
+      - appnet
+
+volumes:
+  auth_data:
+  restaurant_data:
+  geo_data:
+  menu_data:
+
+networks:
+  appnet:
+    driver: bridge

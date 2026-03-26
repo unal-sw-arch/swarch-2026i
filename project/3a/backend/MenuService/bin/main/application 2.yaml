@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: MenuService
+  jmx:
+    enabled: false
+
+  datasource:
+    url: jdbc:postgresql://localhost:5436/menu_db
+    username: mike
+    password: secret
+    driver-class-name: org.postgresql.Driver
+
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+
+  data:
+    jdbc:
+      dialect: postgresql
+
+server:
+  port: 8084
+
+logging:
+  level:
+    root: INFO
+    org.springframework.jdbc.core: DEBUG
+
+restaurant:
+    service:
+        url: http://localhost:8082

@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: RestaurantService
+  jmx:
+    enabled: false
+
+  datasource:
+    url: jdbc:postgresql://localhost:5434/restaurant_db
+    username: mike
+    password: secret
+    driver-class-name: org.postgresql.Driver
+
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+
+  data:
+    jdbc:
+      dialect: postgresql
+
+server:
+  port: 8082
+
+logging:
+  level:
+    root: INFO
+
+auth:
+    service:
+        url: http://localhost:8081
+
+geo:
+    service:
+        url: http://localhost:8083

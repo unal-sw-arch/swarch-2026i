@@ -1,0 +1,117 @@
+services:
+  gateway:
+    build: ./backend/gateway
+    container_name: planio_gateway
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - FIREBASE_PROJECT_ID=planio-social-todo
+      - ACTIVITY_SERVICE_URL=http://activity_service:8001
+      - NOTIFICATION_SERVICE_URL=http://notification_service:8002
+      - PERSONALIZATION_SERVICE_URL=http://personalization_service:8003
+    depends_on:
+      - activity_service
+    networks:
+      - planio_network
+    restart: on-failure
+
+  frontend:
+    build: ./front
+    container_name: planio_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - gateway
+    networks:
+      - planio_network
+    restart: on-failure
+
+    
+  activity_service:
+    build: ./backend/activity_service
+    container_name: planio_activity
+    ports:
+      - "8001:8001"
+    environment:
+      - PORT=8001
+      - DATABASE_URL=postgresql://planio_user:planio_pass@postgres:5432/activity_db
+      - FIREBASE_PROJECT_ID=planio-social-todo
+      - NOTIFICATION_SERVICE_URL=http://planio_notification:8002
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - planio_network
+    restart: on-failure
+
+  personalization_service:
+    build: ./backend/personalization_service
+    container_name: planio_personalization
+    ports:
+      - "8003:8003"
+    environment:
+      - PORT=8003
+      - MONGO_URL=mongodb://planio_user:planio_pass@mongo:27017/personalization_db?authSource=admin
+      - ACTIVITY_SERVICE_URL=http://planio_activity:8001
+    depends_on:
+      - mongo
+      - activity_service
+    networks:
+      - planio_network
+    restart: on-failure
+
+  notification_service:
+    build: ./backend/notification_service
+    container_name: planio_notification
+    ports:
+      - "8002:8002"
+    environment:
+      - PORT=8002
+    networks:
+      - planio_network
+    restart: on-failure
+
+  postgres:
+    image: postgres:15
+    container_name: planio_postgres
+    environment:
+      POSTGRES_USER: planio_user
+      POSTGRES_PASSWORD: planio_pass
+      POSTGRES_DB: activity_db
+    volumes:
+      - ./database/DBpostgre/init.sql:/docker-entrypoint-initdb.d/01_init.sql
+      - ./database/DBpostgre/seed.sql:/docker-entrypoint-initdb.d/02_seed.sql
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U planio_user -d activity_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - planio_network
+
+  mongo:
+    image: mongo:7
+    container_name: planio_mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: planio_user
+      MONGO_INITDB_ROOT_PASSWORD: planio_pass
+      MONGO_INITDB_DATABASE: personalization_db
+    volumes:
+      - ./database/DBmongo/init/init.js:/docker-entrypoint-initdb.d/init.js
+      - mongo_data:/data/db
+    ports:
+      - "27017:27017"
+    networks:
+      - planio_network
+
+volumes:
+  postgres_data:
+  mongo_data:
+
+networks:
+  planio_network:
+    driver: bridge

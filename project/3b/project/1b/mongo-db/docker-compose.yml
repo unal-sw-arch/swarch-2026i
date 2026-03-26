@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  tracking-db:
+    image: mongo:latest
+    container_name: tracking_db_mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: adminpassword
+      MONGO_INITDB_DATABASE: tracking_context
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      - tracking_data:/data/db
+    restart: unless-stopped
+
+volumes:
+  tracking_data:

@@ -9,6 +9,7 @@ import {
   CheckSquare,
   Heart,
   Clock,
+  MessageCircle,
   Coins,
   Sparkles,
   Home,
@@ -19,9 +20,10 @@ import HabitsPanel from './HabitsPanel';
 import ActivityFeed from './ActivityFeed';
 import AvatarCustomization from './AvatarCustomization';
 import LivingRoom from './LivingRoom';
+import RoomChat from './RoomChat';
 import { toast } from 'sonner';
 import { roomsApi, coinsApi } from '../services/api';
-import type { Room, RoomMember } from '../types';
+import type { ChatMessage, ChatReactionKey, Room, RoomChatEvent, RoomMember } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { useRoomSocket } from '../hooks/useRoomSocket';
 
@@ -54,8 +56,9 @@ export default function RoomDashboard() {
   const [activeTab, setActiveTab] = useState('tasks');
   const [room, setRoom] = useState<Room | null>(null);
   const [currency, setCurrency] = useState(0);
+  const [chatEvent, setChatEvent] = useState<RoomChatEvent | null>(null);
   const [loading, setLoading] = useState(true);
-  const { dbUserId } = useAuth();
+  const { dbUserId, user } = useAuth();
 
   // Cargar datos de la sala
   const loadRoom = useCallback(async () => {
@@ -77,14 +80,36 @@ export default function RoomDashboard() {
     loadRoom();
   }, [loadRoom]);
 
-  useRoomSocket(Number(roomId), dbUserId, useCallback((msg) => {
+  useRoomSocket(Number(roomId), dbUserId, useCallback((msg: any) => {
+    if (
+      msg.type === 'CHAT_MESSAGE_CREATED' ||
+      msg.type === 'CHAT_MESSAGE_REACTION'
+    ) {
+      setChatEvent(msg as RoomChatEvent);
+      return;
+    }
+
     loadRoom();
+
     if (msg.type === 'TASK_ASSIGNED') {
       toast.info('Te asignaron una tarea', {
         description: msg.taskTitle || 'Revisá el tablero',
       });
     }
   }, [loadRoom]));
+
+  const handleSendChatMessage = (_message: ChatMessage) => {
+    // Future websocket wiring: emit CHAT_MESSAGE_CREATED to notifications service.
+  };
+
+  const handleChatReaction = (_payload: {
+    messageId: number;
+    reactionKey: ChatReactionKey;
+    nextCount: number;
+    nextReactorUserIds: number[];
+  }) => {
+    // Future websocket wiring: emit CHAT_MESSAGE_REACTION to notifications service.
+  };
 
   // Refrescar balance de coins
   const refreshCoins = async () => {
@@ -105,7 +130,7 @@ export default function RoomDashboard() {
   };
 
   const handleCurrencyReward = (amount: number, message: string) => {
-    setCurrency((prev) => prev + amount);
+    setCurrency((prev: number) => prev + amount);
     toast.success(`+${amount} coins`, {
       description: message,
     });
@@ -117,7 +142,7 @@ export default function RoomDashboard() {
     if (currency >= amount && roomId) {
       try {
         await coinsApi.spendRoomCoins(Number(roomId), amount, `Purchase: ${item}`);
-        setCurrency((prev) => prev - amount);
+        setCurrency((prev: number) => prev - amount);
         toast.success(`Purchased ${item}`, {
           description: `-${amount} coins`,
         });
@@ -154,7 +179,7 @@ export default function RoomDashboard() {
       {/* Header */}
       <header className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <Button onClick={() => navigate('/rooms')} variant="ghost" size="sm" className="gap-2">
               <ArrowLeft className="w-4 h-4" />
               Back
@@ -233,6 +258,13 @@ export default function RoomDashboard() {
                 Avatar
               </TabsTrigger>
               <TabsTrigger
+                value="chat"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-500 data-[state=active]:bg-transparent gap-2"
+              >
+                <MessageCircle className="w-4 h-4" />
+                Chat
+              </TabsTrigger>
+              <TabsTrigger
                 value="livingroom"
                 className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-500 data-[state=active]:bg-transparent gap-2"
               >
@@ -268,6 +300,17 @@ export default function RoomDashboard() {
           </TabsContent>
           <TabsContent value="avatar" className="mt-0">
             <AvatarCustomization currency={currency} onPurchase={handlePurchase} />
+          </TabsContent>
+          <TabsContent value="chat" className="mt-0">
+            <RoomChat
+              roomName={room.name}
+              members={members}
+              currentUserId={dbUserId}
+              currentUserName={user?.displayName || user?.email?.split('@')[0] || 'You'}
+              incomingEvent={chatEvent}
+              onSendMessage={handleSendChatMessage}
+              onReactToMessage={handleChatReaction}
+            />
           </TabsContent>
           <TabsContent value="livingroom" className="mt-0">
             <LivingRoom currency={currency} onPurchase={handlePurchase} />

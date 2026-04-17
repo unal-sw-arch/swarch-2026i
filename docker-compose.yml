@@ -1,24 +1,22 @@
-
 services:
-  # Tu parte: El Frontend
-  frontend:
+  # P2. Restaurant Dashboard según la Biblia Técnica
+  restaurant-dashboard:
     build:
-      context: .
+      context: ./apps/restaurant-dashboard
       args:
-        # Se asume que el backend order-service será mockeado localmente o levantado por fuera mientras
         - VITE_ORDER_SERVICE_URL=http://localhost:8080
-        # El tracking service se expone en localhost:8000 para que el NAVEGADOR del cliente pueda accederlo
         - VITE_TRACKING_SERVICE_URL=http://localhost:8000
     ports:
       - "5173:80"
     depends_on:
-      - tracking-service
+      - notification-service
     networks:
       - deliunal-network
 
-  # El servicio real de pedidos (Java)
+  # L4. Order Service
   order-service:
-    build: ./order-service
+    build:
+      context: ./services/order-service
     ports:
       - "8080:8080"
     environment:
@@ -29,15 +27,15 @@ services:
       - JPA_DDL_AUTO=none
       - JPA_SHOW_SQL=false
       - SQL_INIT_MODE=always
-      # IMPORTANTE: Reemplazar el url local por el del contenedor tracking-service
-      - TRACKING_SERVICE_URL=http://tracking-service:8000
+      - TRACKING_SERVICE_URL=http://notification-service:8000 
       - LOG_LEVEL=INFO
     networks:
       - deliunal-network
 
-  tracking-service:
+  # L6. Notification Service
+  notification-service:
     build:
-      context: ./tracking-service
+      context: ./services/notification-service
     ports:
       - "8000:8000"
     env_file:
@@ -47,13 +45,14 @@ services:
     networks:
       - deliunal-network
 
+  # D4. Tracking DB
   mongo-db:
     image: mongo:7
     ports:
       - "27018:27017"
     volumes:
       - mongo-data:/data/db
-      - ./project/1b/mongo-db/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      - ./infrastructure/databases/tracking-db/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     networks:
       - deliunal-network
 

@@ -14,7 +14,7 @@
 ○ Name: DELIUNAL
 ○ logo:
 ```
-![Descripción de la imagen](./images/LOGO%20FORMATO%20ESCALA%20500x500px.png)
+![Descripción de la imagen](./docs/LOGO%20FORMATO%20ESCALA%20500x500px.png)
 ```
 
 ○ Description: This project focuses on creating a delivery platform where there
@@ -27,7 +27,7 @@ place the order requesting this items and do the corresponding followup
 ● Architectural Structures:
 ○ Component-and Connector (C&C) Structure:
 ```
-■ C&C View: ![C&C VIEW](./images/4097ff58-1e23-493c-a4fb-0826dbd1d105.jpg)
+■ C&C View: ![C&C VIEW](./docs/4097ff58-1e23-493c-a4fb-0826dbd1d105.jpg)
 ```
 ■ Description of architectural styles used:
 

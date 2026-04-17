@@ -22,3 +22,15 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Java build artifacts
+services/order-service/target/
+**/target/
+
+# Python artifacts
+services/notification-service/__pycache__/
+*.pyc
+
+# Node artifacts
+apps/restaurant-dashboard/node_modules/
+**/node_modules/

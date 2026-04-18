@@ -22,12 +22,11 @@ import AvatarCustomization from './AvatarCustomization';
 import LivingRoom from './LivingRoom';
 import RoomChat from './RoomChat';
 import { toast } from 'sonner';
-import { roomsApi, coinsApi } from '../services/api';
-import type { ChatMessage, ChatReactionKey, Room, RoomChatEvent, RoomMember } from '../types';
+import { roomsApi, coinsApi, chatApi } from '../services/api';
+import type { ChatMessage, ChatReactionKey, Room, RoomChatEvent } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { useRoomSocket } from '../hooks/useRoomSocket';
 
-// Colores para avatares de miembros
 const memberColors = [
   'bg-purple-500',
   'bg-blue-500',
@@ -57,10 +56,10 @@ export default function RoomDashboard() {
   const [room, setRoom] = useState<Room | null>(null);
   const [currency, setCurrency] = useState(0);
   const [chatEvent, setChatEvent] = useState<RoomChatEvent | null>(null);
+  const [initialMessages, setInitialMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const { dbUserId, user } = useAuth();
 
-  // Cargar datos de la sala
   const loadRoom = useCallback(async () => {
     if (!roomId) return;
     try {
@@ -80,6 +79,20 @@ export default function RoomDashboard() {
     loadRoom();
   }, [loadRoom]);
 
+  const loadMessages = useCallback(async () => {
+    if (!roomId) return;
+    try {
+      const msgs = await chatApi.getMessages(Number(roomId));
+      setInitialMessages(msgs);
+    } catch (err) {
+      console.error('Error loading chat messages:', err);
+    }
+  }, [roomId]);
+
+  useEffect(() => {
+    loadMessages();
+  }, [loadMessages]);
+
   useRoomSocket(Number(roomId), dbUserId, useCallback((msg: any) => {
     if (
       msg.type === 'CHAT_MESSAGE_CREATED' ||
@@ -98,20 +111,30 @@ export default function RoomDashboard() {
     }
   }, [loadRoom]));
 
-  const handleSendChatMessage = (_message: ChatMessage) => {
-    // Future websocket wiring: emit CHAT_MESSAGE_CREATED to notifications service.
-  };
+  const handleSendChatMessage = useCallback(async (message: ChatMessage) => {
+    if (!roomId) return;
+    try {
+      await chatApi.sendMessage(Number(roomId), message.text);
+    } catch (err) {
+      console.error('Error sending chat message:', err);
+      toast.error('No se pudo enviar el mensaje');
+    }
+  }, [roomId]);
 
-  const handleChatReaction = (_payload: {
-    messageId: number;
+  const handleChatReaction = useCallback(async (payload: {
+    messageId: number | string;
     reactionKey: ChatReactionKey;
     nextCount: number;
     nextReactorUserIds: number[];
   }) => {
-    // Future websocket wiring: emit CHAT_MESSAGE_REACTION to notifications service.
-  };
+    if (!roomId) return;
+    try {
+      await chatApi.toggleReaction(Number(roomId), String(payload.messageId), payload.reactionKey);
+    } catch (err) {
+      console.error('Error toggling reaction:', err);
+    }
+  }, [roomId]);
 
-  // Refrescar balance de coins
   const refreshCoins = async () => {
     if (!roomId) return;
     try {
@@ -131,10 +154,7 @@ export default function RoomDashboard() {
 
   const handleCurrencyReward = (amount: number, message: string) => {
     setCurrency((prev: number) => prev + amount);
-    toast.success(`+${amount} coins`, {
-      description: message,
-    });
-    // Refrescar coins del servidor en background
+    toast.success(`+${amount} coins`, { description: message });
     refreshCoins();
   };
 
@@ -143,16 +163,13 @@ export default function RoomDashboard() {
       try {
         await coinsApi.spendRoomCoins(Number(roomId), amount, `Purchase: ${item}`);
         setCurrency((prev: number) => prev - amount);
-        toast.success(`Purchased ${item}`, {
-          description: `-${amount} coins`,
-        });
+        toast.success(`Purchased ${item}`, { description: `-${amount} coins` });
       } catch (error) {
         console.error('Error spending coins:', error);
         toast.error('Error processing purchase');
       }
       return;
     }
-
     toast.error('Not enough coins for this purchase');
   };
 
@@ -191,7 +208,6 @@ export default function RoomDashboard() {
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Currency Display */}
             <div className="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl px-4 py-2 flex items-center gap-2 shadow-md border-2 border-yellow-300">
               <Coins className="w-5 h-5 text-white" />
               <div className="flex items-baseline gap-1">
@@ -293,7 +309,7 @@ export default function RoomDashboard() {
               roomId={Number(roomId)}
               roomOwnerId={String(room.created_by)}
               onCurrencyReward={handleCurrencyReward}
-            />            
+            />
           </TabsContent>
           <TabsContent value="activity" className="mt-0">
             <ActivityFeed roomId={Number(roomId)} />
@@ -307,6 +323,7 @@ export default function RoomDashboard() {
               members={members}
               currentUserId={dbUserId}
               currentUserName={user?.displayName || user?.email?.split('@')[0] || 'You'}
+              initialMessages={initialMessages}
               incomingEvent={chatEvent}
               onSendMessage={handleSendChatMessage}
               onReactToMessage={handleChatReaction}

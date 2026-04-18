@@ -19,7 +19,7 @@ interface RoomChatProps {
   incomingEvent?: RoomChatEvent | null;
   onSendMessage?: (message: ChatMessage) => void;
   onReactToMessage?: (payload: {
-    messageId: number;
+    messageId: string | number;
     reactionKey: ChatReactionKey;
     nextCount: number;
     nextReactorUserIds: number[];
@@ -86,9 +86,7 @@ function reactionPresentation(key: ChatReactionKey) {
   return { label: 'Fire', icon: Flame };
 }
 
-function buildReactions(
-  counts: Partial<ChatReactions> = {},
-): ChatReactions {
+function buildReactions(counts: Partial<ChatReactions> = {}): ChatReactions {
   return {
     love: counts.love ?? 0,
     clap: counts.clap ?? 0,
@@ -98,7 +96,6 @@ function buildReactions(
 }
 
 export default function RoomChat({
-  roomName,
   members,
   currentUserId,
   currentUserName,
@@ -111,60 +108,53 @@ export default function RoomChat({
     if (initialMessages && initialMessages.length > 0) {
       return initialMessages.map(withDefaultSocialState);
     }
-
-    const now = Date.now();
-    const firstMember = members[0];
-    const secondMember = members[1];
-
-    return [
-      {
-        id: 1,
-        memberId: firstMember?.id ?? null,
-        memberName: firstMember?.name ?? 'Room buddy',
-        text: `Welcome to ${roomName}! Share wins, ask for help, and keep each other motivated.`,
-        createdAt: new Date(now - 1000 * 60 * 45).toISOString(),
-        reactions: buildReactions({ love: 2, clap: 1, fire: 0, encourage: 1 }),
-      },
-      {
-        id: 2,
-        memberId: secondMember?.id ?? null,
-        memberName: secondMember?.name ?? 'Teammate',
-        text: 'I can take kitchen cleanup today if someone handles groceries.',
-        createdAt: new Date(now - 1000 * 60 * 23).toISOString(),
-        reactions: buildReactions({ love: 1, clap: 0, fire: 0, encourage: 0 }),
-      },
-      {
-        id: 3,
-        memberId: firstMember?.id ?? null,
-        memberName: firstMember?.name ?? 'Room buddy',
-        text: 'Deal! Also, nice streak on the morning routine habit.',
-        createdAt: new Date(now - 1000 * 60 * 8).toISOString(),
-        reactions: buildReactions({ love: 3, clap: 1, fire: 1, encourage: 2 }),
-      },
-    ].map(withDefaultSocialState);
-  }, [initialMessages, members, roomName]);
+    return [];
+  }, [initialMessages]);
 
   const [messages, setMessages] = useState<ChatMessage[]>(seedMessages);
   const [draft, setDraft] = useState('');
   const messageListRef = useRef<HTMLDivElement | null>(null);
   const [showJumpToLatest, setShowJumpToLatest] = useState(false);
 
+  // Cargar mensajes iniciales
   useEffect(() => {
     setMessages(seedMessages);
   }, [seedMessages]);
 
+  // Scroll al fondo cuando cargan los mensajes iniciales
+  useEffect(() => {
+    if (seedMessages.length > 0 && messageListRef.current) {
+      messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
+    }
+  }, [seedMessages]);
+
+  // Eventos entrantes por WebSocket
   useEffect(() => {
     if (!incomingEvent) return;
 
     if (incomingEvent.type === 'CHAT_MESSAGE_CREATED') {
-      setMessages((prev) => [...prev, withDefaultSocialState(incomingEvent.payload.message)]);
+      const incoming = incomingEvent.payload.message;
+      setMessages((prev) => {
+        // Si ya existe un mensaje optimista con el mismo texto y nombre, reemplazarlo
+        const hasOptimistic = prev.some(
+          (m) => m.text === incoming.text && m.memberName === incoming.memberName && typeof m.id === 'number'
+        );
+        if (hasOptimistic) {
+          return prev.map((m) =>
+            m.text === incoming.text && m.memberName === incoming.memberName && typeof m.id === 'number'
+              ? withDefaultSocialState(incoming)
+              : m
+          );
+        }
+        return [...prev, withDefaultSocialState(incoming)];
+      });
       return;
     }
 
     if (incomingEvent.type === 'CHAT_MESSAGE_REACTION') {
       setMessages((prev) =>
         prev.map((message) => {
-          if (message.id !== incomingEvent.payload.messageId) return message;
+          if (String(message.id) !== String(incomingEvent.payload.messageId)) return message;
           return {
             ...message,
             reactions: {
@@ -181,9 +171,9 @@ export default function RoomChat({
       );
       return;
     }
-
   }, [incomingEvent]);
 
+  // Mostrar botón de scroll al fondo
   useEffect(() => {
     const container = messageListRef.current;
     if (!container) return;
@@ -226,13 +216,13 @@ export default function RoomChat({
     setDraft('');
   };
 
-  const toggleReaction = (messageId: number, reactionKey: ChatReactionKey) => {
+  const toggleReaction = (messageId: string | number, reactionKey: ChatReactionKey) => {
     let nextCountForSocket = 0;
     let nextReactorUserIdsForSocket: number[] = [];
 
     setMessages((prev) =>
       prev.map((message) => {
-        if (message.id !== messageId) return message;
+        if (String(message.id) !== String(messageId)) return message;
         if (currentUserId === null) return message;
 
         const currentUsers = message.reaction_user_ids?.[reactionKey] ?? [];
@@ -280,9 +270,18 @@ export default function RoomChat({
       </div>
 
       <div className="relative">
-        <div ref={messageListRef} className="max-h-[420px] overflow-y-auto p-5 bg-gradient-to-b from-slate-50 to-white space-y-4">
+        <div
+          ref={messageListRef}
+          className="max-h-[420px] overflow-y-auto p-5 bg-gradient-to-b from-slate-50 to-white space-y-4"
+        >
+          {messages.length === 0 && (
+            <p className="text-center text-sm text-gray-400 py-8">
+              No messages yet. Be the first to say something! 👋
+            </p>
+          )}
+
           {messages.map((message) => {
-            const isOwn = currentUserId !== null && message.memberId === currentUserId;
+            const isOwn = message.memberName === currentUserName;
             return (
               <article
                 key={message.id}
@@ -311,8 +310,9 @@ export default function RoomChat({
                         const meta = reactionPresentation(reactionKey);
                         const Icon = meta.icon;
                         const count = message.reactions[reactionKey] ?? 0;
-                        const reactedByCurrentUser = currentUserId !== null
-                          && (message.reaction_user_ids?.[reactionKey] ?? []).includes(currentUserId);
+                        const reactedByCurrentUser =
+                          currentUserId !== null &&
+                          (message.reaction_user_ids?.[reactionKey] ?? []).includes(currentUserId);
                         return (
                           <button
                             key={reactionKey}

@@ -103,7 +103,7 @@ export type ChatReactionUsers = Partial<Record<ChatReactionKey, number[]>>;
 
 export interface ChatMessage {
   id: number;
-  memberId: number | null;
+  memberId: string | number | null;
   memberName: string;
   text: string;
   createdAt: string;

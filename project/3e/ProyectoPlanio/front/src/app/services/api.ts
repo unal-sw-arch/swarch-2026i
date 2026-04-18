@@ -258,3 +258,38 @@ export const usersApi = {
     return handleResponse(response);
   },
 };
+
+// ============================================================================
+// CHAT API  —
+// ============================================================================
+
+import type { ChatMessage, ChatReactionKey } from '../types';
+
+export const chatApi = {
+  async getMessages(roomId: number, limit = 50, before?: string): Promise<ChatMessage[]> {
+    const params = new URLSearchParams({ limit: String(limit) });
+    if (before !== undefined) params.set('before', before);
+    const response = await authFetch(`${API_URL}/chat/rooms/${roomId}/chat?${params}`);
+    const data = await handleResponse<{ messages: ChatMessage[] }>(response);
+    return data.messages;
+  },
+
+  async sendMessage(roomId: number, text: string): Promise<ChatMessage> {
+    const response = await authFetch(`${API_URL}/chat/rooms/${roomId}/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text }),
+    });
+    const data = await handleResponse<{ message: ChatMessage }>(response);
+    return data.message;
+  },
+
+  async toggleReaction(roomId: number, messageId: string, reactionKey: ChatReactionKey): Promise<void> {
+    const response = await authFetch(`${API_URL}/chat/rooms/${roomId}/chat/${messageId}/reactions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reaction_key: reactionKey }),
+    });
+    await handleResponse(response);
+  },
+};

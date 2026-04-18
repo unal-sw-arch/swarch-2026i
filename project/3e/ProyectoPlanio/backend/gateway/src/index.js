@@ -9,7 +9,7 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 const authMiddleware = require('./middleware/auth.middleware');
 
 const app    = express();
-const server = http.createServer(app);  // servidor HTTP propio (necesario para WebSocket)
+const server = http.createServer(app);
 const PORT   = process.env.PORT || 8000;
 
 // ─── URLs de los servicios ────────────────────────────────────────────────────
@@ -17,9 +17,10 @@ const SERVICES = {
   activity:        process.env.ACTIVITY_SERVICE_URL        || 'http://localhost:8001',
   notification:    process.env.NOTIFICATION_SERVICE_URL    || 'http://localhost:8002',
   personalization: process.env.PERSONALIZATION_SERVICE_URL || 'http://localhost:8003',
+  chat:            process.env.CHAT_SERVICE_URL             || 'http://localhost:8005',
 };
 
-// ─── Firebase Admin (para verificar tokens WS en el upgrade handler) ─────────
+// ─── Firebase Admin ───────────────────────────────────────────────────────────
 if (!admin.apps.length) {
   admin.initializeApp({ projectId: process.env.FIREBASE_PROJECT_ID });
 }
@@ -27,10 +28,6 @@ if (!admin.apps.length) {
 // ─── Middlewares globales ─────────────────────────────────────────────────────
 app.use(cors());
 app.use(morgan('dev'));
-
-// IMPORTANTE: no usar express.json() aquí.
-// http-proxy-middleware necesita el body crudo (stream); si express lo parsea
-// antes, el proxy recibe el body vacío.
 
 // ─── Health check ─────────────────────────────────────────────────────────────
 app.get('/health', (_req, res) => {
@@ -56,7 +53,7 @@ const notificationProxy = createProxyMiddleware({
   target: SERVICES.notification,
   changeOrigin: true,
   pathRewrite: { '^/notifications': '' },
-  ws: true,   // habilita proxy de WebSocket
+  ws: true,
   on: {
     error: (err, _req, res) => {
       console.error('[Gateway] Notification proxy error:', err.message);
@@ -67,32 +64,53 @@ const notificationProxy = createProxyMiddleware({
   },
 });
 
+// ─── Middleware que inyecta el db_id del usuario como header ──────────────────
+// El chat_service no tiene acceso a PostgreSQL, así que el gateway
+// le pasa el db_id que ya resolvió el authMiddleware.
+const makeChatProxy = (target) =>
+  createProxyMiddleware({
+    target,
+    changeOrigin: true,
+    pathRewrite: { '^\/chat': '' },
+    on: {
+      proxyReq: (proxyReq, req) => {
+        if (req.user) {
+          proxyReq.setHeader('x-user-db-id',  String(req.user.db_id));
+          proxyReq.setHeader('x-user-uid',    req.user.uid   || '');
+          proxyReq.setHeader('x-user-name',   req.user.name  || req.user.email || '');
+          proxyReq.setHeader('x-user-email',  req.user.email || '');
+        }
+      },
+      error: (err, _req, res) => {
+        console.error('[Gateway] Chat proxy error:', err.message);
+        res.status(502).json({ error: 'Chat service unavailable' });
+      },
+    },
+  });
+
 // ─── Rutas protegidas (HTTP) ──────────────────────────────────────────────────
 
 app.use(
   '/activity',
   authMiddleware,
   makeProxy(SERVICES.activity, { '^/activity': '' })
-  // GET /activity/rooms  ->  GET http://activity_service:8001/rooms
 );
 
 app.use(
   '/notifications',
   authMiddleware,
   notificationProxy
-  // POST /notifications/...  ->  http://notification_service:8002/...
 );
 
 app.use(
   '/personalization',
   authMiddleware,
   makeProxy(SERVICES.personalization, { '^/personalization': '' })
-  // GET /personalization/avatar  ->  GET http://personalization_service:8003/avatar
 );
 
-// ─── WebSocket upgrade para notificaciones ────────────────────────────────────
-// El frontend conecta: new WebSocket('ws://localhost:8000/notifications/ws?token=...')
-// El gateway verifica el token del query param antes de elevar la conexión.
+app.use('/chat', authMiddleware, makeChatProxy(SERVICES.chat));
+
+// ─── WebSocket upgrade ────────────────────────────────────────────────────────
 server.on('upgrade', async (req, socket, head) => {
   if (!req.url.startsWith('/notifications')) {
     socket.destroy();
@@ -111,12 +129,10 @@ server.on('upgrade', async (req, socket, head) => {
   try {
     const decoded = await admin.auth().verifyIdToken(token);
 
-    // Inyectar identidad como headers para que notification_service sepa quién es
     req.headers['x-user-uid']   = decoded.uid;
     req.headers['x-user-email'] = decoded.email || '';
     req.headers['x-user-name']  = decoded.name  || decoded.email || '';
 
-    // Reescribir la URL: /notifications/ws -> /ws
     req.url = req.url.replace(/^\/notifications/, '');
 
     console.log(`[Gateway] WS upgrade autorizado para uid=${decoded.uid}`);
@@ -140,4 +156,5 @@ server.listen(PORT, () => {
   console.log(`[Gateway] Activity        -> ${SERVICES.activity}`);
   console.log(`[Gateway] Notifications   -> ${SERVICES.notification}  (HTTP + WebSocket)`);
   console.log(`[Gateway] Personalization -> ${SERVICES.personalization}`);
+  console.log(`[Gateway] Chat            -> ${SERVICES.chat}`);
 });

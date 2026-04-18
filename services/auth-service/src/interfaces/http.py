@@ -27,6 +27,24 @@ class LoginRequest(BaseModel):
     email: EmailStr
     password: str
 
+class LoginCustomerResponse(BaseModel):
+    accessToken: str
+    role: str
+    userId: int
+
+class LoginRestaurantResponse(BaseModel):
+    accessToken: str
+    role: str
+    restaurantId: int
+    userId: int
+
+class MeResponse(BaseModel):
+    userId: int
+    role: str
+    restaurantId: Optional[int] = None
+    name: str
+    email: str
+
 # --- Dependencias ---
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
     token = credentials.credentials
@@ -44,19 +62,19 @@ async def register_customer(req: RegisterCustomerRequest, db: AsyncSession = Dep
     user = await use_case.register_customer(req.name, req.email, req.password)
     return user
 
-@router.post("/login/customer")
+@router.post("/login/customer", response_model=LoginCustomerResponse)
 async def login_customer(req: LoginRequest, db: AsyncSession = Depends(get_db)):
     repository = SQLUserRepository(db)
     use_case = AuthUseCase(repository)
     return await use_case.login_customer(req.email, req.password)
 
-@router.post("/login/restaurant")
+@router.post("/login/restaurant", response_model=LoginRestaurantResponse)
 async def login_restaurant(req: LoginRequest, db: AsyncSession = Depends(get_db)):
     repository = SQLUserRepository(db)
     use_case = AuthUseCase(repository)
     return await use_case.login_restaurant(req.email, req.password)
 
-@router.get("/me")
+@router.get("/me", response_model=MeResponse)
 async def get_me(user_id: int = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     repository = SQLUserRepository(db)
     use_case = AuthUseCase(repository)

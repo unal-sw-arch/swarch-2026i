@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, Request, status, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
@@ -61,18 +61,37 @@ async def auth_exception_handler(request: Request, exc: AuthBaseException):
         content={"code": exc.code, "message": exc.message}
     )
 
-# 2. Errores de Validación (FastAPI/Pydantic) - CUMPLIMIENTO BIBLIA CAP 11
+# 2. Errores del Framework (ej. Falta Bearer token o Token inválido)
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    code = "UNAUTHORIZED" if exc.status_code == 401 else "HTTP_ERROR"
+    code = "NOT_FOUND" if exc.status_code == 404 else code
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"code": code, "message": str(exc.detail)}
+    )
+
+# 3. Errores de Validación (FastAPI/Pydantic) - CUMPLIMIENTO BIBLIA CAP 11
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    errors = exc.errors()
+    error_messages = []
+    for error in errors:
+        field = ".".join(str(loc) for loc in error["loc"] if loc != "body")
+        message = error["msg"]
+        error_messages.append(f"{field}: {message}" if field else message)
+    
+    clean_message = ", ".join(error_messages)
+
     return JSONResponse(
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        status_code=status.HTTP_400_BAD_REQUEST,
         content={
             "code": "VALIDATION_ERROR",
-            "message": str(exc.errors())
+            "message": clean_message
         }
     )
 
-# 3. Errores Inesperados
+# 4. Errores Inesperados
 @app.exception_handler(Exception)
 async def general_exception_handler(request: Request, exc: Exception):
     logger.error(f"Unhandled error: {str(exc)}")

@@ -2,10 +2,11 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install system dependencies for PostgreSQL
+# Install system dependencies for PostgreSQL and netcat for health checks
 RUN apt-get update && apt-get install -y \
     libpq-dev \
     gcc \
+    netcat-openbsd \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install
@@ -22,4 +23,5 @@ ENV PORT 8000
 
 EXPOSE 8000
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Script robusto: Espera a que el puerto de la DB esté abierto antes de iniciar Uvicorn
+CMD /bin/sh -c "until nc -z auth-db 5432; do echo 'Auth DB no lista, esperando...'; sleep 2; done && uvicorn main:app --host 0.0.0.0 --port 8000"

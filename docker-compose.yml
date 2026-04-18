@@ -85,6 +85,44 @@ services:
     networks:
       - deliunal-network
 
+  # L3. Catalog Service
+  catalog-service:
+    build:
+      context: ./services/catalog-service
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@catalog-db:5432/catalog_db?schema=public
+      - REDIS_URL=redis://valkey-cache:6379
+      - PORT=3000
+    depends_on:
+      - catalog-db
+      - valkey-cache
+    networks:
+      - deliunal-network
+
+  # D2. Catalog DB
+  catalog-db:
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=catalog_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - catalog-data:/var/lib/postgresql/data
+    networks:
+      - deliunal-network
+
+  # D5. Cache (Valkey) - Infraestructura compartida Gateway / Catalog
+  valkey-cache:
+    image: valkey/valkey:7.2
+    ports:
+      - "6380:6379"
+    networks:
+      - deliunal-network
+
 networks:
   deliunal-network:
     driver: bridge
@@ -92,3 +130,4 @@ networks:
 volumes:
   mongo-data:
   auth-data:
+  catalog-data:

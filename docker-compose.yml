@@ -56,9 +56,39 @@ services:
     networks:
       - deliunal-network
 
+  # L2. Auth Service
+  auth-service:
+    build:
+      context: ./services/auth-service
+    ports:
+      - "8001:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@auth-db:5432/auth_db
+      - JWT_SECRET_KEY=super-secret-key-for-development
+    depends_on:
+      - auth-db
+    networks:
+      - deliunal-network
+
+  # D1. Auth DB
+  auth-db:
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=auth_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - auth-data:/var/lib/postgresql/data
+      - ./infrastructure/databases/auth-db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - deliunal-network
+
 networks:
   deliunal-network:
     driver: bridge
 
 volumes:
   mongo-data:
+  auth-data:

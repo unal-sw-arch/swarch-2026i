@@ -71,6 +71,19 @@ services:
     networks:
       - planio_network
     restart: on-failure
+  
+  analytics_service:
+    build: ./backend/analytics_service
+    container_name: planio_analytics
+    environment:
+      - PORT=8004
+      - MONGODB_URI=mongodb://planio_user:planio_pass@mongo:27017/analytics_db?authSource=admin
+    ports:
+      - "8004:8004"
+    depends_on:
+      - mongo
+    networks:
+      - planio_network
 
   postgres:
     image: postgres:15

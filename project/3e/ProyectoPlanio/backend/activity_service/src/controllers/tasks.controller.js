@@ -1,5 +1,5 @@
 const pool = require('../db/connection');
-const { notifyRoom, notifyUser } = require('../services/notifier');
+const { notifyRoom, notifyUser, notifyAnalytics } = require('../services/notifier');
 
 // Obtener todas las tareas de una sala
 const getTasksByRoom = async (req, res, next) => {
@@ -347,6 +347,13 @@ const updateTaskStatus = async (req, res, next) => {
       status: status,
       changedBy: userId,
     });
+
+    // Avisar al analytics_service solo si se marcó como DONE
+    if (status === 'DONE') {
+      const userResult = await pool.query('SELECT name FROM users WHERE id = $1', [userId]);
+      const userName = userResult.rows[0]?.name || 'Unknown';
+      notifyAnalytics(userId, userName, Number(roomId), 'TASK_COMPLETED');
+    }
 
     res.status(200).json(updatedTask);
   } catch (err) {

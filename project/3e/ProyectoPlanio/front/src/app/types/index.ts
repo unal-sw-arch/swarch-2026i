@@ -125,3 +125,23 @@ export type RoomChatEvent =
         reactorUserIds?: number[];
       };
     };
+
+
+    
+export interface StreakData {
+  userId: number;
+  streak: number;
+}
+
+export interface LeaderboardEntry {
+  position: number;
+  userId: number;
+  userName: string;
+  totalTasks: number;
+}
+
+export interface LeaderboardData {
+  roomId: number;
+  weekStart: string;
+  leaderboard: LeaderboardEntry[];
+}

@@ -14,7 +14,9 @@ import {
   Sparkles,
   Home,
   Loader2,
+  BarChart2,
 } from 'lucide-react';
+
 import TasksBoard from './TasksBoard';
 import HabitsPanel from './HabitsPanel';
 import ActivityFeed from './ActivityFeed';
@@ -26,6 +28,7 @@ import { roomsApi, coinsApi, chatApi } from '../services/api';
 import type { ChatMessage, ChatReactionKey, Room, RoomChatEvent } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { useRoomSocket } from '../hooks/useRoomSocket';
+import AnalyticsPanel from './AnalyticsPanel';
 
 const memberColors = [
   'bg-purple-500',
@@ -287,6 +290,13 @@ export default function RoomDashboard() {
                 <Home className="w-4 h-4" />
                 Living Room
               </TabsTrigger>
+              <TabsTrigger
+                value="analytics"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-500 data-[state=active]:bg-transparent gap-2"
+              >
+                <BarChart2 className="w-4 h-4" />
+                Analytics
+              </TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
@@ -329,8 +339,13 @@ export default function RoomDashboard() {
               onReactToMessage={handleChatReaction}
             />
           </TabsContent>
+          
           <TabsContent value="livingroom" className="mt-0">
             <LivingRoom currency={currency} onPurchase={handlePurchase} />
+          </TabsContent>
+
+          <TabsContent value="analytics" className="mt-0">
+            <AnalyticsPanel roomId={Number(roomId)} />
           </TabsContent>
         </Tabs>
       </main>

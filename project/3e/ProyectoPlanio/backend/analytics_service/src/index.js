@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.json());
 
 // Rutas
-app.use('/analytics', analyticsRoutes);
+app.use('/', analyticsRoutes);
 
 // Ruta de salud para verificar que el servicio está vivo
 app.get('/health', (req, res) => {

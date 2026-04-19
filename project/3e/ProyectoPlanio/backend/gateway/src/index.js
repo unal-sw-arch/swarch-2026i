@@ -17,6 +17,7 @@ const SERVICES = {
   activity:        process.env.ACTIVITY_SERVICE_URL        || 'http://localhost:8001',
   notification:    process.env.NOTIFICATION_SERVICE_URL    || 'http://localhost:8002',
   personalization: process.env.PERSONALIZATION_SERVICE_URL || 'http://localhost:8003',
+  analytics:       process.env.ANALYTICS_SERVICE_URL       || 'http://localhost:8004',
   chat:            process.env.CHAT_SERVICE_URL             || 'http://localhost:8005',
 };
 
@@ -109,6 +110,12 @@ app.use(
 );
 
 app.use('/chat', authMiddleware, makeChatProxy(SERVICES.chat));
+
+app.use(
+  '/analytics',
+  authMiddleware,
+  makeProxy(SERVICES.analytics, { '^/analytics': '' })
+);
 
 // ─── WebSocket upgrade ────────────────────────────────────────────────────────
 server.on('upgrade', async (req, socket, head) => {

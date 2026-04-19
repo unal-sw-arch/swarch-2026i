@@ -11,9 +11,11 @@ services:
       - NOTIFICATION_SERVICE_URL=http://notification_service:8002
       - PERSONALIZATION_SERVICE_URL=http://personalization_service:8003
       - CHAT_SERVICE_URL=http://chat_service:8005
+      - ANALYTICS_SERVICE_URL=http://analytics_service:8004 
     depends_on:
       - activity_service
       - chat_service
+      - analytics_service
     networks:
       - planio_network
     restart: on-failure
@@ -39,6 +41,7 @@ services:
       - DATABASE_URL=postgresql://planio_user:planio_pass@postgres:5432/activity_db
       - FIREBASE_PROJECT_ID=planio-social-todo
       - NOTIFICATION_SERVICE_URL=http://planio_notification:8002
+      - ANALYTICS_SERVICE_URL=http://analytics_service:8004 
     depends_on:
       postgres:
         condition: service_healthy

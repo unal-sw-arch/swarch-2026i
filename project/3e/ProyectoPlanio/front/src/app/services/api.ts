@@ -1,6 +1,6 @@
 // Servicio de API centralizado para comunicación con el backend
 // Utiliza authFetch para incluir automáticamente el token de Firebase
-
+import type { StreakData, LeaderboardData } from '../types';
 import { authFetch } from '../auth/authFetch';
 import { firebaseAuth } from '../auth/firebase';
 import type {
@@ -15,6 +15,7 @@ import type {
   UpdateTaskStatusDto,
   CreateHabitDto,
 } from '../types';
+
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
@@ -291,5 +292,27 @@ export const chatApi = {
       body: JSON.stringify({ reaction_key: reactionKey }),
     });
     await handleResponse(response);
+  },
+};
+
+// ============================================================================
+// ANALYTICS API
+// ============================================================================
+
+export const analyticsApi = {
+  // Racha de hábitos de un usuario en una sala
+  async getStreak(roomId: number, userId: number): Promise<StreakData> {
+    const response = await authFetch(
+      `${API_URL}/analytics/rooms/${roomId}/streak/${userId}`
+    );
+    return handleResponse<StreakData>(response);
+  },
+
+  // Leaderboard semanal de tareas de una sala
+  async getLeaderboard(roomId: number): Promise<LeaderboardData> {
+    const response = await authFetch(
+      `${API_URL}/analytics/rooms/${roomId}/leaderboard`
+    );
+    return handleResponse<LeaderboardData>(response);
   },
 };

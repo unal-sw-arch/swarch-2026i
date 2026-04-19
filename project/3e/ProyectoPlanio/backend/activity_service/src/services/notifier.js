@@ -36,7 +36,7 @@ async function notifyUser(roomId, targetUserId, payload) {
 async function notifyAnalytics(userId, userName, roomId, type) {
   try {
     const today = new Date().toISOString().split('T')[0];
-    await fetch(`${ANALYTICS_SERVICE_URL}/analytics/events`, {
+    await fetch(`${ANALYTICS_SERVICE_URL}/events`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, userName, roomId, type, date: today }),

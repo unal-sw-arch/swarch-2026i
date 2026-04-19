@@ -15,19 +15,23 @@ export class UnifiedErrorFilter implements ExceptionFilter {
       status = exception.getStatus();
       const res = exception.getResponse() as any;
       
-      // Manejar estructura de error unificado de NestJS ValidationPipe
+      // 1. Si el error ya trae un código (ej. de los controladores), lo respetamos
       if (typeof res === 'object' && res.code && res.message) {
         code = res.code;
         message = Array.isArray(res.message) ? res.message[0] : res.message;
-      } else if (status === HttpStatus.BAD_REQUEST) {
+      } 
+      // 2. Fallbacks para errores comunes de NestJS para mapearlos a la Biblia
+      else if (status === HttpStatus.BAD_REQUEST) {
           code = 'VALIDATION_ERROR';
-          message = Array.isArray(res.message) ? res.message[0] : (res.message || 'Validation failed');
-      } else if (status === HttpStatus.NOT_FOUND) {
-          code = 'NOT_FOUND';
-          message = res.message || 'Resource not found';
+          message = res.message && Array.isArray(res.message) ? res.message[0] : (res.message || 'Validation failed');
+      } else if (status === HttpStatus.UNAUTHORIZED) {
+          code = 'UNAUTHORIZED';
+          message = 'Token required or invalid';
+      } else if (status === HttpStatus.FORBIDDEN) {
+          code = 'FORBIDDEN';
+          message = 'You do not have permission';
       }
     } else if (exception instanceof Error) {
-      message = exception.message;
       console.error(exception);
     }
 

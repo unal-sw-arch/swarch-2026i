@@ -74,11 +74,13 @@ export class CatalogService {
     // Invalidar caché (Biblia indica que cache responde a la disponibilidad)
     await this.cache.del(`menu:restaurant:${menuItem.menu.restaurantId}`);
 
-    // Publicar evento async (Pág. 20)
+    // Publicar evento async (Pág. 20, 22)
     await this.eventPublisher.publish('PRODUCT_AVAILABILITY_CHANGED', {
-      restaurantId: menuItem.menu.restaurantId,
+      id: updatedItem.id,
       menuItemId: updatedItem.id,
-      isAvailable: updatedItem.isAvailable,
+      payload: {
+        isAvailable: updatedItem.isAvailable,
+      },
     });
 
     return {

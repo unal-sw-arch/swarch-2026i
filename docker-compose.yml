@@ -94,10 +94,12 @@ services:
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@catalog-db:5432/catalog_db?schema=public
       - REDIS_URL=redis://valkey-cache:6379
+      - AMQP_URL=amqp://guest:guest@event-broker:5672
       - PORT=3000
     depends_on:
       - catalog-db
       - valkey-cache
+      - event-broker
     networks:
       - deliunal-network
 
@@ -112,6 +114,18 @@ services:
       - "5434:5432"
     volumes:
       - catalog-data:/var/lib/postgresql/data
+    networks:
+      - deliunal-network
+
+  # A1. Event Broker (Biblia Pág. 5)
+  event-broker:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"   # Puerto AMQP
+      - "15672:15672" # Puerto Management UI
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
     networks:
       - deliunal-network
 

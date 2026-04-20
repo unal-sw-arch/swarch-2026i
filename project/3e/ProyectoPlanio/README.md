@@ -116,6 +116,16 @@ It also incorporates principles from **Service-Oriented Architecture (SOA)**, en
 
 ### 🔧 Instructions to run locally
 
+#### 📱 Requirements
+
+- **Docker** 20.10+
+- **Docker Compose** 1.29+
+- **Node.js** 18+ (if running frontend locally)
+- **Flutter** 3.11+ (if running mobile locally)
+- **Dart** 3.11+
+
+#### 🌐 Web (React)
+
 1. Copy Frontend .env file in 
 - swarch-2026i\project\3e\ProyectoPlanio\front
 
@@ -127,3 +137,41 @@ It also incorporates principles from **Service-Oriented Architecture (SOA)**, en
 
 4. Open the application in your browser:
 - http://localhost:80/
+
+#### 📱 Mobile (Flutter)
+
+**Option 1: With Docker (Recommended)**
+```bash
+# From ProyectoPlanio folder
+docker-compose up -d
+```
+
+**Option 2: Local Development**
+```bash
+cd mobile
+
+# Install dependencies
+flutter pub get
+flutter pub run build_runner build
+
+# Run on Windows (for quick UI development)
+flutter run -d windows
+
+# Or on Android emulator
+flutter run -d emulator-5554
+```
+
+**Requirements for Mobile:**
+- Flutter 3.11.5+
+- Dart 3.11.5+
+- Android Studio (for Android) or Xcode (for iOS)
+- For production: Firebase configuration (see `mobile/README.md`)
+
+---
+
+### 📚 Documentation
+
+- **Full deployment guide**: [DEPLOYMENT.md](./DEPLOYMENT.md)
+- **Integration details**: [INTEGRATION_SUMMARY.md](./INTEGRATION_SUMMARY.md)
+- **Mobile app setup**: [mobile/README.md](./mobile/README.md)
+- **API Gateway**: [backend/gateway/README.md](./backend/gateway/README.md)

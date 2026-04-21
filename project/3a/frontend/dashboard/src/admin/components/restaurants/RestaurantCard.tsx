@@ -3,11 +3,15 @@ import type { Restaurant } from "@/lib/types";
 
 interface RestaurantCardProps {
   restaurant: Restaurant;
+  onClick?: (restaurant: Restaurant) => void;
 }
 
-export const RestaurantCard = ({ restaurant }: RestaurantCardProps) => {
+export const RestaurantCard = ({ restaurant, onClick }: RestaurantCardProps) => {
   return (
-    <article className="group overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+    <article
+      className="group overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md cursor-pointer"
+      onClick={() => onClick?.(restaurant)}
+    >
       <div className="relative">
         <img
           src={restaurant.image}
@@ -51,4 +55,3 @@ export const RestaurantCard = ({ restaurant }: RestaurantCardProps) => {
     </article>
   );
 };
-

@@ -1,44 +1,58 @@
 package com.clickmunch.AuthService.service;
 
 import com.clickmunch.AuthService.config.JwtTokenUtil;
+import com.clickmunch.AuthService.entity.Role;
 import com.clickmunch.AuthService.entity.User;
 import com.clickmunch.AuthService.repository.UserRepository;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class UserServiceTest {
 
     @Test
-    public void testPasswordReset() {
+    public void passwordReset_existingUser_generatesToken() {
+        UserRepository userRepository = Mockito.mock(UserRepository.class);
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        JwtTokenUtil jwt = Mockito.mock(JwtTokenUtil.class);
+        AuthService service = new AuthService(userRepository, encoder, jwt);
 
-        UserRepository userRepository = org.mockito.Mockito.mock(UserRepository.class);
-        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
-        JwtTokenUtil jwtTokenUtil = Mockito.mock(JwtTokenUtil.class);
-        AuthService userService = new AuthService(userRepository, bCryptPasswordEncoder, jwtTokenUtil);
+        User user = User.builder()
+                .id(1L)
+                .email("mockito@test.com")
+                .username("mockito")
+                .role(Role.CUSTOMER)
+                .passwordHash(encoder.encode("123456"))
+                .build();
 
-        User user = new User();
-        user.setId(1L);
-        user.setEmail("mockito@test.com");
-        user.setPasswordHash(bCryptPasswordEncoder.encode("123456"));
+        Mockito.when(userRepository.findByEmail("mockito@test.com"))
+                .thenReturn(Optional.of(user));
+        Mockito.when(jwt.generateResetToken("mockito")).thenReturn("reset-token");
 
-        Mockito.when(userRepository.findByEmail("mockito@test.com")).thenReturn(Optional.of(user));
+        Optional<String> token = service.passwordReset("mockito@test.com");
 
-        boolean resetResult = userService.resetPassword("mockito@test.com", "newpassword");
-
-        assertTrue(resetResult);
-        Mockito.verify(userRepository).save(Mockito.argThat(savedUser ->
-            bCryptPasswordEncoder.matches("newpassword", savedUser.getPasswordHash())
-        ));
-
-        Mockito.verify(userRepository, Mockito.times(1)).findByEmail("mockito@test.com");
-
-
+        assertTrue(token.isPresent());
+        Mockito.verify(userRepository).save(Mockito.argThat(u -> "reset-token".equals(u.getResetToken())));
     }
 
+    @Test
+    public void passwordReset_unknownUser_returnsEmpty() {
+        UserRepository userRepository = Mockito.mock(UserRepository.class);
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        JwtTokenUtil jwt = Mockito.mock(JwtTokenUtil.class);
+        AuthService service = new AuthService(userRepository, encoder, jwt);
+
+        Mockito.when(userRepository.findByEmail("nobody@test.com"))
+                .thenReturn(Optional.empty());
+
+        Optional<String> token = service.passwordReset("nobody@test.com");
+
+        assertFalse(token.isPresent());
+        Mockito.verify(userRepository, Mockito.never()).save(Mockito.any());
+    }
 }

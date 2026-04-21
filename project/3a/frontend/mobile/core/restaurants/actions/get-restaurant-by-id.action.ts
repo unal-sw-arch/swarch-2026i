@@ -7,7 +7,7 @@ export const getRestaurantById = async (id: number): Promise<Restaurant | null> 
         console.log('🍽️  Fetching restaurant with ID:', id);
         
         const response = await productsApi.get<Restaurant>(
-            `/api/restaurants/${id}`
+            `/restaurant/${id}`
         );
 
         console.log('✅ Restaurant fetched:', response.data);

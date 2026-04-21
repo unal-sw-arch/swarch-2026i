@@ -1,14 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { LayoutGrid, MapPin, Search } from "lucide-react";
 import { RestaurantList } from "@/admin/components/restaurants/RestaurantList";
+import { RestaurantsMap } from "@/admin/components/restaurants/RestaurantsMap";
+import { RestaurantPreviewDialog } from "@/admin/components/restaurants/RestaurantPreviewDialog";
 import { restaurantService } from "@/lib/services/restaurantService";
 import type { Restaurant } from "@/lib/types";
 
 export const AdminRestaurantsPage = () => {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState<"list" | "map">("list");
   const [search, setSearch] = useState("");
   const [cityFilter, setCityFilter] = useState("all");
+  const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
 
   useEffect(() => {
     const loadRestaurants = async () => {
@@ -52,6 +56,33 @@ export const AdminRestaurantsPage = () => {
         <p className="text-gray-600">
           Explora restaurantes disponibles con un formato visual tipo app de delivery.
         </p>
+      </div>
+
+      <div className="inline-flex w-fit rounded-full border border-gray-200 bg-white p-1 shadow-sm">
+        <button
+          type="button"
+          onClick={() => setViewMode("list")}
+          className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+            viewMode === "list"
+              ? "bg-blue-600 text-white"
+              : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+          }`}
+        >
+          <LayoutGrid className="h-4 w-4" />
+          Restaurantes
+        </button>
+        <button
+          type="button"
+          onClick={() => setViewMode("map")}
+          className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+            viewMode === "map"
+              ? "bg-blue-600 text-white"
+              : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+          }`}
+        >
+          <MapPin className="h-4 w-4" />
+          Mapa
+        </button>
       </div>
 
       <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
@@ -104,9 +135,26 @@ export const AdminRestaurantsPage = () => {
             No encontramos restaurantes con esos filtros.
           </div>
         ) : (
-          <RestaurantList restaurants={filteredRestaurants} />
+          <>
+            {viewMode === "list" ? (
+              <RestaurantList
+                restaurants={filteredRestaurants}
+                onRestaurantClick={(restaurant) => setSelectedRestaurant(restaurant)}
+              />
+            ) : (
+              <RestaurantsMap restaurants={filteredRestaurants} />
+            )}
+          </>
         )}
       </div>
+
+      <RestaurantPreviewDialog
+        restaurant={selectedRestaurant}
+        open={!!selectedRestaurant}
+        onOpenChange={(open) => {
+          if (!open) setSelectedRestaurant(null);
+        }}
+      />
     </div>
   );
 };

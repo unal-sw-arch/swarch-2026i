@@ -112,6 +112,7 @@ export const RegisterPage = () => {
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? "Registrando..." : "Registrarse"}
               </Button>
+              {/**
               <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
                 <span className="relative z-10 bg-background px-2 text-muted-foreground">O ingresa con</span>
               </div>
@@ -144,6 +145,7 @@ export const RegisterPage = () => {
                   <span className="sr-only">Login with Meta</span>
                 </Button>
               </div>
+              */}
               <div className="text-center text-sm">
                 Ya tienes cuenta?{" "}
                 <Link to="/auth/login" className="underline underline-offset-4">
@@ -152,12 +154,13 @@ export const RegisterPage = () => {
               </div>
             </div>
           </form>
-          <div className="relative hidden bg-muted md:block">
-            <img
-              src="/placeholder.svg"
-              alt="Image"
-              className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-            />
+          <div className="relative hidden bg-gradient-to-br from-orange-400 via-red-400 to-pink-400 md:flex md:flex-col md:items-center md:justify-center md:p-8">
+            <div className="text-white text-center space-y-4 z-10">
+              <h2 className="text-4xl font-bold">Click & Munch</h2>
+              <p className="text-xl">Dashboard de Administración</p>
+              <p className="text-lg opacity-90">Gestiona tu restaurante de forma fácil y eficiente</p>
+            </div>
+            <div className="absolute inset-0 bg-black/10"></div>
           </div>
         </CardContent>
       </Card>

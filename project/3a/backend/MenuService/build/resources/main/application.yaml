@@ -4,10 +4,9 @@ spring:
   jmx:
     enabled: false
 
-  data:
-    mongodb:
-      uri: mongodb://mike:secret@localhost:27018/menu_db
-      database: menu_db
+  mongodb:
+    uri: ${SPRING_MONGODB_URI:mongodb://mike:secret@localhost:27018/menu_db?authSource=admin}
+    database: ${SPRING_MONGODB_DATABASE:menu_db}
 
 server:
   port: 8084
@@ -19,4 +18,4 @@ logging:
 
 restaurant:
     service:
-        url: http://localhost:8082
+    url: ${RESTAURANT_SERVICE_URL:http://localhost:8082}

@@ -1,264 +1,288 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Eye } from 'lucide-react';
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { orderService } from '@/lib/services/orderService';
-import type { Order, OrderStatus, OrderChannel } from '@/lib/types';
+import { useEffect, useState } from "react";
+import { RefreshCw, Clock } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  orderService,
+  getMinutes,
+  getTimeColor,
+  getNextStatus,
+  isTableFree,
+} from "@/lib/services/orderService";
+import { tableService } from "@/lib/services/tableServices";
+import type { Order, OrderStatus, Table } from "@/lib/types";
 
-const statusColors: Record<OrderStatus, string> = {
-  Preparing: 'bg-amber-100 text-amber-800',
-  Ready: 'bg-blue-100 text-blue-800',
-  Served: 'bg-green-100 text-green-800',
-  Delivered: 'bg-emerald-100 text-emerald-800',
-  Cancelled: 'bg-red-100 text-red-800',
-};
+const STATUS_OPTIONS: (OrderStatus | "ALL")[] = [
+  "ALL",
+  "Pending",
+  "SentToKitchen",
+  "Preparing",
+  "Ready",
+  "Served",
+];
 
 export const AdminOrdersPage = () => {
+  const { restaurantId } = useAuth();
+
   const [orders, setOrders] = useState<Order[]>([]);
+  const [tables, setTables] = useState<Table[]>([]);
+  const [selectedTables, setSelectedTables] = useState<Record<number, number>>({});
   const [loading, setLoading] = useState(true);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [editingNotes, setEditingNotes] = useState(false);
-  const [notes, setNotes] = useState('');
-  
-  const [statusFilter, setStatusFilter] = useState<OrderStatus | 'all'>('all');
-  const [channelFilter, setChannelFilter] = useState<OrderChannel | 'all'>('all');
-  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<OrderStatus | "ALL">("ALL");
+  const [updatingId, setUpdatingId] = useState<number | null>(null);
 
-  useEffect(() => {
-    loadOrders();
-  }, []);
-
+  // 🔄 Cargar órdenes
   const loadOrders = async () => {
+    if (!restaurantId) return;
     setLoading(true);
     try {
-      const data = await orderService.getAll();
+      const data = await orderService.getActive(Number(restaurantId));
       setOrders(data);
-    } catch (error) {
-      console.error('Error loading orders:', error);
+    } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleViewDetails = (order: Order) => {
-    setSelectedOrder(order);
-    setNotes(order.notes || '');
-    setEditingNotes(false);
-    setIsDetailOpen(true);
+  // 🍽️ Cargar mesas disponibles
+  const loadTables = async () => {
+    if (!restaurantId) return;
+    const data = await tableService.getByRestaurantId(restaurantId);
+
+    const freeTables = data.filter((t) => t.status === "AVAILABLE");
+    setTables(freeTables);
   };
 
-  const handleStatusChange = async (orderId: string, newStatus: OrderStatus) => {
+  // ⏱️ Auto refresh
+  useEffect(() => {
+    loadOrders();
+    loadTables();
+
+    const interval = setInterval(() => {
+      loadOrders();
+      loadTables();
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [restaurantId]);
+
+  // 🔄 Cambiar estado
+  const handleNextStatus = async (order: Order) => {
+    const next = getNextStatus(order.status);
+    if (!next) return;
+
+    setUpdatingId(order.id);
     try {
-      await orderService.updateStatus(orderId, newStatus);
+      await orderService.updateStatus(order.id, next);
       await loadOrders();
-      if (selectedOrder && selectedOrder.id === orderId) {
-        const updated = await orderService.getById(orderId);
-        if (updated) setSelectedOrder(updated);
-      }
-    } catch (error) {
-      console.error('Error updating status:', error);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setUpdatingId(null);
     }
   };
 
-  const handleSaveNotes = async () => {
-    if (!selectedOrder) return;
+  // 🍽️ Confirmar mesa
+  const handleConfirmTable = async (order: Order) => {
+    const tableId = selectedTables[order.id];
+
+    if (!tableId) {
+      alert("Selecciona una mesa");
+      return;
+    }
+
+    if (!tables.find((t) => t.id === tableId)) {
+      alert("Mesa inválida");
+      return;
+    }
+
+    if (!isTableFree(tableId, orders)) {
+      alert("⚠️ La mesa ya está ocupada");
+      return;
+    }
+
     try {
-      await orderService.update({ id: selectedOrder.id, notes });
+      await orderService.assignTable(order.id, tableId);
+      await tableService.updateStatus(tableId, "OCCUPIED");
+
+      setSelectedTables((prev) => {
+        const copy = { ...prev };
+        delete copy[order.id];
+        return copy;
+      });
+
       await loadOrders();
-      const updated = await orderService.getById(selectedOrder.id);
-      if (updated) setSelectedOrder(updated);
-      setEditingNotes(false);
+      await loadTables();
     } catch (error) {
-      console.error('Error saving notes:', error);
+      console.error(error);
+      alert("Error asignando mesa");
     }
   };
 
-  const filtered = useMemo(() => {
-    return orders.filter((order) => {
-      const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
-      const matchesChannel = channelFilter === 'all' || order.channel === channelFilter;
-      const q = search.trim().toLowerCase();
-      const matchesSearch = q.length === 0 || order.id.toLowerCase().includes(q) || 
-        order.customer.toLowerCase().includes(q) || order.restaurant.toLowerCase().includes(q);
-      return matchesStatus && matchesChannel && matchesSearch;
-    });
-  }, [orders, statusFilter, channelFilter, search]);
+  // 🔍 Filtro
+  const filteredOrders = orders.filter(
+    (o) => statusFilter === "ALL" || o.status === statusFilter
+  );
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
-  };
+  if (loading)
+    return (
+      <div className="p-20 text-center flex flex-col items-center gap-4">
+        <RefreshCw className="animate-spin text-blue-500" size={32} />
+        <p className="text-gray-500">Cargando órdenes...</p>
+      </div>
+    );
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-2xl font-bold text-gray-900">Órdenes</h1>
-        <p className="text-gray-600">Control de órdenes ligadas a reservas (requerimiento: vincular pedido a la reserva y permitir seguimiento de estado).</p>
-      </div>
-
-      <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm space-y-4">
-        <div className="flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
-          <div className="flex-1">
-            <Label htmlFor="search">Buscar</Label>
-            <Input id="search" type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar por ID, cliente o restaurante..." />
-          </div>
-          <div className="flex gap-2">
-            <div>
-              <Label htmlFor="statusFilter">Estado</Label>
-              <Select id="statusFilter" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as OrderStatus | 'all')}>
-                <option value="all">Todos los estados</option>
-                <option value="Preparing">Preparing</option>
-                <option value="Ready">Ready</option>
-                <option value="Served">Served</option>
-                <option value="Delivered">Delivered</option>
-                <option value="Cancelled">Cancelled</option>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="channelFilter">Canal</Label>
-              <Select id="channelFilter" value={channelFilter} onChange={(e) => setChannelFilter(e.target.value as OrderChannel | 'all')}>
-                <option value="all">Todos los canales</option>
-                <option value="Reservation">Reserva</option>
-                <option value="In-person">En sitio</option>
-              </Select>
-            </div>
-          </div>
+    <div className="p-6 space-y-6 max-w-[1200px] mx-auto">
+      {/* HEADER */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Órdenes Activas</h1>
+          <p className="text-sm text-gray-500">Gestión en tiempo real</p>
         </div>
+
+        <button
+          onClick={loadOrders}
+          className="flex items-center gap-2 text-sm bg-blue-600 text-white px-4 py-2 rounded-lg"
+        >
+          <RefreshCw size={16} />
+          Refrescar
+        </button>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-4">
-        {loading ? (
-          <div className="text-center py-8 text-gray-500">Cargando órdenes...</div>
-        ) : (
-          <Table>
-            <TableCaption>Seguimiento de órdenes y estados de cocina.</TableCaption>
-            <TableHeader>
-              <TableRow>
-                <TableHead>ID</TableHead>
-                <TableHead>Cliente</TableHead>
-                <TableHead>Restaurante</TableHead>
-                <TableHead>Canal</TableHead>
-                <TableHead>ETA</TableHead>
-                <TableHead>Estado</TableHead>
-                <TableHead>Total</TableHead>
-                <TableHead>Creado</TableHead>
-                <TableHead className="text-right">Acciones</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((order) => (
-                <TableRow key={order.id}>
-                  <TableCell className="font-medium">{order.id}</TableCell>
-                  <TableCell>{order.customer}</TableCell>
-                  <TableCell>{order.restaurant}</TableCell>
-                  <TableCell>{order.channel}</TableCell>
-                  <TableCell>{order.eta}</TableCell>
-                  <TableCell>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[order.status]}`}>{order.status}</span>
-                  </TableCell>
-                  <TableCell>${order.total.toFixed(2)}</TableCell>
-                  <TableCell>{formatDate(order.createdAt)}</TableCell>
-                  <TableCell className="text-right">
-                    <button onClick={() => handleViewDetails(order)} className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1 ml-auto">
-                      <Eye className="w-4 h-4" />Ver
-                    </button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        )}
+      {/* FILTRO */}
+      <div className="bg-white p-4 border rounded-xl shadow-sm">
+        <select
+          value={statusFilter}
+          onChange={(e) =>
+            setStatusFilter(e.target.value as OrderStatus | "ALL")
+          }
+          className="border p-2 rounded-md text-sm"
+        >
+          {STATUS_OPTIONS.map((s) => (
+            <option key={s} value={s}>
+              {s === "ALL" ? "Todas" : s}
+            </option>
+          ))}
+        </select>
       </div>
 
-      <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>Detalle de Orden {selectedOrder?.id}</DialogTitle>
-            <DialogDescription>Información completa de la orden y gestión de estado</DialogDescription>
-          </DialogHeader>
+      {/* LISTA */}
+      <div className="grid md:grid-cols-2 gap-4">
+        {filteredOrders.map((order) => {
+          const minutes = getMinutes(order.createdAt);
 
-          {selectedOrder && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
-                <div><Label className="text-gray-600">Cliente</Label><p className="font-semibold">{selectedOrder.customer}</p></div>
-                <div><Label className="text-gray-600">Restaurante</Label><p className="font-semibold">{selectedOrder.restaurant}</p></div>
-                <div><Label className="text-gray-600">Canal</Label><p className="font-semibold">{selectedOrder.channel}</p></div>
-                <div><Label className="text-gray-600">ETA</Label><p className="font-semibold">{selectedOrder.eta}</p></div>
-                <div><Label className="text-gray-600">Total</Label><p className="font-semibold text-lg">${selectedOrder.total.toFixed(2)}</p></div>
+          return (
+            <div
+              key={order.id}
+              className="bg-white border rounded-xl p-4 shadow-sm flex flex-col gap-3"
+            >
+              {/* HEADER */}
+              <div className="flex justify-between items-center">
                 <div>
-                  <Label className="text-gray-600">Estado</Label>
-                  <Select value={selectedOrder.status} onChange={(e) => handleStatusChange(selectedOrder.id, e.target.value as OrderStatus)} className="mt-1">
-                    <option value="Preparing">Preparing</option>
-                    <option value="Ready">Ready</option>
-                    <option value="Served">Served</option>
-                    <option value="Delivered">Delivered</option>
-                    <option value="Cancelled">Cancelled</option>
-                  </Select>
+                  <h2 className="font-bold text-gray-800">
+                    Orden #{order.id}
+                  </h2>
+                  <p className="text-xs text-gray-500">
+                    {order.customerName}
+                  </p>
                 </div>
+
+                <span
+                  className={`text-xs font-bold px-2 py-1 rounded ${
+                    order.status === "Preparing"
+                      ? "bg-yellow-100 text-yellow-700"
+                      : order.status === "Ready"
+                      ? "bg-green-100 text-green-700"
+                      : order.status === "Pending"
+                      ? "bg-gray-100 text-gray-700"
+                      : "bg-blue-100 text-blue-700"
+                  }`}
+                >
+                  {order.status}
+                </span>
               </div>
 
-              <div>
-                <Label className="text-gray-900 font-semibold mb-2 block">Items de la Orden</Label>
-                <div className="border border-gray-200 rounded-lg overflow-hidden">
-                  <table className="w-full">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="text-left px-4 py-2 text-sm font-medium text-gray-700">Producto</th>
-                        <th className="text-center px-4 py-2 text-sm font-medium text-gray-700">Cantidad</th>
-                        <th className="text-right px-4 py-2 text-sm font-medium text-gray-700">Precio Unit.</th>
-                        <th className="text-right px-4 py-2 text-sm font-medium text-gray-700">Subtotal</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {selectedOrder.items.map((item, index) => (
-                        <tr key={index} className="border-t border-gray-200">
-                          <td className="px-4 py-3">{item.productName}</td>
-                          <td className="px-4 py-3 text-center">{item.quantity}</td>
-                          <td className="px-4 py-3 text-right">${item.unitPrice.toFixed(2)}</td>
-                          <td className="px-4 py-3 text-right font-semibold">${item.subtotal.toFixed(2)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+              {/* INFO */}
+              <div className="flex justify-between text-sm text-gray-600">
+                <span>
+                  Mesa:{" "}
+                  {order.tableId ? `#${order.tableId}` : "Sin asignar"}
+                </span>
+                <span
+                  className={`flex items-center gap-1 ${getTimeColor(minutes)}`}
+                >
+                  <Clock size={14} />
+                  {minutes} min
+                </span>
               </div>
 
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <Label className="text-gray-900 font-semibold">Notas</Label>
-                  {!editingNotes && <button onClick={() => setEditingNotes(true)} className="text-sm text-blue-600 hover:text-blue-800">Editar</button>}
-                </div>
-                {editingNotes ? (
-                  <div className="space-y-2">
-                    <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Agregar notas sobre la orden..." rows={3} />
-                    <div className="flex gap-2">
-                      <Button size="sm" onClick={handleSaveNotes}>Guardar</Button>
-                      <Button size="sm" variant="outline" onClick={() => { setEditingNotes(false); setNotes(selectedOrder.notes || ''); }}>Cancelar</Button>
-                    </div>
+              {/* ITEMS */}
+              <div className="text-xs text-gray-500 space-y-1">
+                {order.items.map((item) => (
+                  <div key={item.id}>
+                    {item.quantity}x {item.productName}
                   </div>
-                ) : (
-                  <p className="text-gray-600 bg-gray-50 p-3 rounded-lg border border-gray-200">{selectedOrder.notes || 'Sin notas'}</p>
-                )}
+                ))}
               </div>
 
-              <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
-                <div><Label className="text-gray-500">Creado</Label><p>{formatDate(selectedOrder.createdAt)}</p></div>
-                <div><Label className="text-gray-500">Actualizado</Label><p>{formatDate(selectedOrder.updatedAt)}</p></div>
+              {/* ACCIONES */}
+              <div className="flex gap-2 flex-wrap mt-2">
+                {/* CAMBIAR ESTADO */}
+                {getNextStatus(order.status) && (
+                  <button
+                    onClick={() => handleNextStatus(order)}
+                    disabled={updatingId === order.id}
+                    className="text-xs bg-green-600 text-white px-3 py-1 rounded-md"
+                  >
+                    {updatingId === order.id
+                      ? "..."
+                      : getNextStatus(order.status)}
+                  </button>
+                )}
+
+                {/* SELECT MESA */}
+                <select
+                  value={selectedTables[order.id] ?? ""}
+                  onChange={(e) =>
+                    setSelectedTables((prev) => ({
+                      ...prev,
+                      [order.id]: Number(e.target.value),
+                    }))
+                  }
+                  className="text-xs border rounded px-2 py-1"
+                >
+                  <option value="">Seleccionar mesa</option>
+                  {tables.map((table) => (
+                    <option key={table.id} value={table.id}>
+                      Mesa {table.tableNumber}
+                    </option>
+                  ))}
+                </select>
+
+                {/* CONFIRMAR */}
+                <button
+                  onClick={() => handleConfirmTable(order)}
+                  disabled={!selectedTables[order.id]}
+                  className={`text-xs px-3 py-1 rounded-md ${
+                    selectedTables[order.id]
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  }`}
+                >
+                  Confirmar
+                </button>
               </div>
             </div>
-          )}
+          );
+        })}
+      </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDetailOpen(false)}>Cerrar</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {filteredOrders.length === 0 && (
+        <p className="text-center text-gray-400 text-sm">
+          No hay órdenes activas
+        </p>
+      )}
     </div>
   );
 };

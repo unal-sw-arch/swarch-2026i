@@ -88,7 +88,7 @@ const returnUserToken = (response: AuthLoginResponse, providedUsername?: string)
 
 export const authLogin = async (username: string, password: string) => {
     try {
-       const { data } = await productsApi.post<AuthLoginResponse>('/api/auth/login', {
+       const { data } = await productsApi.post<AuthLoginResponse>('/auth/login', {
         username,
         password,
        });
@@ -117,7 +117,7 @@ export const authRegister = async (
     role: string = 'CUSTOMER'
 ) => {
     try {
-        const { data } = await productsApi.post<AuthRegisterResponse>('/api/auth/register', {
+        const { data } = await productsApi.post<AuthRegisterResponse>('/auth/register', {
             name,
             email,
             username,

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.clickmunch.OrderService.controller.OrderControllerTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-04-21T02:56:39.219Z" hostname="Mikes-MacBook-Pro.local" time="0.296">
+  <properties/>
+  <testcase name="createOrder_returns201()" classname="com.clickmunch.OrderService.controller.OrderControllerTest" time="0.192"/>
+  <testcase name="getOrder_returns200()" classname="com.clickmunch.OrderService.controller.OrderControllerTest" time="0.006"/>
+  <testcase name="getRestaurantOrders_withStatusFilter_returns200()" classname="com.clickmunch.OrderService.controller.OrderControllerTest" time="0.014"/>
+  <testcase name="updateStatus_invalidTransition_returns400()" classname="com.clickmunch.OrderService.controller.OrderControllerTest" time="0.015"/>
+  <testcase name="createOrder_withEmptyItems_returns400()" classname="com.clickmunch.OrderService.controller.OrderControllerTest" time="0.032"/>
+  <testcase name="updateStatus_returns200()" classname="com.clickmunch.OrderService.controller.OrderControllerTest" time="0.005"/>
+  <testcase name="getOrder_notFound_returns404()" classname="com.clickmunch.OrderService.controller.OrderControllerTest" time="0.007"/>
+  <testcase name="getKitchenOrders_returns200()" classname="com.clickmunch.OrderService.controller.OrderControllerTest" time="0.009"/>
+  <system-out><![CDATA[21:56:37.641 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.clickmunch.OrderService.controller.OrderControllerTest]: OrderControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+21:56:37.800 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.clickmunch.OrderService.OrderServiceApplication for test class com.clickmunch.OrderService.controller.OrderControllerTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.0)
+
+2026-04-20T21:56:38.201-05:00  INFO 49513 --- [OrderService] [    Test worker] c.c.O.controller.OrderControllerTest     : Starting OrderControllerTest using Java 21.0.5 with PID 49513 (started by mikebetancourt in /Users/mikebetancourt/Documents/University/Soft Arch/Project/ClickAndMunchApp/backend/OrderService)
+2026-04-20T21:56:38.203-05:00  INFO 49513 --- [OrderService] [    Test worker] c.c.O.controller.OrderControllerTest     : No active profile set, falling back to 1 default profile: "default"
+2026-04-20T21:56:39.190-05:00  INFO 49513 --- [OrderService] [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-04-20T21:56:39.190-05:00  INFO 49513 --- [OrderService] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-04-20T21:56:39.192-05:00  INFO 49513 --- [OrderService] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-04-20T21:56:39.216-05:00  INFO 49513 --- [OrderService] [    Test worker] c.c.O.controller.OrderControllerTest     : Started OrderControllerTest in 1.337 seconds (process running for 2.352)
+2026-04-20T21:56:39.486-05:00  WARN 49513 --- [OrderService] [    Test worker] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.bind.MethodArgumentNotValidException: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<com.clickmunch.OrderService.dto.ApiResponse<com.clickmunch.OrderService.dto.OrderResponse>> com.clickmunch.OrderService.controller.OrderController.createOrder(com.clickmunch.OrderService.dto.CreateOrderRequest): [Field error in object 'createOrderRequest' on field 'items': rejected value [[]]; codes [NotEmpty.createOrderRequest.items,NotEmpty.items,NotEmpty.java.util.List,NotEmpty]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [createOrderRequest.items,items]; arguments []; default message [items]]; default message [must not be empty]] ]
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

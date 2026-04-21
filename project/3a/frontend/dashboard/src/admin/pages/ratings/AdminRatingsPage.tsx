@@ -1,78 +1,123 @@
-const ratings = [
-  {
-    id: "RT-5001",
-    restaurant: "Urban Bistro",
-    customer: "Ana Ríos",
-    score: 4.8,
-    comment: "Excelente servicio y la orden llegó a tiempo.",
-    date: "2025-10-20",
-  },
-  {
-    id: "RT-5002",
-    restaurant: "Café Andino",
-    customer: "Carlos Mendez",
-    score: 4.2,
-    comment: "Buen café, la reserva fue rápida.",
-    date: "2025-10-18",
-  },
-  {
-    id: "RT-5003",
-    restaurant: "Urban Bistro",
-    customer: "John Doe",
-    score: 3.9,
-    comment: "Demora en cocina pero buena atención.",
-    date: "2025-10-15",
-  },
-];
+import { useEffect, useState } from 'react';
+import { Star, MessageSquare, Store, Info } from 'lucide-react';
+import { ratingService, type IndividualRating, type RatingSummary, type Restaurant } from '@/lib/services/ratingService';
 
 export const AdminRatingsPage = () => {
-  const avg = (ratings.reduce((acc, r) => acc + r.score, 0) / ratings.length).toFixed(2);
+  const [ratings, setRatings] = useState<IndividualRating[]>([]);
+  const [summary, setSummary] = useState<RatingSummary | null>(null);
+  const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Supongamos que obtienes este ID del contexto o la URL
+  const restaurantId = 1001; 
+
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        const [summaryData, ratingsData, restaurantData] = await Promise.all([
+          ratingService.getSummary(restaurantId),
+          ratingService.getRestaurantRatings(restaurantId),
+          ratingService.getRestaurantDetail(restaurantId)
+        ]);
+
+        setSummary(summaryData);
+        setRatings(ratingsData);
+        setRestaurant(restaurantData);
+      } catch (error) {
+        console.error("Error cargando panel de control:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, [restaurantId]);
+
+  if (loading) return <div className="p-20 text-center animate-pulse text-slate-400">Cargando panel de feedback...</div>;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-2xl font-bold text-gray-900">Ratings y Feedback</h1>
-        <p className="text-gray-600">
-          Opiniones de clientes posteriores a la visita (FR-06, US-23, US-24).
-        </p>
+    <div className="max-w-6xl mx-auto p-6 space-y-8">
+      {/* Header Dinámico */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-4xl font-black text-slate-900 tracking-tight">
+            {restaurant?.name || "Cargando..."}
+          </h1>
+          <p className="text-slate-500 font-medium flex items-center gap-2">
+            <Info className="w-4 h-4" /> {restaurant?.description || "Panel de administración de reseñas"}
+          </p>
+        </div>
+        <div className="text-right">
+          <span className="bg-slate-900 text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest">
+            {restaurant?.placeType || "Local"}
+          </span>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <SummaryCard label="Promedio general" value={`${avg} / 5`} />
-        <SummaryCard label="Total reseñas" value={ratings.length.toString()} />
-        <SummaryCard label="Última reseña" value={ratings[0]?.date ?? "-"} />
+      {/* Grid de Resumen */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <SummaryCard 
+          label="Puntaje Promedio" 
+          value={`${summary?.averageScore.toFixed(2) ?? "0.00"}`} 
+          subValue="/ 5.0"
+          icon={<Star className="w-5 h-5 text-orange-500 fill-orange-500" />}
+        />
+        <SummaryCard 
+          label="Total de Reseñas" 
+          value={summary?.totalRatings.toString() ?? "0"} 
+          subValue="comentarios"
+          icon={<MessageSquare className="w-5 h-5 text-blue-500" />}
+        />
+        <SummaryCard 
+          label="Establecimiento" 
+          value={restaurant?.name ?? "---"} 
+          subValue={`ID: ${restaurant?.id}`}
+          icon={<Store className="w-5 h-5 text-slate-400" />} 
+        />
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm space-y-3">
-        {ratings.map((r) => (
-          <div key={r.id} className="py-3 border-b last:border-b-0 border-gray-100">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-semibold text-gray-900">{r.restaurant}</p>
-                <p className="text-sm text-gray-600">Cliente: {r.customer}</p>
+      {/* Lista de Feedback */}
+      <div className="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
+        <div className="p-6 border-b border-slate-100 bg-slate-50/50">
+          <h3 className="font-bold text-slate-800 uppercase tracking-tighter">Opiniones de clientes</h3>
+        </div>
+        <div className="divide-y divide-slate-100">
+          {ratings.map((r) => (
+            <div key={r.id} className="p-6 hover:bg-slate-50/30 transition-colors">
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="font-bold text-slate-900 leading-none mb-1">{r.customerName}</p>
+                  <p className="text-xs text-slate-400 font-medium uppercase tracking-tight">Orden #{r.orderId}</p>
+                </div>
+                <div className="flex items-center gap-1 text-orange-600 font-black">
+                  {r.score.toFixed(1)} <Star className="w-4 h-4 fill-current" />
+                </div>
               </div>
-              <div className="text-right">
-                <p className="text-lg font-bold text-yellow-600">{r.score.toFixed(1)} ★</p>
-                <p className="text-xs text-gray-500">{r.date}</p>
-              </div>
+              <p className="mt-4 text-slate-600 text-sm leading-relaxed border-l-4 border-slate-100 pl-4 italic">
+                "{r.review}"
+              </p>
+              <p className="mt-3 text-[10px] text-slate-400 font-bold uppercase">
+                {new Date(r.createdAt).toLocaleDateString()}
+              </p>
             </div>
-            <p className="text-sm text-gray-700 mt-2">{r.comment}</p>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
 };
 
-interface SummaryCardProps {
-  label: string;
-  value: string;
-}
-
-const SummaryCard = ({ label, value }: SummaryCardProps) => (
-  <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
-    <p className="text-sm text-gray-600">{label}</p>
-    <p className="text-xl font-bold text-gray-900">{value}</p>
+// Componente de Tarjeta
+const SummaryCard = ({ label, value, subValue, icon }: { label: string, value: string, subValue: string, icon: any }) => (
+  <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex items-center gap-5">
+    <div className="p-4 bg-slate-50 rounded-2xl">{icon}</div>
+    <div>
+      <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{label}</p>
+      <div className="flex items-baseline gap-1">
+        <span className="text-3xl font-black text-slate-900">{value}</span>
+        <span className="text-xs font-bold text-slate-300">{subValue}</span>
+      </div>
+    </div>
   </div>
 );
-

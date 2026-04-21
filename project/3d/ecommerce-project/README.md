@@ -41,7 +41,7 @@
 
 ## 🏛️ Arquitectura
 
-![Arquitectura del Sistema](cc.svg)
+![Arquitectura del Sistema](docs/cc.svg)
 
 #### Descripción de los elementos y relaciones Arquitectónicas 
 

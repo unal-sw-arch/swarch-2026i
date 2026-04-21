@@ -3,9 +3,20 @@ services:
     build: ./api-gateway
     ports:
       - "3000:3000"
+    environment:
+      - PRODUCT_SERVICE_URL=http://product-service:4000
+      - ORDER_SERVICE_URL=http://order-service:5000
+      - REVIEW_SERVICE_URL=http://review-service:6000
+      - AUTH_SERVICE_URL=http://auth-service:8080
+      - RABBITMQ_URL=amqp://admin:admin@rabbitmq:5672
+      - REDIS_URL=redis://redis:6379
     depends_on:
       - product-service
       - order-service
+      - notification-service
+      - auth-service
+      - rabbitmq
+      - redis
     networks:
       - app-network
 
@@ -13,6 +24,13 @@ services:
     build: ./product-service
     depends_on:
       - postgres
+    environment:
+      - PORT=4000
+      - DB_HOST=postgres
+      - DB_USER=admin
+      - DB_PASSWORD=admin
+      - DB_NAME=giftshop
+      - DB_PORT=5432
     networks:
       - app-network
 
@@ -27,12 +45,23 @@ services:
       - products_data:/var/lib/postgresql/data
     networks:
       - app-network
+
   order-service:
     build: ./order-service
     depends_on:
       - orders-postgres
+      - rabbitmq
+    environment:
+      - DB_HOST=orders-postgres
+      - DB_USER=admin
+      - DB_PASSWORD=admin
+      - DB_NAME=ordersdb
+      - DB_PORT=5432
+      - RABBITMQ_URL=amqp://admin:admin@rabbitmq:5672
+      - PORT=5000
     networks:
       - app-network
+
   orders-postgres:
     image: postgres:15
     container_name: orders-postgres
@@ -53,10 +82,25 @@ services:
       - api-gateway
     networks:
       - app-network
+
+  frontend-ssr:
+    build: ./frontend-ssr
+    ports:
+      - "3001:3001"
+    depends_on:
+      - api-gateway
+    volumes:
+      - ./frontend-ssr/public/uploads:/app/public/uploads
+    networks:
+      - app-network
+
   review-service:
     build: ./review-service
     depends_on:
       - mongo
+    environment:
+    - PORT=6000
+    - MONGO_URI=mongodb://mongo:27017/reviewsdb
     networks:
       - app-network
 
@@ -68,11 +112,79 @@ services:
     networks:
       - app-network
 
+  notification-service:
+    build: ./notification-service
+    ports:
+      - "7000:7000"
+    depends_on:
+      - rabbitmq
+      - redis
+    environment:
+      - RABBITMQ_URL=amqp://admin:admin@rabbitmq:5672
+      - REDIS_URL=redis://redis:6379
+      # SMTP: si están vacías, notification-service cae a MOCK (console.log)
+      - SMTP_HOST=${SMTP_HOST:-}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER:-}
+      - SMTP_PASS=${SMTP_PASS:-}
+      - SMTP_FROM=${SMTP_FROM:-}
+    networks:
+      - app-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"  # Panel web de RabbitMQ
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - app-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - app-network
+
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    depends_on:
+      - auth-db
+    environment:
+      - PORT=8080
+    networks:
+      - app-network
+
+  auth-db:
+    image: postgres:15
+    container_name: auth_db_container
+    environment:
+      POSTGRES_USER: user_auth
+      POSTGRES_PASSWORD: password_segura
+      POSTGRES_DB: auth_db
+    volumes:
+      - ./auth-service/databaseComponent/init.sql:/docker-entrypoint-initdb.d/init.sql 
+      - auth_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
 networks:
   app-network:
-
 
 volumes:
   products_data:
   orders_data:
   reviews_data:
+  rabbitmq_data:
+  redis_data:
+  auth_data:

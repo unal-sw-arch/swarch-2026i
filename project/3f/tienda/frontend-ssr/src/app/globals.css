@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Lexend:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --primary-yellow: #facc15;
+  --primary-pink: #fce7f3;
+  --text-dark: #1f2937;
+  --text-light: #6b7280;
+  --border-radius: 12px;
+}
+
+* {
+  @apply transition-all duration-300 ease-out;
+}
+
+body {
+  font-family: 'Inter', 'Lexend', sans-serif;
+  @apply bg-pink-50 text-gray-800 antialiased;
+  letter-spacing: 0.4px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  @apply font-semibold tracking-tight;
+}
+
+.font-alfa {
+  font-family: 'Alfa Slab One', cursive;
+  letter-spacing: 1px;
+}
+
+/* Smooth transitions para elementos interactivos */
+button, a, input, textarea, select {
+  @apply transition-all duration-200;
+}
+
+/* Animación suave para entrada */
+.animate-slide-in {
+  animation: slideIn 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-10px) translateX(0);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Fade in animation */
+.animate-fade-in {
+  animation: fadeIn 400ms ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Elevation shadow utilities */
+.shadow-elevation-1 {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.shadow-elevation-2 {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.shadow-elevation-3 {
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Focus ring moderno */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2;
+}
+
+/* Efecto hover sutil */
+.hover-lift {
+  @apply hover:shadow-elevation-2 hover:translate-y-[-2px];
+}
+
+/* Link moderno */
+a {
+  @apply hover:text-yellow-600;
+}

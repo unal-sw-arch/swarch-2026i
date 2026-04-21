@@ -1,2 +1,0 @@
-ALTER TABLE "game"
-ADD COLUMN IF NOT EXISTS "imageUrl" TEXT;

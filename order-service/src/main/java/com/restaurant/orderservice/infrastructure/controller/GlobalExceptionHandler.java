@@ -1,9 +1,9 @@
 package com.restaurant.orderservice.infrastructure.controller;
 
 import com.restaurant.orderservice.application.dto.ErrorResponse;
+import com.restaurant.orderservice.domain.exception.ForbiddenException;
 import com.restaurant.orderservice.domain.exception.MenuItemNotAvailableException;
 import com.restaurant.orderservice.domain.exception.MenuItemNotFoundException;
-import com.restaurant.orderservice.domain.exception.MenuNotFoundException;
 import com.restaurant.orderservice.domain.exception.OrderNotFoundException;
 import com.restaurant.orderservice.domain.exception.RestaurantNotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,17 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // ── 404: entidades no encontradas ─────────────────────────────────────────
+    // ── 403 ──────────────────────────────────────────────────────────────────
+
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ErrorResponse> handleForbidden(ForbiddenException ex) {
+        log.warn("Acceso denegado: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(new ErrorResponse("FORBIDDEN", ex.getMessage()));
+    }
+
+    // ── 404 ──────────────────────────────────────────────────────────────────
 
     @ExceptionHandler(RestaurantNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleRestaurantNotFound(RestaurantNotFoundException ex) {
@@ -27,14 +37,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(new ErrorResponse("RESTAURANT_NOT_FOUND", ex.getMessage()));
-    }
-
-    @ExceptionHandler(MenuNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleMenuNotFound(MenuNotFoundException ex) {
-        log.warn("Menú no encontrado: {}", ex.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(new ErrorResponse("MENU_NOT_FOUND", ex.getMessage()));
     }
 
     @ExceptionHandler(MenuItemNotFoundException.class)
@@ -53,7 +55,7 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse("ORDER_NOT_FOUND", ex.getMessage()));
     }
 
-    // ── 422: reglas de negocio violadas ───────────────────────────────────────
+    // ── 422 ──────────────────────────────────────────────────────────────────
 
     @ExceptionHandler(MenuItemNotAvailableException.class)
     public ResponseEntity<ErrorResponse> handleMenuItemNotAvailable(MenuItemNotAvailableException ex) {
@@ -63,27 +65,24 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse("VALIDATION_ERROR", ex.getMessage()));
     }
 
-    // ── 400: validación de campos del request ─────────────────────────────────
+    // ── 400 ──────────────────────────────────────────────────────────────────
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
         String message = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
-                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .map(e -> e.getField() + ": " + e.getDefaultMessage())
                 .findFirst()
                 .orElse("Error de validación en el request");
-
         log.warn("Validación fallida: {}", message);
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse("VALIDATION_ERROR", message));
     }
 
-    // ── 400: JSON malformado o tipo incorrecto en path variable ───────────────
-
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorResponse> handleUnreadableMessage(HttpMessageNotReadableException ex) {
+    public ResponseEntity<ErrorResponse> handleUnreadable(HttpMessageNotReadableException ex) {
         log.warn("Request body inválido: {}", ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
@@ -92,14 +91,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
-        String message = "El parámetro '" + ex.getName() + "' debe ser de tipo " + ex.getRequiredType().getSimpleName();
-        log.warn("Tipo incorrecto en parámetro: {}", message);
+        Class<?> requiredType = ex.getRequiredType();
+        String typeName = requiredType != null ? requiredType.getSimpleName() : "desconocido";
+        String message = "El parámetro '" + ex.getName() + "' debe ser de tipo " + typeName;
+        log.warn("Tipo incorrecto: {}", message);
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse("VALIDATION_ERROR", message));
     }
 
-    // ── 500: cualquier error no previsto ──────────────────────────────────────
+    // ── 500 ──────────────────────────────────────────────────────────────────
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneric(Exception ex) {

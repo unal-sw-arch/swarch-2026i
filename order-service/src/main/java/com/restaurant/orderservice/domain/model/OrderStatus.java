@@ -2,7 +2,8 @@ package com.restaurant.orderservice.domain.model;
 
 public enum OrderStatus {
     CREATED,
-    IN_PROGRESS,
+    IN_PREPARATION,
+    READY,
     DELIVERED,
     CANCELLED
 }

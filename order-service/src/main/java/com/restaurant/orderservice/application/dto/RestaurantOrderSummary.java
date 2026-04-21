@@ -7,15 +7,15 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
+// Shape exacto del contrato: GET /restaurants/me/orders items[]
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderItemResponse {
+public class RestaurantOrderSummary {
 
-    private Long menuItemId;
-    private String productName;
-    private BigDecimal unitPrice;
-    private int quantity;
-    private BigDecimal subtotal;
+    private Long id;
+    private Long customerId;
+    private String status;
+    private BigDecimal totalAmount;
 }

@@ -22,16 +22,16 @@ public class OrderItem {
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
-    // FK de referencia — el dato real se guarda en los snapshots
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "menu_item_id", nullable = false)
-    private MenuItem menuItem;
+    // Referencia externa al Catalog Service — sin FK a ninguna tabla local.
+    // El Catalog Service es la fuente oficial del menu item.
+    @Column(name = "menu_item_id", nullable = false)
+    private Long menuItemId;
 
-    // Snapshot: se congela el nombre del producto al momento del pedido
+    // Snapshot: nombre congelado al momento del pedido
     @Column(name = "product_name_snapshot", nullable = false)
     private String productNameSnapshot;
 
-    // Snapshot: se congela el precio unitario al momento del pedido
+    // Snapshot: precio unitario congelado al momento del pedido
     @Column(name = "unit_price_snapshot", nullable = false, precision = 12, scale = 2)
     private BigDecimal unitPriceSnapshot;
 

@@ -5,12 +5,18 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
-    // Carga el pedido junto con sus items en una sola query — evita N+1 en GET /orders/{id}
-    // JOIN FETCH necesario porque Order.items es LAZY
+    // JOIN FETCH para evitar N+1 al cargar items del pedido
     @Query("SELECT o FROM Order o JOIN FETCH o.items WHERE o.id = :id")
     Optional<Order> findByIdWithItems(@Param("id") Long id);
+
+    // Para GET /customers/me/orders — lista liviana, sin JOIN FETCH (items no se usan)
+    List<Order> findAllByCustomerIdOrderByCreatedAtDesc(Long customerId);
+
+    // Para GET /restaurants/me/orders — lista liviana, sin JOIN FETCH
+    List<Order> findAllByRestaurantIdOrderByCreatedAtDesc(Long restaurantId);
 }

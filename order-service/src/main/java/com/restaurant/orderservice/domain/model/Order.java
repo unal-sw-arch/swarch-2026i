@@ -8,7 +8,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,15 +24,13 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "restaurant_id", nullable = false)
-    private Restaurant restaurant;
+    // Referencia externa: el customer vive en Auth/User Service. Solo almacenamos el ID.
+    @Column(name = "customer_id", nullable = false)
+    private Long customerId;
 
-    @Column(name = "customer_name", nullable = false)
-    private String customerName;
-
-    @Column(name = "customer_phone", nullable = false)
-    private String customerPhone;
+    // Referencia externa: el restaurante vive en Catalog Service. Solo almacenamos el ID.
+    @Column(name = "restaurant_id", nullable = false)
+    private Long restaurantId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -49,9 +47,9 @@ public class Order {
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 }

@@ -82,6 +82,22 @@ services:
     networks:
       - deliunal-network
 
+  # L5. Kitchen Service
+  kitchen-service:
+    build:
+      context: ./services/kitchen-service
+    ports:
+      - "8082:8082"
+    environment:
+      - PORT=8082
+      - AMQP_URL=amqp://guest:guest@event-broker:5672
+      - JWT_SECRET=super-secret-key-for-development
+    depends_on:
+      event-broker:
+        condition: service_healthy
+    networks:
+      - deliunal-network
+
   # L6. Notification Service
   notification-service:
     build:
@@ -178,6 +194,12 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
     networks:
       - deliunal-network
 

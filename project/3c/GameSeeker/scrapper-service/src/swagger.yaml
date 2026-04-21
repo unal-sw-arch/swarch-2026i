@@ -1,0 +1,233 @@
+openapi: 3.0.3
+info:
+  title: Game Price Scraper API
+  description: Scrapes and compares PC game prices across Steam, Epic, GOG, and Microsoft Store.
+  version: 1.0.0
+
+paths:
+  /:
+    get:
+      summary: Welcome page
+      responses:
+        '200':
+          description: HTML welcome page
+          content:
+            text/html:
+              schema:
+                type: string
+
+  /health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: healthy
+                  service:
+                    type: string
+                    example: game-scraper
+
+  /api/v1/games/search:
+    get:
+      summary: Search all stores
+      description: Search for a game across all supported stores.
+      parameters:
+        - name: name
+          in: query
+          required: true
+          schema:
+            type: string
+          example: "Cyberpunk 2077"
+      responses:
+        '200':
+          description: Game found on one or more stores
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  game:
+                    type: string
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/GameResult'
+        '400':
+          description: Missing name parameter
+        '404':
+          description: Game not found on any store
+
+  /api/v1/games/compare:
+    get:
+      summary: Compare prices across all stores
+      description: Compare prices for a single game and find the cheapest option.
+      parameters:
+        - name: name
+          in: query
+          required: true
+          schema:
+            type: string
+          example: "Elden Ring"
+      responses:
+        '200':
+          description: Price comparison result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  game:
+                    type: string
+                  prices:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PriceEntry'
+                  cheapest:
+                    $ref: '#/components/schemas/PriceEntry'
+        '400':
+          description: Missing name parameter
+        '404':
+          description: Game not found on any store
+
+  /api/v1/games/compare/bulk:
+    post:
+      summary: Bulk compare prices
+      description: Compare prices for multiple games at once across all stores.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - games
+              properties:
+                games:
+                  type: array
+                  items:
+                    type: string
+                  example: ["Cyberpunk 2077", "Elden Ring", "Hades"]
+      responses:
+        '200':
+          description: Bulk comparison results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  comparisons:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        game:
+                          type: string
+                        prices:
+                          type: array
+                          items:
+                            $ref: '#/components/schemas/PriceEntry'
+                        cheapest:
+                          $ref: '#/components/schemas/PriceEntry'
+        '400':
+          description: Missing or invalid games field
+
+  /api/v1/games/search/{store}:
+    get:
+      summary: Search a specific store
+      description: Search for a game on a specific store only.
+      parameters:
+        - name: store
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [steam, epic, gog, microsoft]
+        - name: name
+          in: query
+          required: true
+          schema:
+            type: string
+          example: "Hades"
+      responses:
+        '200':
+          description: Game found on the specified store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameResult'
+        '400':
+          description: Missing name parameter or invalid store
+        '404':
+          description: Game not found on this store
+        '500':
+          description: Internal server error
+
+  /api/v1/games/trending/{store}:
+    get:
+      summary: Get trending games
+      description: Get trending or featured games from a specific store.
+      parameters:
+        - name: store
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [steam, gog]
+      responses:
+        '200':
+          description: List of trending games
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  store:
+                    type: string
+                  count:
+                    type: integer
+                  games:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/GameResult'
+        '400':
+          description: Invalid store
+        '500':
+          description: Internal server error
+
+components:
+  schemas:
+    GameResult:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Cyberpunk 2077"
+        store:
+          type: string
+          example: "steam"
+        price_cents:
+          type: integer
+          example: 2999
+        url:
+          type: string
+          example: "https://store.steampowered.com/app/1091500"
+
+    PriceEntry:
+      type: object
+      properties:
+        store:
+          type: string
+          example: "gog"
+        price_cents:
+          type: integer
+          example: 2499
+        url:
+          type: string
+          example: "https://www.gog.com/game/cyberpunk_2077"

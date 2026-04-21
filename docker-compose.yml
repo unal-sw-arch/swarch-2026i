@@ -1,4 +1,17 @@
 services:
+  # P1. Customer App (Next.js SSR)
+  customer-app:
+    build:
+      context: ./apps/customer-app
+    ports:
+      - "3001:3001"
+    environment:
+      - GATEWAY_BASE_URL=http://api-gateway:4000
+    depends_on:
+      - api-gateway
+    networks:
+      - deliunal-network
+
   # P2. Restaurant Dashboard según la Biblia Técnica
   restaurant-dashboard:
     build:
@@ -9,6 +22,27 @@ services:
     ports:
       - "5173:80"
     depends_on:
+      - order-service
+      - notification-service
+    networks:
+      - deliunal-network
+
+  # L1. API Gateway
+  api-gateway:
+    build:
+      context: ./services/api-gateway
+    ports:
+      - "4000:4000"
+    environment:
+      - PORT=4000
+      - AUTH_SERVICE_URL=http://auth-service:8000
+      - CATALOG_SERVICE_URL=http://catalog-service:3000
+      - ORDER_SERVICE_URL=http://order-service:8080
+      - NOTIFICATION_SERVICE_URL=http://notification-service:8000
+    depends_on:
+      - auth-service
+      - catalog-service
+      - order-service
       - notification-service
     networks:
       - deliunal-network
@@ -21,14 +55,30 @@ services:
       - "8080:8080"
     environment:
       - SERVER_PORT=8080
-      - DB_URL=jdbc:postgresql://ep-falling-darkness-add1enig-pooler.c-2.us-east-1.aws.neon.tech/order-service-db?sslmode=require&channelBinding=require
-      - DB_USERNAME=neondb_owner
-      - DB_PASSWORD=npg_PwcpikZ64rWn
+      - DB_URL=jdbc:postgresql://order-db:5432/order_db
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
       - JPA_DDL_AUTO=none
       - JPA_SHOW_SQL=false
       - SQL_INIT_MODE=always
       - TRACKING_SERVICE_URL=http://notification-service:8000 
       - LOG_LEVEL=INFO
+    depends_on:
+      - order-db
+    networks:
+      - deliunal-network
+
+  # D3. Order DB
+  order-db:
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=order_db
+    ports:
+      - "5435:5432"
+    volumes:
+      - order-data:/var/lib/postgresql/data
     networks:
       - deliunal-network
 
@@ -38,8 +88,10 @@ services:
       context: ./services/notification-service
     ports:
       - "8000:8000"
-    env_file:
-      - .env
+    environment:
+      - MONGO_URI=mongodb://tracking_service_user:tracking_password_2026@mongo-db:27017/tracking_context?authSource=tracking_context
+      - MONGO_DB_NAME=tracking_context
+      - MONGO_COLLECTION_NAME=activity_events
     depends_on:
       - mongo-db
     networks:
@@ -145,3 +197,4 @@ volumes:
   mongo-data:
   auth-data:
   catalog-data:
+  order-data:

@@ -34,3 +34,4 @@ services/notification-service/__pycache__/
 # Node artifacts
 apps/restaurant-dashboard/node_modules/
 **/node_modules/
+**/.next/

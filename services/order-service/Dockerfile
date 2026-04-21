@@ -21,9 +21,11 @@ FROM eclipse-temurin:17-jre-alpine
 
 WORKDIR /app
 
+RUN apk add --no-cache netcat-openbsd
+
 # Copia solo el JAR generado — sin Maven, sin fuentes, sin dependencias de build
 COPY --from=builder /app/target/*.jar app.jar
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["/bin/sh", "-c", "until nc -z order-db 5432; do echo 'Order DB not ready, waiting...'; sleep 2; done && java -jar app.jar"]

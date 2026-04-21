@@ -1,0 +1,85 @@
+@startuml
+!theme plain
+skinparam componentStyle rectangle
+skinparam shadowing false
+left to right direction
+
+title Presentation View - Frontend Layered Structure (Current, Next.js)
+
+actor "Authenticated User" as User
+
+package "frontend/src" {
+  package "app" {
+    component "layout.js + page.js\n(auth entry routes)" as AppRoot
+    component "dashboard/layout.js\n(shell + SSR viewer preload)" as DashboardLayout
+    component "dashboard/products/page.js" as RouteProducts
+    component "dashboard/products/[productId]/page.js" as RouteProductDetail
+    component "dashboard/orders/page.js" as RouteOrders
+    component "dashboard/my-products/page.js" as RouteMyProducts
+    component "dashboard/profile/page.js" as RouteProfile
+  }
+
+  package "widgets" {
+    component "DashboardLayout.jsx" as DashboardWidget
+  }
+
+  package "pages/auth" {
+    component "LoginPage.jsx" as Login
+    component "RegisterPage.jsx" as Register
+  }
+
+  package "pages/catalog" {
+    component "ProductCatalogPage.jsx" as Catalog
+    component "ProductDetailPage.jsx" as Detail
+  }
+
+  package "pages/seller" {
+    component "MyProductsPage.jsx" as MyProducts
+  }
+
+  package "pages/profile" {
+    component "UserProfilePage.jsx" as Profile
+  }
+
+  package "pages/orders" {
+    component "OrdersPage.jsx" as Orders
+  }
+
+  package "shared" {
+    component "config/api.js" as ApiConfig
+    component "lib/auth.js" as AuthLib
+  }
+}
+
+component "API Gateway\n(http://localhost:8000)" as Gateway
+
+User --> AppRoot : Browser navigation
+AppRoot --> Login : /
+AppRoot --> Register : /register
+AppRoot --> DashboardLayout : /dashboard/*
+
+DashboardLayout --> DashboardWidget : page shell
+DashboardLayout --> RouteProducts
+DashboardLayout --> RouteProductDetail
+DashboardLayout --> RouteOrders
+DashboardLayout --> RouteMyProducts
+DashboardLayout --> RouteProfile
+
+RouteProducts --> Catalog
+RouteProductDetail --> Detail
+RouteOrders --> Orders
+RouteMyProducts --> MyProducts
+RouteProfile --> Profile
+
+AppRoot --> AuthLib : cookie/token helpers
+Login --> ApiConfig
+Register --> ApiConfig
+Catalog --> ApiConfig
+Detail --> ApiConfig
+MyProducts --> ApiConfig
+Profile --> ApiConfig
+Orders --> ApiConfig
+
+ApiConfig --> Gateway : REST requests
+
+@enduml

@@ -22,7 +22,7 @@
 **Boutique de Regalos Villapinzón**
 
 ### Logo
-<img width="1206" height="1156" alt="Logo" src="https://github.com/user-attachments/assets/b40c8629-5128-4dfd-8458-c0d83faefcfc" />
+<img width="1206" height="1156" alt="Logo" src="assets/Logo.jpeg" />
 
 
 
@@ -105,7 +105,7 @@ Why it was chosen: Data layers mirror the logic component topology exclusively. 
 ### 3.2 Deployment Structure
 
 #### Deployment View
-<img width="661" height="664" alt="Deployment View (1)" src="https://github.com/user-attachments/assets/9b1b8f24-9d16-4747-836d-a99fa476eef3" />
+<img width="661" height="664" alt="Deployment View (1)" src="assets/Diagrama despliegue.jpeg" />
 
 #### Description of architectural elements and relations.
 | Node (Environmental Element) | Infrastructure Type | Allocated Software Elements | Provided Properties |
@@ -132,7 +132,7 @@ Although deployed onto managed cloud structures, the underlying system guarantee
 ### 3.3 Layered Structure
 
 #### Layered View
-<img width="491" height="944" alt="Layered view" src="https://github.com/user-attachments/assets/f07eb0fc-09d7-43d6-a72c-216894c81e19" />
+<img width="491" height="944" alt="Layered view" src="assets/Diagrama de Capas.jpeg" />
 #### Description of architectural elements and relations.
 | Layer Name |	Contained Modules / Components	| Responsibility |	Inter-Layer Relation |
 |----|---|---|--|
@@ -155,7 +155,7 @@ Within the Business Logic Layer, the modules are grouped by business subdomain (
 ### 3.4 Decomposition Structure
 
 #### Decomposition View
-<img width="601" height="491" alt="Decomposition View" src="https://github.com/user-attachments/assets/9c11ebe0-6181-4488-b57c-4ca9bddc586c" />
+<img width="601" height="491" alt="Decomposition View" src="assets/Diagrama Descomposicion.jpeg" />
 
 #### Description of architectural elements and relations.
 The entire enterprise solution (<<System>> Boutique de Regalos) is decomposed into three principal architectural modules (<<Subsystems>>), which are subsequently decomposed into functional units (<<Modules>>).

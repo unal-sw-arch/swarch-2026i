@@ -5,15 +5,17 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.math.BigDecimal;
 
+// Shape exacto del contrato: GET /customers/me/orders items[]
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MenuItemsResponse {
+public class CustomerOrderSummary {
 
-    private Long menuId;
+    private Long id;
     private Long restaurantId;
-    private List<MenuItemResponse> items;
+    private String status;
+    private BigDecimal totalAmount;
 }

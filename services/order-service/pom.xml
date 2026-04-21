@@ -17,55 +17,74 @@
     <artifactId>order-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>order-service</name>
-    <description>Servicio de pedidos para sistema distribuido de restaurantes</description>
+    <description>Servicio de pedidos — fuente oficial de verdad para orders</description>
 
     <properties>
         <java.version>17</java.version>
-        <postgresql.version>42.7.4</postgresql.version>
     </properties>
 
     <dependencies>
 
-        <!-- Web -->
+        <!-- ── Web ────────────────────────────────────────────────────────── -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- JPA + Hibernate -->
+        <!-- ── JPA + Hibernate ───────────────────────────────────────────── -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
 
-        <!-- Validación de requests -->
+        <!-- ── Validación de requests ────────────────────────────────────── -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-        <!-- Driver PostgreSQL -->
+        <!-- ── Spring Security (auth context filter, deshabilitamos defaults) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <!-- ── RabbitMQ / AMQP (publisher async de eventos) ─────────────── -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+
+        <!-- ── Driver PostgreSQL ─────────────────────────────────────────── -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
+            <version>42.7.4</version>
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Lombok -->
+        <!-- ── H2 (solo perfil local, nunca en producción) ─────────────── -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- ── Lombok ────────────────────────────────────────────────────── -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
 
-        <!-- .env support -->
+        <!-- ── .env support (desarrollo local) ──────────────────────────── -->
         <dependency>
             <groupId>me.paulschwarz</groupId>
             <artifactId>spring-dotenv</artifactId>
             <version>4.0.0</version>
         </dependency>
 
-        <!-- Test -->
+        <!-- ── Test ──────────────────────────────────────────────────────── -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>

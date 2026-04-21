@@ -1,12 +1,10 @@
 import { Hono } from "hono";
 import { requireAuth } from "../middleware/auth.js";
-import { idempotency } from "../middleware/idempotency.js";
 import { env } from "../lib/env.js";
 
 const wishlist = new Hono<{ Variables: { userId: string } }>();
 
 wishlist.use("/*", requireAuth);
-wishlist.use("/games", idempotency);
 
 /**
  * GET /api/wishlist → GET /wishlist?userId=<userId>
@@ -29,7 +27,10 @@ wishlist.get("/", async (c) => {
  */
 wishlist.post("/games", async (c) => {
   const userId = c.get("userId") as string;
-  const payload = await c.req.json<{ name: string; slug: string }>();
+  const payload = await c.req.json<{ name: string; slug: string; imageUrl?: string}>();
+
+  console.log('Gateway recibió payload:', payload);
+  console.log('imageUrl en payload:', payload.imageUrl);
 
   const upstream = `${env.USER_SERVICE_URL}/wishlist`;
   const response = await fetch(upstream, {
@@ -39,6 +40,7 @@ wishlist.post("/games", async (c) => {
       userId,
       gameId: payload.slug,
       gameName: payload.name,
+      imageUrl: payload.imageUrl ?? null,
     }),
   });
   const body = await response.text();

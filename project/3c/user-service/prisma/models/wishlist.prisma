@@ -14,6 +14,11 @@ model Game {
   gameId     String
   gameName   String
   addedAt    DateTime @default(now())
+  priceCents         Int?
+  originalPriceCents Int?
+  currency           String?
+  store              String?
+  imageUrl           String?
 
   wishlist Wishlist @relation(fields: [wishlistId], references: [userId], onDelete: Cascade)
 

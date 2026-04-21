@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useCallback, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { Search, Heart, LogIn, UserPlus, LogOut, Menu, Loader2 } from 'lucide-react';
+import { Search, Heart, LogIn, UserPlus, LogOut, Menu, Loader2, TrendingUp } from 'lucide-react';
 
 import { logout, type AuthUser } from '@/lib/api';
 import { userStore } from '@/lib/user-store';
@@ -235,6 +235,13 @@ function MobileNavContent({ user, onLogout, onSearch }: MobileNavProps) {
         >
           Home
         </Link>
+        <Link
+          href="/ranking"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface hover:bg-surface-container-high transition-colors"
+        >
+          <TrendingUp className="h-4 w-4 text-primary-container" />
+          Ranking
+        </Link>
         {user && (
           <Link
             href="/wishlist"
@@ -333,6 +340,21 @@ export function Navbar() {
           {/* Desktop search */}
           <div className="hidden md:flex flex-1 max-w-sm mx-auto">
             <SearchBar className="w-full" />
+          </div>
+
+          {/* Desktop Links */}
+          <div className="hidden md:flex items-center gap-2 mr-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              asChild
+              className="text-on-surface-variant hover:text-primary-container transition-colors"
+            >
+              <Link href="/ranking" className="flex items-center gap-1.5">
+                <TrendingUp className="h-4 w-4" />
+                <span className="text-xs font-body">Ranking</span>
+              </Link>
+            </Button>
           </div>
 
           {/* Spacer for mobile */}

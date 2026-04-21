@@ -21,12 +21,12 @@ export const wishlistController = {
   async addGame(c: Context) {
     try {
       const body = await c.req.json();
-      const { userId, gameId, gameName } = body as {
+      const { userId, gameId, gameName, imageUrl } = body as {
         userId?: string;
         gameId?: string;
         gameName?: string;
+        imageUrl?: string;
       };
-
       if (!userId || !gameId || !gameName) {
         return c.json(
           {
@@ -37,7 +37,10 @@ export const wishlistController = {
         );
       }
 
-      const item = await wishlistService.addGame(userId, gameId, gameName);
+      const item = await wishlistService.addGame(userId, gameId, gameName, imageUrl);
+      if (!item) {
+        return c.json({ success: false, message: "Game already in wishlist" }, 409);
+      }
       return c.json({ success: true, data: item }, 201);
     } catch (error: unknown) {
       const message =
@@ -61,6 +64,68 @@ export const wishlistController = {
       const message =
         error instanceof Error ? error.message : "Error deleting game";
       return c.json({ success: false, message }, 500);
+    }
+  },
+
+  async getDistinctGames(c: Context) {
+    try {
+      const games = await wishlistService.getAllDistinctGames();
+      return c.json({ success: true, data: games }, 200);
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Error fetching games";
+      return c.json({ success: false, message }, 500);
+    }
+  },
+
+  async updateGamePrices(c: Context) {
+    try {
+      const body = await c.req.json();
+      const updates = body.updates || [];
+      await wishlistService.updateGamePrices(updates);
+
+      return c.json(
+        {
+          success: true as const,
+          message: "Prices updated successfully",
+        },
+        200,
+      );
+    } catch (error) {
+      console.error(error);
+      return c.json(
+        {
+          success: false as const,
+          message: "Failed to update prices",
+        },
+        500,
+      );
+    }
+  },
+
+  async getSubscribers(c: Context) {
+    try {
+      const body = await c.req.json();
+      const gameNames = body.gameNames || [];
+      const subscribers =
+        await wishlistService.getSubscribersForGames(gameNames);
+
+      return c.json(
+        {
+          success: true as const,
+          data: subscribers,
+        },
+        200,
+      );
+    } catch (error) {
+      console.error(error);
+      return c.json(
+        {
+          success: false as const,
+          message: "Failed to get subscribers",
+        },
+        500,
+      );
     }
   },
 };

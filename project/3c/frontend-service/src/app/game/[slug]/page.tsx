@@ -138,10 +138,10 @@ function GameHero({ game }: GameHeroProps) {
       <div className="flex flex-col md:flex-row gap-6 md:gap-10 p-6 md:p-8 lg:p-10">
         {/* Floating cover art card */}
         <div
-          className="shrink-0 w-36 md:w-44 lg:w-52 self-start rounded-2xl overflow-hidden shadow-ambient-lg"
+          className="shrink-0 w-full md:w-72 lg:w-80 self-start rounded-2xl overflow-hidden shadow-ambient-lg"
           style={{ boxShadow: '0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,154,93,0.10)' }}
         >
-          <div className="aspect-[3/4] relative bg-surface-container">
+          <div className="aspect-[2/1] relative bg-surface-container">
             {game.coverImage ? (
               <Image
                 src={game.coverImage}

@@ -24,6 +24,7 @@ interface ScrapperResult {
   original_price_cents: number;
   currency: string;
   url: string;
+  imageUrl?: string;
 }
 
 interface ScrapperSearchResponse {
@@ -115,6 +116,26 @@ export interface Wishlist {
   games: WishlistGame[];
 }
 
+export interface RankedGame {
+  rank: number;
+  name: string;
+  slug: string;
+  store: string;
+  priceCents: number;
+  originalPriceCents: number;
+  currency: string;
+  discountPct: number;
+  url: string;
+  imageUrl?: string;
+}
+
+export interface RankingResponse {
+  generatedAt: string;
+  store: string;
+  count: number;
+  rankings: RankedGame[];
+}
+
 export interface AuthUser {
   id: string;
   name: string;
@@ -186,10 +207,14 @@ export async function searchGames(name: string): Promise<GameSummary[]> {
     (min, s) => (s.price != null && (min == null || s.price < (min.price ?? Infinity)) ? s : min),
     undefined,
   );
+
+  const imageUrl = raw.results.find(r => r.store === 'Steam')?.imageUrl
+    ?? raw.results.find(r => r.imageUrl)?.imageUrl;
   return [
     {
       name: raw.results[0]?.name ?? raw.game,
       slug: nameToSlug(raw.game),
+      coverImage: imageUrl,
       lowestPrice: lowest?.price ?? undefined,
       currency: lowest?.currency,
       stores,
@@ -206,11 +231,19 @@ export async function compareGame(name: string): Promise<GameDetails> {
   const raw = await apiFetch<ScrapperCompareResponse>(`/api/games/compare?${params}`);
   const stores = raw.prices.map(normalizeStore);
   const lowest = normalizeStore(raw.cheapest);
+
+  const imageUrl = raw.prices.find(p => p.store === 'Steam')?.imageUrl
+    ?? raw.prices.find(p => p.imageUrl)?.imageUrl;
+
+  console.log('compareGame prices:', raw.prices);
+  console.log('imageUrl found:', imageUrl);
+
   return {
     name: raw.prices[0]?.name ?? raw.game,
     slug: nameToSlug(raw.game),
     lowestPrice: lowest.price ?? undefined,
     currency: lowest.currency,
+    coverImage: imageUrl,
     stores,
   };
 }
@@ -354,7 +387,7 @@ export async function getWishlist(): Promise<Wishlist> {
     data: {
       userId: string;
       createdAt: string;
-      games: Array<{ id: string; gameId: string; gameName: string; addedAt: string }>;
+      games: Array<{ id: string; gameId: string; gameName: string; addedAt: string; imageUrl?: string; }>;
     } | null;
   }>('/api/wishlist');
 
@@ -366,6 +399,7 @@ export async function getWishlist(): Promise<Wishlist> {
       id: g.id,
       name: g.gameName,
       slug: g.gameId,
+      coverImage: (g as any).imageUrl ?? undefined,
       storeUrl: '',
       store: 'steam',
       addedAt: g.addedAt,
@@ -386,17 +420,27 @@ export async function addToWishlist(gameData: {
   priceAtAdd?: number;
   currency?: string;
 }): Promise<WishlistGame> {
-  const raw = await apiFetch<{ success: boolean; data: { id: string; gameId: string; gameName: string; addedAt: string } }>(
+  const session = await getSession();
+  if (!session) throw { message: 'Unauthenticated', status: 401 } as ApiError;
+
+  const raw = await apiFetch<{ success: boolean; data: { id: string; gameId: string; gameName: string; addedAt: string; imageUrl?: string } }>(
     '/api/wishlist/games',
     {
       method: 'POST',
-      body: JSON.stringify(gameData),
+      body: JSON.stringify({
+        name: gameData.name,
+        slug: gameData.slug,
+        imageUrl: gameData.coverImage ?? null,
+      }),
     },
   );
+  
+
   return {
     id: raw.data.id,
     name: raw.data.gameName,
     slug: raw.data.gameId,
+    coverImage: raw.data.imageUrl ?? gameData.coverImage,
     storeUrl: gameData.storeUrl,
     store: gameData.store,
     priceAtAdd: gameData.priceAtAdd,
@@ -413,4 +457,21 @@ export async function removeFromWishlist(gameId: string): Promise<void> {
   return apiFetch<void>(`/api/wishlist/games/${gameId}`, {
     method: 'DELETE',
   });
+}
+
+// ---------------------------------------------------------------------------
+// Ranking endpoints (ranking-service via gateway)
+// ---------------------------------------------------------------------------
+
+/**
+ * Get the top discounted games across all stores or for a specific store.
+ * Maps to: GET /api/ranking/top
+ */
+export async function getRanking(store?: string, limit?: number): Promise<RankingResponse> {
+  const params = new URLSearchParams();
+  if (store) params.append('store', store);
+  if (limit) params.append('limit', limit.toString());
+  
+  const query = params.toString();
+  return apiFetch<RankingResponse>(`/api/ranking/top${query ? `?${query}` : ''}`);
 }

@@ -9,18 +9,25 @@ vi.mock("../../services/wishlist.service.js", () => ({
     getWishlist: vi.fn(),
     addGame: vi.fn(),
     deleteGame: vi.fn(),
+    getAllDistinctGames: vi.fn(),
+    updateGamePrices: vi.fn(),
+    getSubscribersForGames: vi.fn(),
   },
 }));
 
 import app from "../../app.js";
 import { wishlistService } from "../../services/wishlist.service.js";
 
-const mockGame = {
+const mockGame: any = {
   id: "game-entry-1",
   wishlistId: "user-1",
   gameId: "game-123",
   gameName: "The Witcher 3",
   addedAt: new Date("2024-06-01T00:00:00.000Z"),
+  priceCents: null,
+  originalPriceCents: null,
+  currency: null,
+  store: null,
 };
 
 const mockWishlist = {

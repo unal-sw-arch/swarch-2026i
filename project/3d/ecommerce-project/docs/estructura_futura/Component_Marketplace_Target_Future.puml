@@ -1,0 +1,96 @@
+@startuml
+!theme plain
+skinparam componentStyle rectangle
+skinparam shadowing false
+left to right direction
+
+title Marketplace Target - Full Ideal Architecture
+
+actor "Customer" as Customer
+actor "Seller" as Seller
+actor "Admin" as Admin
+
+component "Web Frontend\n(Next.js)" as Web
+component "Mobile Frontend" as Mobile
+component "API Gateway" as Gateway
+
+component "Auth Service" as Auth
+component "User/Profile Service" as User
+component "Catalog Service" as Catalog
+component "Inventory Service" as Inventory
+component "Cart Service" as Cart
+component "Order Service" as Order
+component "Payment Service" as Payment
+component "Review Service" as Review
+component "Recommendation Service" as Reco
+component "AI Assistant Service" as AI
+component "Notification Service" as Notify
+component "Admin Service" as AdminSvc
+
+database "Auth DB" as AuthDB
+database "User DB" as UserDB
+database "Catalog DB" as CatalogDB
+database "Inventory DB" as InventoryDB
+database "Order DB" as OrderDB
+database "Payment DB" as PaymentDB
+database "Review DB" as ReviewDB
+database "Redis" as Redis
+queue "RabbitMQ" as MQ
+database "Vector DB" as VectorDB
+database "Object Storage" as Blob
+
+component "Payment Providers" as Providers
+component "Email/SMS/Push" as Channels
+component "LLM Provider" as LLM
+
+Customer --> Web
+Customer --> Mobile
+Seller --> Web
+Admin --> Web
+
+Web --> Gateway
+Mobile --> Gateway
+
+Gateway --> Auth
+Gateway --> User
+Gateway --> Catalog
+Gateway --> Inventory
+Gateway --> Cart
+Gateway --> Order
+Gateway --> Payment
+Gateway --> Review
+Gateway --> Reco
+Gateway --> AI
+Gateway --> Notify
+Gateway --> AdminSvc
+
+Auth --> AuthDB
+User --> UserDB
+Catalog --> CatalogDB
+Catalog --> Blob
+Inventory --> InventoryDB
+Cart --> Redis
+Order --> OrderDB
+Payment --> PaymentDB
+Review --> ReviewDB
+Reco --> VectorDB
+AI --> VectorDB
+
+Auth --> Redis : sessions and token lifecycle
+Order --> Payment : payment intent/confirmation
+Payment --> Providers
+Notify --> Channels
+AI --> LLM
+
+Auth --> MQ : AUTH_USER_REGISTERED
+Catalog --> MQ : PRODUCT_CREATED/UPDATED
+Inventory --> MQ : STOCK_CHANGED
+Cart --> MQ : CART_CHECKED_OUT
+Order --> MQ : ORDER_CREATED/UPDATED/CANCELLED
+Payment --> MQ : PAYMENT_CONFIRMED/FAILED
+Review --> MQ : REVIEW_CREATED
+Reco --> MQ : consume activity events
+Notify --> MQ : consume and send notifications
+AI --> MQ : optional moderation events
+
+@enduml

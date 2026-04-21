@@ -1,0 +1,170 @@
+@startuml
+!theme plain
+skinparam componentStyle rectangle
+skinparam shadowing false
+left to right direction
+
+title Decomposition View - Future Ideal Structure
+
+package "frontend" {
+  component "app routes\n(public/shop/account/assistant)" as FEApp
+  component "BFF handlers\n(app/api/*)" as FEBff
+  component "feature modules\n(catalog, cart, checkout, seller, profile)" as FEFeatures
+  component "shared design system\n(ui + tokens + hooks)" as FEShared
+
+  FEApp --> FEFeatures
+  FEFeatures --> FEBff
+  FEFeatures --> FEShared
+}
+
+package "backend microservices" {
+  package "auth-service" {
+    component "routers" as AuthRouters
+    component "services" as AuthServices
+    component "domain" as AuthDomain
+    component "infra" as AuthInfra
+    AuthRouters --> AuthServices
+    AuthServices --> AuthDomain
+    AuthServices --> AuthInfra
+  }
+
+  package "user-service" {
+    component "routers" as UserRouters
+    component "services" as UserServices
+    component "domain" as UserDomain
+    component "infra" as UserInfra
+    UserRouters --> UserServices
+    UserServices --> UserDomain
+    UserServices --> UserInfra
+  }
+
+  package "product-service" {
+    component "routers" as ProductRouters
+    component "services" as ProductServices
+    component "domain" as ProductDomain
+    component "infra" as ProductInfra
+    ProductRouters --> ProductServices
+    ProductServices --> ProductDomain
+    ProductServices --> ProductInfra
+  }
+
+  package "inventory-service" {
+    component "routers" as InventoryRouters
+    component "services" as InventoryServices
+    component "domain" as InventoryDomain
+    component "infra" as InventoryInfra
+    InventoryRouters --> InventoryServices
+    InventoryServices --> InventoryDomain
+    InventoryServices --> InventoryInfra
+  }
+
+  package "cart-service" {
+    component "routers" as CartRouters
+    component "services" as CartServices
+    component "domain" as CartDomain
+    component "infra" as CartInfra
+    CartRouters --> CartServices
+    CartServices --> CartDomain
+    CartServices --> CartInfra
+  }
+
+  package "order-service" {
+    component "routers" as OrderRouters
+    component "services" as OrderServices
+    component "domain" as OrderDomain
+    component "infra" as OrderInfra
+    OrderRouters --> OrderServices
+    OrderServices --> OrderDomain
+    OrderServices --> OrderInfra
+  }
+
+  package "payment-service" {
+    component "routers" as PaymentRouters
+    component "services" as PaymentServices
+    component "domain" as PaymentDomain
+    component "infra" as PaymentInfra
+    PaymentRouters --> PaymentServices
+    PaymentServices --> PaymentDomain
+    PaymentServices --> PaymentInfra
+  }
+
+  package "ai-assistant-service" {
+    component "routers" as AIRouters
+    component "services" as AIServices
+    component "domain" as AIDomain
+    component "infra" as AIInfra
+    AIRouters --> AIServices
+    AIServices --> AIDomain
+    AIServices --> AIInfra
+  }
+
+  package "recommendation-service" {
+    component "workers" as RecoWorkers
+    component "services" as RecoServices
+    component "domain" as RecoDomain
+    component "infra" as RecoInfra
+    RecoWorkers --> RecoServices
+    RecoServices --> RecoDomain
+    RecoServices --> RecoInfra
+  }
+
+  package "notification-service" {
+    component "workers" as NotifyWorkers
+    component "services" as NotifyServices
+    component "domain" as NotifyDomain
+    component "infra" as NotifyInfra
+    NotifyWorkers --> NotifyServices
+    NotifyServices --> NotifyDomain
+    NotifyServices --> NotifyInfra
+  }
+}
+
+package "platform" {
+  component "API gateway" as Gateway
+  queue "RabbitMQ" as MQ
+  database "Redis" as Redis
+  database "PostgreSQL per service" as Pg
+  database "Vector store" as VectorDB
+  database "Object storage" as Blob
+  component "Observability\n(metrics/logs/traces)" as Obs
+}
+
+FEApp --> Gateway
+Gateway --> AuthRouters
+Gateway --> UserRouters
+Gateway --> ProductRouters
+Gateway --> CartRouters
+Gateway --> OrderRouters
+Gateway --> PaymentRouters
+Gateway --> AIRouters
+
+AuthInfra --> Pg
+UserInfra --> Pg
+ProductInfra --> Pg
+InventoryInfra --> Pg
+OrderInfra --> Pg
+PaymentInfra --> Pg
+CartInfra --> Redis
+AIInfra --> VectorDB
+RecoInfra --> VectorDB
+ProductInfra --> Blob
+
+AuthInfra --> MQ
+ProductInfra --> MQ
+OrderInfra --> MQ
+PaymentInfra --> MQ
+NotifyWorkers --> MQ
+RecoWorkers --> MQ
+
+AuthInfra --> Obs
+UserInfra --> Obs
+ProductInfra --> Obs
+InventoryInfra --> Obs
+CartInfra --> Obs
+OrderInfra --> Obs
+PaymentInfra --> Obs
+AIInfra --> Obs
+RecoInfra --> Obs
+NotifyInfra --> Obs
+
+@enduml

@@ -1,0 +1,83 @@
+@startuml
+!theme plain
+skinparam componentStyle rectangle
+skinparam shadowing false
+left to right direction
+
+title Target Marketplace - Ideal Component Map
+
+actor "Web Client" as Browser
+actor "Mobile Client" as Mobile
+component "API Gateway\n(Nginx / Edge)" as Gateway
+component "Frontend Web\n(Next.js)" as Web
+component "Frontend Mobile\n(React Native or Flutter)" as App
+
+component "Auth Service\n(FastAPI)" as Auth
+component "User Service\n(FastAPI)" as User
+component "Product Service\n(FastAPI)" as Product
+component "Order Service\n(FastAPI)" as Order
+component "Payment Service\n(FastAPI)" as Payment
+component "Cart Service\n(FastAPI)" as Cart
+component "Recommendation Service\n(FastAPI)" as Reco
+component "AI Assistant Service\n(FastAPI + LLM)" as AI
+component "Notification Service\n(FastAPI)" as Notify
+
+database "Auth DB\n(PostgreSQL)" as AuthDB
+database "User DB\n(PostgreSQL)" as UserDB
+database "Product DB\n(PostgreSQL)" as ProductDB
+database "Order DB\n(PostgreSQL)" as OrderDB
+database "Payment DB\n(PostgreSQL)" as PaymentDB
+database "Cart DB\n(Redis)" as CartDB
+database "Vector Store\n(pgvector or dedicated DB)" as VectorDB
+database "Object Storage\n(S3 compatible)" as ObjectStore
+
+queue "RabbitMQ\n(Event Bus)" as MQ
+database "Redis\n(Cache + Session + Rate Limit)" as Redis
+
+Browser --> Web : HTTPS
+Mobile --> App : HTTPS
+Web --> Gateway : REST/JSON
+App --> Gateway : REST/JSON
+
+Gateway --> Auth : /auth/*
+Gateway --> User : /users/*
+Gateway --> Product : /products/*
+Gateway --> Order : /orders/*
+Gateway --> Payment : /payments/*
+Gateway --> Cart : /cart/*
+Gateway --> AI : /ai/*
+Gateway --> Reco : /recommendations/*
+
+Auth --> AuthDB : CRUD users
+User --> UserDB : CRUD profiles/addresses
+Product --> ProductDB : CRUD catalog/reviews/images
+Order --> OrderDB : CRUD orders
+Payment --> PaymentDB : CRUD payments
+Cart --> CartDB : cart sessions
+Product --> ObjectStore : product media
+Reco --> VectorDB : embeddings + similarity search
+AI --> VectorDB : retrieval context
+
+Auth --> Redis : token session + blacklist
+Product --> Redis : hot catalog cache
+Order --> Redis : idempotency / lock keys
+Payment --> Redis : webhook dedupe
+AI --> Redis : short-lived conversation context
+
+Auth --> MQ : AUTH_USER_REGISTERED
+Cart --> MQ : CART_CHECKED_OUT
+Order --> MQ : ORDER_CREATED / ORDER_CANCELLED / ORDER_STATUS_UPDATED
+Payment --> MQ : PAYMENT_CREATED / PAYMENT_CONFIRMED / PAYMENT_FAILED
+Notify --> MQ : consume and fanout notifications
+User --> MQ : consume AUTH_USER_REGISTERED
+Reco --> MQ : consume order + catalog events
+AI --> MQ : optional moderation/review events
+
+note bottom
+Layered architecture expected in every backend service:
+- Presentation (routers)
+- Application (services)
+- Domain (models/schemas)
+- Infrastructure (db/redis/mq)
+end note
+@enduml

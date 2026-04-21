@@ -1,0 +1,47 @@
+@startuml
+!theme plain
+skinparam componentStyle rectangle
+skinparam shadowing false
+left to right direction
+
+title Component and Connector View - Current Implementation (Apr 2026)
+
+actor "Web User" as User
+component "Frontend Web\n(Next.js 14)" as Frontend
+component "API Gateway\n(Nginx)" as Gateway
+
+component "Auth Service\n(FastAPI)" as Auth
+component "User Service\n(FastAPI)" as UserService
+component "Product Service\n(FastAPI)" as Product
+component "Order Service\n(FastAPI)" as Order
+
+database "Auth PostgreSQL\n(auth-postgres)" as AuthDB
+database "User PostgreSQL\n(user-postgres)\n(shared by user + product)" as UserDB
+database "Order PostgreSQL\n(order-postgres)" as OrderDB
+database "Redis\n(session + cache)" as Redis
+queue "RabbitMQ\n(event bus)" as MQ
+
+User --> Frontend : Browser HTTPS
+Frontend --> Gateway : REST JSON
+
+Gateway --> Auth : /auth/*
+Gateway --> UserService : /users/* and /internal/*
+Gateway --> Product : /products/*
+Gateway --> Order : /orders/*\nrewrite -> /api/v1/orders/*
+
+Auth --> AuthDB : users
+Auth --> Redis : token sessions + blacklist
+Auth --> MQ : AUTH_USER_REGISTERED
+
+UserService --> UserDB : profiles + addresses
+MQ --> UserService : profile creation events
+
+Product --> UserDB : products + categories + reviews + images
+Product --> Redis : token/session checks\n+ seller/category cache
+Product --> UserService : seller profile lookup
+
+Order --> OrderDB : orders + order_items
+Order --> Product : /internal/products/*
+Order --> MQ : ORDER_CREATED / ORDER_UPDATED / ORDER_CANCELLED
+
+@enduml

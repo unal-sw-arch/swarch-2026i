@@ -2,7 +2,7 @@ package com.restaurant.orderservice.infrastructure.client;
 
 import com.restaurant.orderservice.infrastructure.client.dto.CatalogMenuItemDto;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -14,7 +14,7 @@ import java.util.List;
  */
 @Slf4j
 @Component
-@ConditionalOnMissingBean(CatalogClient.class)
+@Profile("noop-catalog")
 public class NoOpCatalogClient implements CatalogClient {
 
     @Override

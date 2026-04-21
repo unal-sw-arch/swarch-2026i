@@ -58,9 +58,10 @@ services:
       - DB_URL=jdbc:postgresql://order-db:5432/order_db
       - DB_USERNAME=postgres
       - DB_PASSWORD=postgres
-      - JPA_DDL_AUTO=none
+      - JPA_DDL_AUTO=update
       - JPA_SHOW_SQL=false
-      - SQL_INIT_MODE=always
+      - SQL_INIT_MODE=never
+      - CATALOG_SERVICE_URL=http://catalog-service:3000
       - TRACKING_SERVICE_URL=http://notification-service:8000 
       - LOG_LEVEL=INFO
     depends_on:

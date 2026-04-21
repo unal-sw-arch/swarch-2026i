@@ -13,7 +13,6 @@ const SERVICES = {
 };
 
 const orderRegistry = new Map();
-const ORDER_SERVICE_RESTAURANT_ID = 1;
 
 app.use(cors());
 app.use(express.json());
@@ -109,7 +108,7 @@ app.post("/orders", async (request, response) => {
   try {
     const downstream = await fetch(`${SERVICES.order}/orders`, {
       method: "POST",
-      headers: buildHeaders(request.requestId),
+      headers: buildHeaders(request.requestId, null, session.data),
       body: JSON.stringify(orderPayload),
     });
 
@@ -152,7 +151,7 @@ app.get("/orders/:id", async (request, response) => {
   try {
     const downstream = await fetch(`${SERVICES.order}/orders/${request.params.id}`, {
       method: "GET",
-      headers: buildHeaders(request.requestId),
+      headers: buildHeaders(request.requestId, null, session.data),
     });
 
     const data = await parseJsonSafe(downstream);
@@ -197,7 +196,7 @@ app.get("/customers/me/orders", async (request, response) => {
       createdOrders.map(async (orderId) => {
         const downstream = await fetch(`${SERVICES.order}/orders/${orderId}`, {
           method: "GET",
-          headers: buildHeaders(request.requestId),
+          headers: buildHeaders(request.requestId, null, session.data),
         });
 
         const data = await parseJsonSafe(downstream);
@@ -339,7 +338,7 @@ function extractToken(request) {
   return token;
 }
 
-function buildHeaders(requestId, token) {
+function buildHeaders(requestId, token, session) {
   const headers = {
     Accept: "application/json",
     "Content-Type": "application/json",
@@ -348,6 +347,18 @@ function buildHeaders(requestId, token) {
 
   if (token) {
     headers.Authorization = `Bearer ${token}`;
+  }
+
+  if (session?.userId) {
+    headers["X-User-Id"] = String(session.userId);
+  }
+
+  if (session?.role) {
+    headers["X-User-Role"] = String(session.role);
+  }
+
+  if (session?.restaurantId) {
+    headers["X-Restaurant-Id"] = String(session.restaurantId);
   }
 
   return headers;
@@ -436,10 +447,6 @@ function normalizeOrderResponse(data, customerId, restaurantIdOverride) {
 }
 
 function mapRestaurantIdToOrderService(restaurantId) {
-  if (Number(restaurantId) === 10) {
-    return ORDER_SERVICE_RESTAURANT_ID;
-  }
-
   return Number(restaurantId);
 }
 

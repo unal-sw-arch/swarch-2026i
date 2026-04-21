@@ -3,3 +3,4 @@
 -- El Order Service no gestiona catálogo ni usuarios.
 -- Las tablas orders y order_items se poblan vía API.
 -- =============================================================
+-- Seed placeholder: this file is intentionally non-empty to avoid Spring SQL init failures.

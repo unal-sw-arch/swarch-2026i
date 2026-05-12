@@ -14,6 +14,9 @@ abstract class RoomRepository {
     required String description,
   });
 
+  /// Join a room using invite code
+  Future<Room> joinRoom(String inviteCode);
+
   /// Update a room
   Future<Room> updateRoom(Room room);
 

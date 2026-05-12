@@ -8,7 +8,7 @@ import 'package:planio_app/core/models/base_models.dart';
 /// Service for making API requests to the backend
 class ApiService {
   late Dio _dio;
-  late String _authToken;
+  String _authToken = '';
 
   ApiService() {
     _dio = Dio(
@@ -55,6 +55,9 @@ class ApiService {
   void setAuthToken(String token) {
     _authToken = token;
   }
+
+  /// Get Dio instance for direct access when needed
+  Dio get dio => _dio;
 
   /// Clear authentication token
   void clearAuthToken() {

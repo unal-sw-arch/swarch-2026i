@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:planio_app/features/activity/domain/models/room.dart';
 import 'package:planio_app/features/activity/presentation/providers/room_state_provider.dart';
 import 'package:planio_app/providers/activity_repository_providers.dart';
 
@@ -19,6 +20,13 @@ class RoomSelectionScreen extends ConsumerWidget {
         elevation: 0,
         backgroundColor: Colors.blue.shade800,
         foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            tooltip: 'Unirse por codigo',
+            onPressed: () => _showJoinRoomDialog(context, ref),
+            icon: const Icon(Icons.group_add_outlined),
+          ),
+        ],
       ),
       body: roomsAsync.when(
         data: (rooms) {
@@ -99,10 +107,8 @@ class RoomSelectionScreen extends ConsumerWidget {
                       onSelected: (value) {
                         if (value == 'details') {
                           _showRoomDetails(context, room);
-                        } else if (value == 'edit') {
-                          _showEditRoomDialog(context, ref, room);
-                        } else if (value == 'delete') {
-                          _showDeleteConfirmation(context, ref, room);
+                        } else if (value == 'join') {
+                          _showJoinRoomDialog(context, ref);
                         }
                       },
                       itemBuilder: (BuildContext context) => [
@@ -117,22 +123,12 @@ class RoomSelectionScreen extends ConsumerWidget {
                           ),
                         ),
                         const PopupMenuItem(
-                          value: 'edit',
+                          value: 'join',
                           child: Row(
                             children: [
-                              Icon(Icons.edit),
+                              Icon(Icons.group_add_outlined),
                               SizedBox(width: 8),
-                              Text('Editar'),
-                            ],
-                          ),
-                        ),
-                        const PopupMenuItem(
-                          value: 'delete',
-                          child: Row(
-                            children: [
-                              Icon(Icons.delete_outline),
-                              SizedBox(width: 8),
-                              Text('Eliminar'),
+                              Text('Unirse por codigo'),
                             ],
                           ),
                         ),
@@ -175,7 +171,7 @@ class RoomSelectionScreen extends ConsumerWidget {
                 const SizedBox(height: 24),
                 ElevatedButton.icon(
                   onPressed: () {
-                    ref.refresh(allRoomsProvider);
+                    ref.invalidate(allRoomsProvider);
                   },
                   icon: const Icon(Icons.refresh),
                   label: const Text('Reintentar'),
@@ -186,9 +182,7 @@ class RoomSelectionScreen extends ConsumerWidget {
         },
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          _showCreateRoomDialog(context, ref);
-        },
+        onPressed: () => _showCreateRoomDialog(context, ref),
         icon: const Icon(Icons.add),
         label: const Text('Nueva Sala'),
       ),
@@ -197,7 +191,6 @@ class RoomSelectionScreen extends ConsumerWidget {
 
   void _showCreateRoomDialog(BuildContext context, WidgetRef ref) {
     final nameController = TextEditingController();
-    final descriptionController = TextEditingController();
 
     showDialog(
       context: context,
@@ -214,15 +207,6 @@ class RoomSelectionScreen extends ConsumerWidget {
                   border: OutlineInputBorder(),
                 ),
               ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Descripción',
-                  border: OutlineInputBorder(),
-                ),
-                maxLines: 3,
-              ),
             ],
           ),
         ),
@@ -232,12 +216,45 @@ class RoomSelectionScreen extends ConsumerWidget {
             child: const Text('Cancelar'),
           ),
           ElevatedButton(
-            onPressed: () {
-              // TODO: Implementar creación de sala
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Sala creada (en desarrollo)')),
-              );
+            onPressed: () async {
+              final name = nameController.text.trim();
+              if (name.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Ingresa un nombre de sala')),
+                );
+                return;
+              }
+
+              final navigator = Navigator.of(context);
+              try {
+                final roomRepository = ref.read(roomRepositoryProvider);
+                final room = await roomRepository.createRoom(
+                  name: name,
+                  description: '',
+                );
+
+                ref.invalidate(allRoomsProvider);
+                ref.read(selectedRoomProvider.notifier).state = room;
+
+                navigator.pop();
+                if (!context.mounted) return;
+
+                final inviteCode = room.avatar ?? '';
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      inviteCode.isNotEmpty
+                          ? 'Sala creada. Codigo: $inviteCode'
+                          : 'Sala creada correctamente',
+                    ),
+                  ),
+                );
+              } catch (e) {
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('No se pudo crear la sala: $e')),
+                );
+              }
             },
             child: const Text('Crear'),
           ),
@@ -246,59 +263,64 @@ class RoomSelectionScreen extends ConsumerWidget {
     );
   }
 
-  void _showEditRoomDialog(BuildContext context, WidgetRef ref, dynamic room) {
-    final nameController = TextEditingController(text: room.name);
-    final descriptionController =
-        TextEditingController(text: room.description);
+  void _showJoinRoomDialog(BuildContext context, WidgetRef ref) {
+    final inviteCodeController = TextEditingController();
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Editar Sala'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Nombre de la sala',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Descripción',
-                  border: OutlineInputBorder(),
-                ),
-                maxLines: 3,
-              ),
-            ],
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Unirse a sala'),
+        content: TextField(
+          controller: inviteCodeController,
+          textCapitalization: TextCapitalization.characters,
+          decoration: const InputDecoration(
+            labelText: 'Codigo de invitacion',
+            border: OutlineInputBorder(),
           ),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Cancelar'),
           ),
           ElevatedButton(
-            onPressed: () {
-              // TODO: Implementar actualización de sala
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Sala actualizada (en desarrollo)')),
-              );
+            onPressed: () async {
+              final inviteCode = inviteCodeController.text.trim().toUpperCase();
+              if (inviteCode.isEmpty) {
+                ScaffoldMessenger.of(dialogContext).showSnackBar(
+                  const SnackBar(content: Text('Ingresa un codigo de invitacion')),
+                );
+                return;
+              }
+
+              try {
+                final roomRepository = ref.read(roomRepositoryProvider);
+                final room = await roomRepository.joinRoom(inviteCode);
+                ref.invalidate(allRoomsProvider);
+                ref.read(selectedRoomProvider.notifier).state = room;
+
+                if (!dialogContext.mounted) return;
+                Navigator.pop(dialogContext);
+
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Te uniste a ${room.name}')),
+                );
+              } catch (e) {
+                if (!dialogContext.mounted) return;
+                ScaffoldMessenger.of(dialogContext).showSnackBar(
+                  SnackBar(content: Text('No fue posible unirse: $e')),
+                );
+              }
             },
-            child: const Text('Guardar'),
+            child: const Text('Unirse'),
           ),
         ],
       ),
     );
   }
 
-  void _showRoomDetails(BuildContext context, dynamic room) {
+  void _showRoomDetails(BuildContext context, Room room) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -313,6 +335,13 @@ class RoomSelectionScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 4),
             Text(room.description),
+            const SizedBox(height: 16),
+            const Text(
+              'Codigo de invitacion:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 4),
+            Text(room.avatar ?? 'No disponible'),
             const SizedBox(height: 16),
             const Text(
               'Propietario:',
@@ -333,35 +362,6 @@ class RoomSelectionScreen extends ConsumerWidget {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Cerrar'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showDeleteConfirmation(BuildContext context, WidgetRef ref, dynamic room) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Eliminar Sala'),
-        content: Text('¿Estás seguro de que quieres eliminar "${room.name}"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // TODO: Implementar eliminación de sala
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Sala eliminada (en desarrollo)')),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
-            child: const Text('Eliminar'),
           ),
         ],
       ),

@@ -2,16 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:planio_app/core/services/storage_service.dart';
+import 'package:planio_app/features/activity/domain/models/room.dart';
 import 'package:planio_app/features/activity/presentation/screens/room_selection_screen.dart';
 import 'package:planio_app/features/activity/presentation/screens/kanban_board_screen.dart';
 import 'package:planio_app/features/activity/presentation/screens/task_form_screen.dart';
+import 'package:planio_app/features/activity/presentation/screens/habits_screen.dart';
 import 'package:planio_app/features/auth/presentation/screens/login_screen.dart';
 import 'package:planio_app/features/auth/presentation/screens/signup_screen.dart';
+import 'package:planio_app/features/chat/presentation/screens/chat_screen.dart';
+import 'package:planio_app/features/personalization/presentation/screens/personalization_screen.dart';
 import 'package:planio_app/features/common/screens/home_screen.dart';
 import 'package:planio_app/features/common/theme/app_theme.dart';
 import 'package:planio_app/providers/auth_providers.dart';
 
 void main() async {
+  // Ensure Flutter bindings are initialized
+  WidgetsFlutterBinding.ensureInitialized();
+  
   // Initialize storage service
   final storageService = StorageService();
   await storageService.init();
@@ -101,15 +108,25 @@ class PlanioApp extends ConsumerWidget {
                     ),
                   ],
                 ),
+                GoRoute(
+                  path: 'habits',
+                  builder: (context, state) {
+                    final room = state.extra as Room?;
+                    return HabitsScreen(room: room);
+                  },
+                ),
               ],
+            ),
+            GoRoute(
+              path: 'chat',
+              builder: (context, state) {
+                final room = state.extra as Room?;
+                return ChatScreen(room: room);
+              },
             ),
             GoRoute(
               path: 'personalization',
               builder: (context, state) => const PersonalizationScreen(),
-            ),
-            GoRoute(
-              path: 'chat',
-              builder: (context, state) => const ChatScreen(),
             ),
           ],
         ),
@@ -121,38 +138,6 @@ class PlanioApp extends ConsumerWidget {
       theme: AppTheme.getLightTheme(),
       routerConfig: router,
       debugShowCheckedModeBanner: false,
-    );
-  }
-}
-
-class PersonalizationScreen extends StatelessWidget {
-  const PersonalizationScreen({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Personalization'),
-      ),
-      body: const Center(
-        child: Text('Personalization Screen - TODO: Implement'),
-      ),
-    );
-  }
-}
-
-class ChatScreen extends StatelessWidget {
-  const ChatScreen({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Chat'),
-      ),
-      body: const Center(
-        child: Text('Chat Screen - TODO: Implement'),
-      ),
     );
   }
 }

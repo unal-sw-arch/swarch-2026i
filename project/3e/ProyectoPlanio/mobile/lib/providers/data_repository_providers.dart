@@ -1,11 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:planio_app/core/services/api_service.dart';
 import 'package:planio_app/features/activity/data/repositories/activity_feed_repository_impl.dart';
 import 'package:planio_app/features/activity/domain/repositories/activity_feed_repository.dart';
 import 'package:planio_app/features/chat/data/repositories/message_repository_impl.dart';
 import 'package:planio_app/features/chat/domain/repositories/message_repository.dart';
 import 'package:planio_app/features/personalization/data/repositories/personalization_repository_impl.dart';
-import 'package:planio_app/features/personalization/domain/repositories/personalization_repository.dart';
+import 'package:planio_app/features/personalization/data/repositories/personalization_repository.dart';
 import 'package:planio_app/providers/core_providers.dart';
 
 /// ActivityFeed Repository Provider
@@ -25,7 +24,7 @@ final messageRepositoryProvider = Provider<MessageRepository>((ref) {
 final personalizationRepositoryProvider =
     Provider<PersonalizationRepository>((ref) {
   final apiService = ref.watch(apiServiceProvider);
-  return PersonalizationRepositoryImpl(apiService: apiService);
+  return PersonalizationRepositoryImpl(apiService);
 });
 
 /// Activity Feed Data Provider
@@ -53,29 +52,26 @@ final chatMessagesProvider = FutureProvider.family<List<dynamic>, String>(
 /// Available Avatars Provider
 final availableAvatarsProvider = FutureProvider<List<dynamic>>((ref) async {
   final repository = ref.watch(personalizationRepositoryProvider);
-  return repository.getAvailableAvatars();
+  return repository.getAvatarShop();
 });
 
 /// User Avatars Provider
 final userAvatarsProvider = FutureProvider<List<dynamic>>((ref) async {
-  final repository = ref.watch(personalizationRepositoryProvider);
-  return repository.getUserAvatars();
+  return [];
 });
 
 /// Available Items Provider
 final availableItemsProvider = FutureProvider<List<dynamic>>((ref) async {
   final repository = ref.watch(personalizationRepositoryProvider);
-  return repository.getAvailableItems();
+  return repository.getRoomShop();
 });
 
 /// User Owned Items Provider
 final userOwnedItemsProvider = FutureProvider<List<dynamic>>((ref) async {
-  final repository = ref.watch(personalizationRepositoryProvider);
-  return repository.getUserOwnedItems();
+  return [];
 });
 
 /// User Coins Provider
 final userCoinsProvider = FutureProvider<int>((ref) async {
-  final repository = ref.watch(personalizationRepositoryProvider);
-  return repository.getUserCoins();
+  return 0;
 });

@@ -10,8 +10,12 @@ services:
       - ACTIVITY_SERVICE_URL=http://activity_service:8001
       - NOTIFICATION_SERVICE_URL=http://notification_service:8002
       - PERSONALIZATION_SERVICE_URL=http://personalization_service:8003
+      - CHAT_SERVICE_URL=http://chat_service:8005
+      - ANALYTICS_SERVICE_URL=http://analytics_service:8004 
     depends_on:
       - activity_service
+      - chat_service
+      - analytics_service
     networks:
       - planio_network
     restart: on-failure
@@ -27,7 +31,6 @@ services:
       - planio_network
     restart: on-failure
 
-    
   activity_service:
     build: ./backend/activity_service
     container_name: planio_activity
@@ -38,9 +41,26 @@ services:
       - DATABASE_URL=postgresql://planio_user:planio_pass@postgres:5432/activity_db
       - FIREBASE_PROJECT_ID=planio-social-todo
       - NOTIFICATION_SERVICE_URL=http://planio_notification:8002
+      - ANALYTICS_SERVICE_URL=http://analytics_service:8004 
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      - planio_network
+    restart: on-failure
+
+  chat_service:
+    build: ./backend/chat_service
+    container_name: planio_chat
+    ports:
+      - "8005:8005"
+    environment:
+      - PORT=8005
+      - MONGO_URL=mongodb://planio_user:planio_pass@mongo:27017/chat_db?authSource=admin
+      - FIREBASE_PROJECT_ID=planio-social-todo
+      - NOTIFICATION_SERVICE_URL=http://planio_notification:8002
+    depends_on:
+      - mongo
     networks:
       - planio_network
     restart: on-failure
@@ -71,6 +91,19 @@ services:
     networks:
       - planio_network
     restart: on-failure
+
+  analytics_service:
+    build: ./backend/analytics_service
+    container_name: planio_analytics
+    environment:
+      - PORT=8004
+      - MONGODB_URI=mongodb://planio_user:planio_pass@mongo:27017/analytics_db?authSource=admin
+    ports:
+      - "8004:8004"
+    depends_on:
+      - mongo
+    networks:
+      - planio_network
 
   postgres:
     image: postgres:15

@@ -9,23 +9,27 @@ import {
   CheckSquare,
   Heart,
   Clock,
+  MessageCircle,
   Coins,
   Sparkles,
   Home,
   Loader2,
+  BarChart2,
 } from 'lucide-react';
+
 import TasksBoard from './TasksBoard';
 import HabitsPanel from './HabitsPanel';
 import ActivityFeed from './ActivityFeed';
 import AvatarCustomization from './AvatarCustomization';
 import LivingRoom from './LivingRoom';
+import RoomChat from './RoomChat';
 import { toast } from 'sonner';
-import { roomsApi, coinsApi } from '../services/api';
-import type { Room, RoomMember } from '../types';
+import { roomsApi, coinsApi, chatApi } from '../services/api';
+import type { ChatMessage, ChatReactionKey, Room, RoomChatEvent } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { useRoomSocket } from '../hooks/useRoomSocket';
+import AnalyticsPanel from './AnalyticsPanel';
 
-// Colores para avatares de miembros
 const memberColors = [
   'bg-purple-500',
   'bg-blue-500',
@@ -54,10 +58,11 @@ export default function RoomDashboard() {
   const [activeTab, setActiveTab] = useState('tasks');
   const [room, setRoom] = useState<Room | null>(null);
   const [currency, setCurrency] = useState(0);
+  const [chatEvent, setChatEvent] = useState<RoomChatEvent | null>(null);
+  const [initialMessages, setInitialMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(true);
-  const { dbUserId } = useAuth();
+  const { dbUserId, user } = useAuth();
 
-  // Cargar datos de la sala
   const loadRoom = useCallback(async () => {
     if (!roomId) return;
     try {
@@ -77,8 +82,31 @@ export default function RoomDashboard() {
     loadRoom();
   }, [loadRoom]);
 
-  useRoomSocket(Number(roomId), dbUserId, useCallback((msg) => {
+  const loadMessages = useCallback(async () => {
+    if (!roomId) return;
+    try {
+      const msgs = await chatApi.getMessages(Number(roomId));
+      setInitialMessages(msgs);
+    } catch (err) {
+      console.error('Error loading chat messages:', err);
+    }
+  }, [roomId]);
+
+  useEffect(() => {
+    loadMessages();
+  }, [loadMessages]);
+
+  useRoomSocket(Number(roomId), dbUserId, useCallback((msg: any) => {
+    if (
+      msg.type === 'CHAT_MESSAGE_CREATED' ||
+      msg.type === 'CHAT_MESSAGE_REACTION'
+    ) {
+      setChatEvent(msg as RoomChatEvent);
+      return;
+    }
+
     loadRoom();
+
     if (msg.type === 'TASK_ASSIGNED') {
       toast.info('Te asignaron una tarea', {
         description: msg.taskTitle || 'Revisá el tablero',
@@ -86,7 +114,30 @@ export default function RoomDashboard() {
     }
   }, [loadRoom]));
 
-  // Refrescar balance de coins
+  const handleSendChatMessage = useCallback(async (message: ChatMessage) => {
+    if (!roomId) return;
+    try {
+      await chatApi.sendMessage(Number(roomId), message.text);
+    } catch (err) {
+      console.error('Error sending chat message:', err);
+      toast.error('No se pudo enviar el mensaje');
+    }
+  }, [roomId]);
+
+  const handleChatReaction = useCallback(async (payload: {
+    messageId: number | string;
+    reactionKey: ChatReactionKey;
+    nextCount: number;
+    nextReactorUserIds: number[];
+  }) => {
+    if (!roomId) return;
+    try {
+      await chatApi.toggleReaction(Number(roomId), String(payload.messageId), payload.reactionKey);
+    } catch (err) {
+      console.error('Error toggling reaction:', err);
+    }
+  }, [roomId]);
+
   const refreshCoins = async () => {
     if (!roomId) return;
     try {
@@ -105,11 +156,8 @@ export default function RoomDashboard() {
   };
 
   const handleCurrencyReward = (amount: number, message: string) => {
-    setCurrency((prev) => prev + amount);
-    toast.success(`+${amount} coins`, {
-      description: message,
-    });
-    // Refrescar coins del servidor en background
+    setCurrency((prev: number) => prev + amount);
+    toast.success(`+${amount} coins`, { description: message });
     refreshCoins();
   };
 
@@ -117,17 +165,14 @@ export default function RoomDashboard() {
     if (currency >= amount && roomId) {
       try {
         await coinsApi.spendRoomCoins(Number(roomId), amount, `Purchase: ${item}`);
-        setCurrency((prev) => prev - amount);
-        toast.success(`Purchased ${item}`, {
-          description: `-${amount} coins`,
-        });
+        setCurrency((prev: number) => prev - amount);
+        toast.success(`Purchased ${item}`, { description: `-${amount} coins` });
       } catch (error) {
         console.error('Error spending coins:', error);
         toast.error('Error processing purchase');
       }
       return;
     }
-
     toast.error('Not enough coins for this purchase');
   };
 
@@ -154,7 +199,7 @@ export default function RoomDashboard() {
       {/* Header */}
       <header className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <Button onClick={() => navigate('/rooms')} variant="ghost" size="sm" className="gap-2">
               <ArrowLeft className="w-4 h-4" />
               Back
@@ -166,7 +211,6 @@ export default function RoomDashboard() {
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Currency Display */}
             <div className="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl px-4 py-2 flex items-center gap-2 shadow-md border-2 border-yellow-300">
               <Coins className="w-5 h-5 text-white" />
               <div className="flex items-baseline gap-1">
@@ -233,11 +277,25 @@ export default function RoomDashboard() {
                 Avatar
               </TabsTrigger>
               <TabsTrigger
+                value="chat"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-500 data-[state=active]:bg-transparent gap-2"
+              >
+                <MessageCircle className="w-4 h-4" />
+                Chat
+              </TabsTrigger>
+              <TabsTrigger
                 value="livingroom"
                 className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-500 data-[state=active]:bg-transparent gap-2"
               >
                 <Home className="w-4 h-4" />
                 Living Room
+              </TabsTrigger>
+              <TabsTrigger
+                value="analytics"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-500 data-[state=active]:bg-transparent gap-2"
+              >
+                <BarChart2 className="w-4 h-4" />
+                Analytics
               </TabsTrigger>
             </TabsList>
           </Tabs>
@@ -261,7 +319,7 @@ export default function RoomDashboard() {
               roomId={Number(roomId)}
               roomOwnerId={String(room.created_by)}
               onCurrencyReward={handleCurrencyReward}
-            />            
+            />
           </TabsContent>
           <TabsContent value="activity" className="mt-0">
             <ActivityFeed roomId={Number(roomId)} />
@@ -269,8 +327,25 @@ export default function RoomDashboard() {
           <TabsContent value="avatar" className="mt-0">
             <AvatarCustomization currency={currency} onPurchase={handlePurchase} />
           </TabsContent>
+          <TabsContent value="chat" className="mt-0">
+            <RoomChat
+              roomName={room.name}
+              members={members}
+              currentUserId={dbUserId}
+              currentUserName={user?.displayName || user?.email?.split('@')[0] || 'You'}
+              initialMessages={initialMessages}
+              incomingEvent={chatEvent}
+              onSendMessage={handleSendChatMessage}
+              onReactToMessage={handleChatReaction}
+            />
+          </TabsContent>
+          
           <TabsContent value="livingroom" className="mt-0">
             <LivingRoom currency={currency} onPurchase={handlePurchase} />
+          </TabsContent>
+
+          <TabsContent value="analytics" className="mt-0">
+            <AnalyticsPanel roomId={Number(roomId)} />
           </TabsContent>
         </Tabs>
       </main>

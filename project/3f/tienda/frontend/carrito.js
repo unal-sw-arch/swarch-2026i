@@ -1,5 +1,6 @@
 let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
 const container = document.getElementById("carritoContainer");
+const API = "https://api-gateway-gilt-nu.vercel.app";
 
 // ── SISTEMA DE NOTIFICACIONES ─────────────────────────────
 function showToast(mensaje, tipo = "info") {
@@ -182,7 +183,7 @@ document.getElementById("finalizarCompra").addEventListener("click", async () =>
   }
 
   try {
-    const response = await fetch("http://localhost:3000/api/orders", {
+    const response = await fetch(`${API}/api/orders`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ items: carrito })
@@ -191,7 +192,7 @@ document.getElementById("finalizarCompra").addEventListener("click", async () =>
     if (!response.ok) throw new Error("Error creando orden");
 
     for (const item of carrito) {
-      await fetch(`http://localhost:3000/api/products/${item.product_id}/stock`, {
+      await fetch(`${API}/api/products/${item.product_id}/stock`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ cantidad: item.cantidad })

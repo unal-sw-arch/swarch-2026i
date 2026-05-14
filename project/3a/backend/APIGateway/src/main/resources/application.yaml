@@ -3,8 +3,7 @@ spring:
     name: APIGateway
   logging:
     level:
-      org.springframework.cloud.gateway: DEBUG
-      org.springframework.web.servlet.function: DEBUG
+      org.springframework.cloud.gateway: INFO
 
 jwt:
   secret: "1245789630ClickAndMunchSuperSecretKey1245789630"
@@ -12,4 +11,22 @@ jwt:
 
 server:
   port: 8080
+
+services:
+  auth:
+    url: ${SERVICES_AUTH_URL:http://localhost:8081}
+  restaurant:
+    url: ${SERVICES_RESTAURANT_URL:http://localhost:8082}
+  menu:
+    url: ${SERVICES_MENU_URL:http://localhost:8084}
+  order:
+    url: ${SERVICES_ORDER_URL:http://localhost:8085}
+  reservation:
+    url: ${SERVICES_RESERVATION_URL:http://localhost:8086}
+  checkout:
+    url: ${SERVICES_CHECKOUT_URL:http://localhost:8089}
+  rating:
+    url: ${SERVICES_RATING_URL:http://localhost:8088}
+  notification:
+    url: ${SERVICES_NOTIFICATION_URL:http://localhost:8087}
 

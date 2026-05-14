@@ -12,6 +12,8 @@ export const restaurantsMock: Restaurant[] = [
     category: "Peruana",
     city: "Bogota",
     status: "Activo",
+    latitude: 4.648283,
+    longitude: -74.107807,
   },
   {
     id: "RST-3002",
@@ -24,6 +26,8 @@ export const restaurantsMock: Restaurant[] = [
     category: "Asiatica",
     city: "Bogota",
     status: "Activo",
+    latitude: 4.666353,
+    longitude: -74.056624,
   },
   {
     id: "RST-3003",
@@ -36,6 +40,8 @@ export const restaurantsMock: Restaurant[] = [
     category: "Mexicana",
     city: "Medellin",
     status: "Activo",
+    latitude: 6.208763,
+    longitude: -75.567833,
   },
   {
     id: "RST-3004",
@@ -48,6 +54,8 @@ export const restaurantsMock: Restaurant[] = [
     category: "Sushi",
     city: "Bogota",
     status: "Activo",
+    latitude: 4.701594,
+    longitude: -74.041616,
   },
   {
     id: "RST-3005",
@@ -60,6 +68,8 @@ export const restaurantsMock: Restaurant[] = [
     category: "Parrilla",
     city: "Bogota",
     status: "Activo",
+    latitude: 4.683985,
+    longitude: -74.048659,
   },
   {
     id: "RST-3006",
@@ -72,6 +82,8 @@ export const restaurantsMock: Restaurant[] = [
     category: "Cafe",
     city: "Cali",
     status: "Activo",
+    latitude: 3.451647,
+    longitude: -76.532593,
   },
   {
     id: "RST-3007",
@@ -84,6 +96,8 @@ export const restaurantsMock: Restaurant[] = [
     category: "Postres",
     city: "Bogota",
     status: "Activo",
+    latitude: 4.620977,
+    longitude: -74.072932,
   },
   {
     id: "RST-3008",
@@ -96,6 +110,8 @@ export const restaurantsMock: Restaurant[] = [
     category: "Hamburguesas",
     city: "Barranquilla",
     status: "Inactivo",
+    latitude: 10.987004,
+    longitude: -74.799316,
   },
   {
     id: "RST-3009",
@@ -108,6 +124,8 @@ export const restaurantsMock: Restaurant[] = [
     category: "Pastas",
     city: "Bogota",
     status: "Activo",
+    latitude: 4.711,
+    longitude: -74.0721,
   },
   {
     id: "RST-3010",
@@ -120,6 +138,8 @@ export const restaurantsMock: Restaurant[] = [
     category: "Pollo",
     city: "Medellin",
     status: "Activo",
+    latitude: 6.25184,
+    longitude: -75.563591,
   },
 ];
 

@@ -7,9 +7,9 @@ import com.clickmunch.RestaurantService.service.RestaurantService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -22,16 +22,16 @@ class RestaurantControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private RestaurantService restaurantService;
 
-    @MockBean
+    @MockitoBean
     private AuthClient authClient;
 
     @Test
     void createRestaurant_returnsOk() throws Exception {
         Mockito.when(restaurantService.createRestaurant(Mockito.any(CreateRestaurantRequest.class)))
-                .thenReturn(new RestaurantResponse(1L, "Resto", 2L));
+                .thenReturn(new RestaurantResponse(1L, "Resto", null, null, null, null, 2L));
 
         mockMvc.perform(post("/api/restaurants")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -42,7 +42,7 @@ class RestaurantControllerTest {
     @Test
     void getRestaurant_returnsOk() throws Exception {
         Mockito.when(restaurantService.getRestaurant(1L))
-                .thenReturn(new RestaurantResponse(1L, "Resto", 2L));
+                .thenReturn(new RestaurantResponse(1L, "Resto", null, null, null, null, 2L));
 
         mockMvc.perform(get("/api/restaurants/1"))
                 .andExpect(status().isOk());

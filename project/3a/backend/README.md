@@ -4,12 +4,17 @@ Este backend tiene una arquitectura de microservicios con un único API Gateway 
 
 ## Arquitectura
 
-- Microservicios: `AuthService`, `RestaurantService`, `GeoService`, `MenuService`
+- Microservicios: `AuthService`, `RestaurantService`, `GeoService`, `MenuService`, `OrderService`, `ReservationService`, `CheckoutService`, `RatingService`, `NotificationService`
 - Bases de datos:
   - AuthService → PostgreSQL (`auth_db` en localhost:5433)
   - RestaurantService → PostgreSQL (`restaurant_db` en localhost:5434)
   - GeoService → PostGIS (`geo_db` en localhost:5435)
   - MenuService → MongoDB (`menu_db` en localhost:27018)
+  - OrderService → PostgreSQL (`order_db` en localhost:5436)
+  - ReservationService → PostgreSQL (`reservation_db` en localhost:5437)
+  - RatingService → PostgreSQL (`rating_db` en localhost:5438)
+  - NotificationService → PostgreSQL (`notification_db` en localhost:5439)
+- Message Broker: RabbitMQ 3 (AMQP en localhost:5672, Management UI en localhost:15672)
 - API Gateway: `APIGateway` (expone una interfaz pública unificada al frontend)
 - Puertos de servicios:
   - APIGateway: 8080
@@ -17,10 +22,20 @@ Este backend tiene una arquitectura de microservicios con un único API Gateway 
   - RestaurantService: 8082
   - GeoService: 8083
   - MenuService: 8084
+  - OrderService: 8085
+  - ReservationService: 8086
+  - NotificationService: 8087
+  - RatingService: 8088
+  - CheckoutService: 8089 (Python / FastAPI)
 - Enrutamiento (Gateway → Servicios):
   - `/auth/**` → AuthService (`/api/auth/**`)
   - `/restaurant/**` → RestaurantService (`/api/restaurants/**`)
   - `/menu/**` → MenuService (`/api/menus/**`)
+  - `/order/**` → OrderService (`/api/orders/**`)
+  - `/reservation/**` → ReservationService (`/api/reservations/**`)
+  - `/checkout/**` → CheckoutService (`/api/checkout/**`)
+  - `/rating/**` → RatingService (`/api/ratings/**`)
+  - `/notification/**` → NotificationService (`/api/notifications/**`)
 
 El gateway reescribe las rutas entrantes hacia la API interna de cada servicio. Por ejemplo, `/auth/register` → `/api/auth/register` en AuthService.
 
@@ -37,7 +52,11 @@ El gateway reescribe las rutas entrantes hacia la API interna de cada servicio. 
 - Patrón Repository: Los repositorios de Spring Data como `UserRepository` abstraen la persistencia.
 - Patrón Builder: Las entidades (ej. `User`) usan Lombok `@Builder` para su construcción.
 - Inyección de Dependencias: Componentes gestionados por Spring (`@Service`, `@RestController`, `@Bean`).
-- Patrón de Integración/Cliente: `RestaurantService` usa `AuthClient` para consultar datos de usuarios; los servicios se comunican entre sí vía HTTP.
+- Patrón de Integración/Cliente: `RestaurantService` usa `AuthClient` para consultar datos de usuarios; los servicios se comunican entre sí vía HTTP. `CheckoutService` implementa una orquestación ligera en Python/FastAPI para coordinar ReservationService y OrderService.
+- Mensajería Asíncrona (Event-Driven): OrderService y ReservationService publican eventos de dominio a un exchange de tipo topic en RabbitMQ (`clickmunch.events`). NotificationService consume estos eventos de forma asíncrona para generar notificaciones automáticas. Esto desacopla los productores de los consumidores y mejora la resiliencia del sistema.
+  - Routing keys: `order.created`, `order.status.changed`, `reservation.confirmed`, `reservation.cancelled`
+  - Colas: `notification.order.queue`, `notification.reservation.queue`
+  - Serialización: Jackson2JsonMessageConverter (JSON)
 
 ## API Gateway (Punto Único de Acceso)
 
@@ -48,8 +67,15 @@ Todo el tráfico del frontend pasa por el gateway en `http://localhost:8080`.
 - Protegido (JWT requerido mediante filtro del gateway):
   - `/restaurant/**` → redirigido a RestaurantService
   - `/menu/**` → redirigido a MenuService
+  - `/order/**` → redirigido a OrderService
+  - `/reservation/**` → redirigido a ReservationService
+  - `/checkout/**` → redirigido a CheckoutService
+  - `/rating/**` → redirigido a RatingService
+  - `/notification/**` → redirigido a NotificationService
 
 Nota: Las rutas de GeoService son consumidas internamente por otros servicios y no están expuestas directamente a través del gateway.
+
+Nota: RabbitMQ (puerto 5672/15672) es infraestructura interna — no se accede desde el frontend.
 
 ## Endpoints de los Servicios
 

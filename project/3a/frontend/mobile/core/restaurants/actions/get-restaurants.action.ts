@@ -21,13 +21,13 @@ export const getRestaurants = async (
         console.log('🍽️  Fetching nearby restaurants...');
         
         const response = await productsApi.get<RestaurantsResponse>(
-            '/api/restaurants/nearby',
+            '/restaurant/nearby',
             {
-                data: {
+                params: {
                     latitude,
                     longitude,
                     radiusInKm,
-                } as NearbySearchRequest,
+                },
             }
         );
 

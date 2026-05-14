@@ -7,7 +7,7 @@ const STAGE = process.env.EXPO_PUBLIC_STAGE || 'dev';
 export const API_URL =
     STAGE === 'prod'
         ? process.env.EXPO_PUBLIC_API_URL
-        : Platform.OS === 'ios'
+        : Platform.OS === 'ios' || Platform.OS === 'web'
         ? process.env.EXPO_PUBLIC_API_URL_IOS
         : process.env.EXPO_PUBLIC_API_URL_ANDROID;
 

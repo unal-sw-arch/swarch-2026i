@@ -83,15 +83,43 @@ services:
     networks:
       - appnet
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: mike
+      RABBITMQ_DEFAULT_PASS: secret
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - appnet
+
   apigateway:
     build: ./APIGateway
     container_name: apigateway
+    # The gateway is the ONLY public entry point for the microservices.
+    # REST and STOMP/WebSocket traffic both enter here on 8080; backend
+    # services are reachable only inside the `appnet` Docker network.
     ports:
       - "8080:8080"
     environment:
       SERVICES_AUTH_URL: http://authservice:8081
       SERVICES_RESTAURANT_URL: http://restaurantservice:8082
       SERVICES_MENU_URL: http://menuservice:8084
+      SERVICES_ORDER_URL: http://orderservice:8085
+      SERVICES_ORDER_WS_URL: ws://orderservice:8085
+      SERVICES_RESERVATION_URL: http://reservationservice:8086
+      SERVICES_CHECKOUT_URL: http://checkoutservice:8089
+      SERVICES_RATING_URL: http://ratingservice:8088
+      SERVICES_NOTIFICATION_URL: http://notificationservice:8087
     depends_on:
       authservice:
         condition: service_healthy
@@ -99,14 +127,25 @@ services:
         condition: service_healthy
       menuservice:
         condition: service_healthy
+      orderservice:
+        condition: service_healthy
+      reservationservice:
+        condition: service_healthy
+      checkoutservice:
+        condition: service_healthy
+      ratingservice:
+        condition: service_healthy
+      notificationservice:
+        condition: service_healthy
     networks:
       - appnet
 
   authservice:
     build: ./AuthService
     container_name: authservice
-    ports:
-      - "8081:8081"
+    # Internal only: reach via apigateway:/auth/**.
+    expose:
+      - "8081"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://auth-db:5432/auth_db
       SPRING_DATASOURCE_USERNAME: mike
@@ -120,8 +159,9 @@ services:
   restaurantservice:
     build: ./RestaurantService
     container_name: restaurantservice
-    ports:
-      - "8082:8082"
+    # Internal only: reach via apigateway:/restaurant/**.
+    expose:
+      - "8082"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://restaurant-db:5432/restaurant_db
       SPRING_DATASOURCE_USERNAME: mike
@@ -141,8 +181,9 @@ services:
   geoservice:
     build: ./GeoService
     container_name: geoservice
-    ports:
-      - "8083:8083"
+    # Internal only: only RestaurantService consumes GeoService.
+    expose:
+      - "8083"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://geo-db:5432/geo_db
       SPRING_DATASOURCE_USERNAME: mike
@@ -156,8 +197,9 @@ services:
   menuservice:
     build: ./MenuService
     container_name: menuservice
-    ports:
-      - "8084:8084"
+    # Internal only: reach via apigateway:/menu/**.
+    expose:
+      - "8084"
     environment:
       SPRING_MONGODB_URI: mongodb://mike:secret@menu-db:27017/menu_db?authSource=admin
       SPRING_MONGODB_DATABASE: menu_db
@@ -170,11 +212,202 @@ services:
     networks:
       - appnet
 
+  order-db:
+    image: postgres:16
+    container_name: order-db
+    restart: always
+    environment:
+      POSTGRES_DB: order_db
+      POSTGRES_USER: mike
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5436:5432"
+    volumes:
+      - order_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mike -d order_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - appnet
+
+  reservation-db:
+    image: postgres:16
+    container_name: reservation-db
+    restart: always
+    environment:
+      POSTGRES_DB: reservation_db
+      POSTGRES_USER: mike
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5437:5432"
+    volumes:
+      - reservation_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mike -d reservation_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - appnet
+
+  rating-db:
+    image: postgres:16
+    container_name: rating-db
+    restart: always
+    environment:
+      POSTGRES_DB: rating_db
+      POSTGRES_USER: mike
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5438:5432"
+    volumes:
+      - rating_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mike -d rating_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - appnet
+
+  notification-db:
+    image: postgres:16
+    container_name: notification-db
+    restart: always
+    environment:
+      POSTGRES_DB: notification_db
+      POSTGRES_USER: mike
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5439:5432"
+    volumes:
+      - notification_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mike -d notification_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - appnet
+
+  orderservice:
+    build: ./OrderService
+    container_name: orderservice
+    # Internal only: REST through apigateway:/order/**, WebSocket through
+    # apigateway:/ws/kitchen. The reactive gateway proxies both.
+    expose:
+      - "8085"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://order-db:5432/order_db
+      SPRING_DATASOURCE_USERNAME: mike
+      SPRING_DATASOURCE_PASSWORD: secret
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: mike
+      SPRING_RABBITMQ_PASSWORD: secret
+    depends_on:
+      order-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - appnet
+
+  reservationservice:
+    build: ./ReservationService
+    container_name: reservationservice
+    # Internal only: reach via apigateway:/reservation/**.
+    expose:
+      - "8086"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://reservation-db:5432/reservation_db
+      SPRING_DATASOURCE_USERNAME: mike
+      SPRING_DATASOURCE_PASSWORD: secret
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: mike
+      SPRING_RABBITMQ_PASSWORD: secret
+      RESTAURANT_SERVICE_URL: http://restaurantservice:8082
+    depends_on:
+      reservation-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      restaurantservice:
+        condition: service_healthy
+    networks:
+      - appnet
+
+  ratingservice:
+    build: ./RatingService
+    container_name: ratingservice
+    # Internal only: reach via apigateway:/rating/**.
+    expose:
+      - "8088"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://rating-db:5432/rating_db
+      SPRING_DATASOURCE_USERNAME: mike
+      SPRING_DATASOURCE_PASSWORD: secret
+    depends_on:
+      rating-db:
+        condition: service_healthy
+    networks:
+      - appnet
+
+  notificationservice:
+    build: ./NotificationService
+    container_name: notificationservice
+    # Internal only: reach via apigateway:/notification/**.
+    expose:
+      - "8087"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://notification-db:5432/notification_db
+      SPRING_DATASOURCE_USERNAME: mike
+      SPRING_DATASOURCE_PASSWORD: secret
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: mike
+      SPRING_RABBITMQ_PASSWORD: secret
+    depends_on:
+      notification-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - appnet
+
+  checkoutservice:
+    build: ./CheckoutService
+    container_name: checkoutservice
+    # Internal only: reach via apigateway:/checkout/**.
+    expose:
+      - "8089"
+    environment:
+      ORDER_SERVICE_URL: http://orderservice:8085
+      RESERVATION_SERVICE_URL: http://reservationservice:8086
+    depends_on:
+      orderservice:
+        condition: service_healthy
+      reservationservice:
+        condition: service_healthy
+    networks:
+      - appnet
+
 volumes:
   auth_data:
   restaurant_data:
   geo_data:
   menu_data:
+  order_data:
+  reservation_data:
+  rating_data:
+  notification_data:
 
 networks:
   appnet:

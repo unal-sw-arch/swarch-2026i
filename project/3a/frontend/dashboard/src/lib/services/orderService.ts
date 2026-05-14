@@ -1,119 +1,164 @@
-﻿import type { Order, OrderItem, CreateOrderDTO, UpdateOrderDTO, OrderStatus } from '@/lib/types';
+import type { Order, OrderStatus } from "@/lib/types";
 
-// TODO: Conectar con el backend - OrderService (puerto 8083)
-// URL base: http://localhost:8083/api/orders
+const API = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
 
-let mockOrders: Order[] = [
-  {
-    id: 'ORD-9001',
-    customer: 'Ana Ríos',
-    customerId: 'CUST-001',
-    restaurant: 'Urban Bistro',
-    restaurantId: 'REST-001',
-    items: [
-      { productId: 'PRD-001', productName: 'Latte Vainilla', quantity: 2, unitPrice: 4.50, subtotal: 9.00 },
-      { productId: 'PRD-003', productName: 'Burger Doble', quantity: 3, unitPrice: 12.00, subtotal: 36.00 },
-    ],
-    eta: '12 min',
-    status: 'Preparing',
-    total: 48.20,
-    notes: 'Sin cebolla en la hamburguesa',
-    createdAt: '2025-10-21T12:05:00Z',
-    updatedAt: '2025-10-21T12:05:00Z',
-    channel: 'Reservation',
-  },
-  {
-    id: 'ORD-9002',
-    customer: 'Carlos Mendez',
-    customerId: 'CUST-002',
-    restaurant: 'Café Andino',
-    restaurantId: 'REST-002',
-    items: [
-      { productId: 'PRD-002', productName: 'Ensalada Mediterránea', quantity: 2, unitPrice: 9.80, subtotal: 19.60 },
-      { productId: 'PRD-001', productName: 'Latte Vainilla', quantity: 2, unitPrice: 4.50, subtotal: 9.00 },
-    ],
-    eta: 'Listo',
-    status: 'Ready',
-    total: 28.50,
-    createdAt: '2025-10-21T12:10:00Z',
-    updatedAt: '2025-10-21T12:15:00Z',
-    channel: 'Reservation',
-  },
-];
-
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
-export const orderService = {
-  async getAll(): Promise<Order[]> {
-    await delay(300);
-    return [...mockOrders];
-  },
-
-  async getById(id: string): Promise<Order | null> {
-    await delay(200);
-    return mockOrders.find(o => o.id === id) || null;
-  },
-
-  async create(data: CreateOrderDTO): Promise<Order> {
-    await delay(500);
-    const orderNumber = mockOrders.length + 9001;
-    const items = data.items.map(item => ({
-      ...item,
-      subtotal: item.quantity * item.unitPrice,
-    }));
-    const total = items.reduce((sum, item) => sum + item.subtotal, 0);
-    
-    const newOrder: Order = {
-      id: "ORD-${orderNumber}",
-      customerId: data.customerId,
-      customer: 'Cliente ' + data.customerId,
-      restaurantId: data.restaurantId,
-      restaurant: 'Restaurante ' + data.restaurantId,
-      items,
-      total,
-      status: 'Preparing',
-      eta: 'Calculando...',
-      notes: data.notes,
-      channel: data.channel,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    
-    mockOrders.push(newOrder);
-    return newOrder;
-  },
-
-  async update(data: UpdateOrderDTO): Promise<Order | null> {
-    await delay(500);
-    const index = mockOrders.findIndex(o => o.id === data.id);
-    if (index === -1) return null;
-    
-    mockOrders[index] = {
-      ...mockOrders[index],
-      ...data,
-      updatedAt: new Date().toISOString(),
-    };
-    
-    return mockOrders[index];
-  },
-
-  async updateStatus(id: string, status: OrderStatus): Promise<Order | null> {
-    return this.update({ id, status });
-  },
-
-  async getByRestaurant(restaurantId: string): Promise<Order[]> {
-    await delay(300);
-    return mockOrders.filter(o => o.restaurantId === restaurantId);
-  },
-
-  async getByCustomer(customerId: string): Promise<Order[]> {
-    await delay(300);
-    return mockOrders.filter(o => o.customerId === customerId);
-  },
-
-  async getByStatus(status: OrderStatus): Promise<Order[]> {
-    await delay(300);
-    return mockOrders.filter(o => o.status === status);
-  },
+// 🔐 Headers con auth
+const getHeaders = () => {
+  const token = localStorage.getItem("auth_token");
+  return {
+    "Content-Type": "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
 };
 
+// 🎯 Estados activos
+const ACTIVE_STATUS: OrderStatus[] = [
+  "Pending",
+  "SentToKitchen",
+  "Preparing",
+  "Ready",
+  "Served",
+];
+
+// 🧠 Normalizador (CLAVE DEL FIX)
+const normalizeArray = (json: any): Order[] => {
+  if (Array.isArray(json)) return json;
+  if (Array.isArray(json?.content)) return json.content;
+  if (Array.isArray(json?.data)) return json.data;
+
+  console.warn("⚠️ Formato inesperado:", json);
+  return [];
+};
+
+// ⏱️ Util: tiempo en minutos
+export const getMinutes = (date: string) => {
+  const created = new Date(date);
+  const now = new Date();
+  return Math.floor((now.getTime() - created.getTime()) / 60000);
+};
+
+// 🎨 Color por tiempo
+export const getTimeColor = (min: number) => {
+  if (min < 10) return "text-green-600";
+  if (min < 20) return "text-yellow-500";
+  return "text-red-600";
+};
+
+// 🔄 Flujo de estados
+export const getNextStatus = (status: OrderStatus): OrderStatus | null => {
+  switch (status) {
+    case "Pending":
+      return "SentToKitchen";
+    case "SentToKitchen":
+      return "Preparing";
+    case "Preparing":
+      return "Ready";
+    case "Ready":
+      return "Served";
+    case "Served":
+      return "Delivered";
+    default:
+      return null;
+  }
+};
+
+// 🍽️ Validar mesa libre
+export const isTableFree = (tableId: number, orders: Order[]) => {
+  return !orders.some(
+    (o) =>
+      o.tableId === tableId &&
+      ACTIVE_STATUS.includes(o.status)
+  );
+};
+
+export const orderService = {
+
+  // 📋 Obtener todas las órdenes
+  async getByRestaurant(restaurantId: number): Promise<Order[]> {
+    const res = await fetch(`${API}/order/restaurant/${restaurantId}`, {
+      headers: getHeaders(),
+    });
+
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(err || "Error cargando órdenes");
+    }
+
+    const json = await res.json();
+
+    // 🔥 AQUÍ ESTABA EL BUG
+    return normalizeArray(json);
+  },
+
+  // 🔥 Órdenes activas
+  async getActive(restaurantId: number): Promise<Order[]> {
+    const data = await this.getByRestaurant(restaurantId);
+    return data.filter((o) => ACTIVE_STATUS.includes(o.status));
+  },
+
+  // 🔄 Actualizar estado
+  async updateStatus(orderId: number, status: OrderStatus): Promise<void> {
+    const res = await fetch(`${API}/order/${orderId}/status`, {
+      method: "PUT",
+      headers: getHeaders(),
+      body: JSON.stringify({ status }),
+    });
+
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(err || "Error actualizando estado");
+    }
+  },
+
+  // 🍽️ Asignar mesa
+  async assignTable(orderId: number, tableId: number): Promise<void> {
+    const res = await fetch(
+      `${API}/order/${orderId}/assign-table?tableId=${tableId}`,
+      {
+        method: "PUT",
+        headers: getHeaders(),
+      }
+    );
+
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(err || "Error asignando mesa");
+    }
+  },
+
+  // 🔍 Obtener por ID
+  async getById(orderId: number): Promise<Order | null> {
+    const res = await fetch(`${API}/order/${orderId}`, {
+      headers: getHeaders(),
+    });
+
+    if (!res.ok) return null;
+
+    const json = await res.json();
+    return json;
+  },
+
+  // 📜 Historial
+  async getHistory(restaurantId: number): Promise<Order[]> {
+    const res = await fetch(`${API}/order/restaurant/${restaurantId}`, {
+      headers: getHeaders(),
+    });
+
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(err || "Error cargando historial");
+    }
+
+    const json = await res.json();
+    const data = normalizeArray(json);
+
+    return data.filter(
+      (o) => o.status === "Delivered" || o.status === "Cancelled"
+    );
+  },
+
+  // 🧪 Debug
+  logOrder(order: Order) {
+    console.log("📦 ORDER:", order);
+  },
+};

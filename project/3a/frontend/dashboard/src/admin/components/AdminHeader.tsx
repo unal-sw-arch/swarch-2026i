@@ -1,28 +1,61 @@
-import React, { useMemo, useState } from 'react';
-import { Search, Bell, MessageSquare, Settings } from 'lucide-react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
+import { Search, Bell, MessageSquare, Settings, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router';
+import { useAuth } from '@/contexts/AuthContext';
+import { getCurrentUserInitials, getCurrentUserRole } from '@/lib/auth';
 
 export const AdminHeader: React.FC = () => {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [query, setQuery] = useState("");
   const [focused, setFocused] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const quickLinks = useMemo(
-    () => [
-      { label: "Dashboard", path: "/" },
-      { label: "Productos", path: "/products" },
-      { label: "Usuarios", path: "/users" },
-      { label: "Órdenes", path: "/orders" },
-      { label: "Reservas", path: "/reservations" },
-      { label: "Restaurantes", path: "/restaurants" },
-      { label: "Ratings", path: "/ratings" },
-      { label: "Reportes", path: "/reports" },
-      { label: "Notificaciones", path: "/notifications" },
-      { label: "Ajustes", path: "/settings" },
-      { label: "Ayuda", path: "/help" },
-    ],
-    []
-  );
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const userInitial = useMemo(() => getCurrentUserInitials(), []);
+
+  // Cerrar dropdown al hacer click fuera
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const allQuickLinks = [
+    { label: "Dashboard", path: "/", roles: ['ADMIN', 'RESTAURANT_MANAGER'] },
+    { label: "Productos", path: "/products", roles: ['ADMIN', 'RESTAURANT_MANAGER'] },
+    { label: "Usuarios", path: "/users", roles: ['ADMIN'] },
+    { label: "Órdenes", path: "/orders", roles: ['ADMIN', 'RESTAURANT_MANAGER'] },
+    { label: "Reservas", path: "/reservations", roles: ['ADMIN', 'RESTAURANT_MANAGER'] },
+    { label: "Restaurantes", path: "/restaurants", roles: ['ADMIN'] },
+    { label: "Ratings", path: "/ratings", roles: ['ADMIN', 'RESTAURANT_MANAGER'] },
+    { label: "Reportes", path: "/reports", roles: ['ADMIN', 'RESTAURANT_MANAGER'] },
+    { label: "Notificaciones", path: "/notifications", roles: ['ADMIN', 'RESTAURANT_MANAGER'] },
+    { label: "Ajustes", path: "/settings", roles: ['ADMIN'] },
+    { label: "Ayuda", path: "/help", roles: ['ADMIN'] },
+  ];
+
+  const quickLinks = useMemo(() => {
+    const userRole = getCurrentUserRole();
+    if (!userRole) return [];
+    
+    return allQuickLinks.filter(link => link.roles.includes(userRole));
+  }, []);
 
   const suggestions = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -91,8 +124,33 @@ export const AdminHeader: React.FC = () => {
             <Settings size={20} />
           </button>
 
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm cursor-pointer hover:shadow-lg transition-shadow">
-            JD
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm cursor-pointer hover:shadow-lg transition-shadow flex items-center gap-1"
+            >
+              {userInitial}              
+            </button>
+
+            {dropdownOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                <div className="px-4 py-3 border-b border-gray-200">
+                  <p className="text-sm font-medium text-gray-900">{user?.username || 'Usuario'}</p>
+                  <p className="text-xs text-gray-500">{user?.role || 'Rol'}</p>
+                </div>
+                <button
+                  onClick={() => {
+                    logout();
+                    setDropdownOpen(false);
+                    navigate('/auth/login');
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                >
+                  <LogOut size={16} />
+                  Cerrar sesión
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

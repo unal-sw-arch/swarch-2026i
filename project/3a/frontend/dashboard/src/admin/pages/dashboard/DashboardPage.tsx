@@ -3,6 +3,8 @@ import Chart from "@/admin/components/Chart";
 import QuickActions from "@/admin/components/QuickActions";
 import StatCard from "@/admin/components/StatCard";
 import { Users, DollarSign, ShoppingCart, TrendingUp, Eye, BarChart3 } from "lucide-react";
+import { getCurrentUserName } from "@/lib/auth";
+import { useMemo } from "react";
 
   const stats = [
     {
@@ -54,12 +56,20 @@ import { Users, DollarSign, ShoppingCart, TrendingUp, Eye, BarChart3 } from "luc
 
 
 export const DashboardPage = () => {
+  const Name = useMemo(() => {
+    const fullName = getCurrentUserName();
+    if (!fullName) return 'Usuario';
+    
+    // Tomar solo el primer nombre (antes del primer espacio)
+    return fullName.trim().split(' ')[0];
+  }, []);
+
   return (
     <>
       {/* Welcome Section */}
           <div className="mb-8">
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              Welcome back, John! 👋
+              Welcome back, {Name}! 👋
             </h1>
             <p className="text-gray-600">
               Here's what's happening with your business today.

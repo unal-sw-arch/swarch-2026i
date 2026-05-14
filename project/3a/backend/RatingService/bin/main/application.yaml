@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: RatingService
+  jmx:
+    enabled: false
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5438/rating_db}
+    username: ${SPRING_DATASOURCE_USERNAME:mike}
+    password: ${SPRING_DATASOURCE_PASSWORD:secret}
+    driver-class-name: org.postgresql.Driver
+
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+
+  data:
+    jdbc:
+      dialect: postgresql
+
+server:
+  port: 8088
+
+logging:
+  level:
+    root: INFO
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+    jmx:
+      exposure:
+        exclude: "*"

@@ -1,13 +1,13 @@
 package com.clickmunch.RestaurantService.client;
 
-import com.clickmunch.RestaurantService.dto.LocationDto;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+
+import com.clickmunch.RestaurantService.dto.LocationDto;
 
 @Component
 public class GeoClient {
@@ -16,10 +16,10 @@ public class GeoClient {
     private static final String GEO_URL = "http://localhost:8083/api/geo";
 
 
-    public Long createLocation(String name, Double latitude, Double longitude) {
+    public Long createLocation(String name, Double latitude, Double longitude, String placeType) {
         Map<String, Object> request = Map.of(
                 "name", name,
-                "type", "RESTAURANT",
+                "type", placeType != null ? placeType : "RESTAURANT",
                 "latitude", latitude,
                 "longitude", longitude
         );

@@ -55,7 +55,7 @@ class RestaurantServiceTest {
 
         createRequest = new CreateRestaurantRequest(
                 2L, "Test Restaurant", "Test Description",
-                "123-456-7890", "test@restaurant.com", 40.7128, -74.0060
+                "123-456-7890", "test@restaurant.com", null, 40.7128, -74.0060
         );
     }
 

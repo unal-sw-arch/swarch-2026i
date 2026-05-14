@@ -35,7 +35,12 @@ const LoginScreen = () => {
       setisPosting(false);
 
       if (wasSuccessful) {
-        router.replace('/')
+        const role = useAuthStore.getState().user?.role;
+        if (role === 'WAITER' || role === 'RESTAURANT_MANAGER' || role === 'ADMIN') {
+          router.replace('/(waiter-app)/(tabs)/active' as any);
+        } else {
+          router.replace('/');
+        }
         return;
       }
 

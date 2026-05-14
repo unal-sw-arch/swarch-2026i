@@ -116,7 +116,7 @@ function GameCardGrid({ game, linkable = true, className }: Omit<GameCardProps, 
       )}
     >
       {/* Cover image — 3:4 aspect ratio like a game case */}
-      <div className="relative aspect-[3/4] w-full overflow-hidden bg-surface-container">
+      <div className="relative aspect-[2/1] w-full overflow-hidden bg-surface-container">
         {game.coverImage ? (
           <Image
             src={game.coverImage}
@@ -214,7 +214,7 @@ function GameCardList({ game, linkable = true, className }: Omit<GameCardProps, 
             </span>
           </div>
         )}
-      </div>
+        </div>
 
       {/* Details */}
       <div className="flex min-w-0 flex-1 flex-col gap-1">

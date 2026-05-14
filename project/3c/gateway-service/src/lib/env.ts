@@ -16,6 +16,7 @@ export const env = {
   PORT: parseInt(process.env["PORT"] ?? "8080", 10),
   USER_SERVICE_URL: requireEnv("USER_SERVICE_URL"),
   SCRAPPER_SERVICE_URL: requireEnv("SCRAPPER_SERVICE_URL"),
+  RANKING_SERVICE_URL: requireEnv("RANKING_SERVICE_URL"),
   // Redis — defaults to localhost for local dev
   REDIS_URL: process.env["REDIS_URL"] ?? "redis://localhost:6379",
   // RabbitMQ — defaults to local guest credentials

@@ -9,6 +9,7 @@ import games from "./routes/games.js";
 import auth from "./routes/auth.js";
 import wishlist from "./routes/wishlist.js";
 import events from "./routes/events.js";
+import ranking from "./routes/ranking.js";
 
 const app = new Hono();
 const allowedOrigins = [
@@ -30,7 +31,7 @@ app.use(
       return allowedOrigins.includes(origin) ? origin : "";
     },
     allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowHeaders: ["Content-Type", "Authorization", "Cookie"],
+    allowHeaders: ["Content-Type", "Authorization", "Cookie", "Idempotency-Key"],
     credentials: true,
   }),
 );
@@ -53,6 +54,7 @@ app.route("/api/games", games);
 app.route("/api/auth", auth);
 app.route("/api/wishlist", wishlist);
 app.route("/api/events", events);
+app.route("/api/ranking", ranking);
 
 // ---------------------------------------------------------------------------
 // 404 fallthrough

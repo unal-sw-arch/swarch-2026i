@@ -42,7 +42,11 @@ describe("Auth proxy routes", () => {
     const fetchMock = vi.mocked(globalThis.fetch);
     expect(fetchMock).toHaveBeenCalledOnce();
     const calledUrl = fetchMock.mock.calls[0]?.[0] as string;
+    const calledInit = fetchMock.mock.calls[0]?.[1] as RequestInit;
     expect(calledUrl).toContain("/api/auth/sign-up/email");
+    expect(new Headers(calledInit.headers).get("origin")).toBe(
+      "http://localhost:8080",
+    );
   });
 
   it("POST /api/auth/sign-in/email proxies to /api/auth/sign-in/email", async () => {
@@ -61,7 +65,11 @@ describe("Auth proxy routes", () => {
     const fetchMock = vi.mocked(globalThis.fetch);
     expect(fetchMock).toHaveBeenCalledOnce();
     const calledUrl = fetchMock.mock.calls[0]?.[0] as string;
+    const calledInit = fetchMock.mock.calls[0]?.[1] as RequestInit;
     expect(calledUrl).toContain("/api/auth/sign-in/email");
+    expect(new Headers(calledInit.headers).get("origin")).toBe(
+      "http://localhost:8080",
+    );
   });
 
   it("POST /api/auth/sign-out proxies to /api/auth/sign-out", async () => {
@@ -75,7 +83,11 @@ describe("Auth proxy routes", () => {
     const fetchMock = vi.mocked(globalThis.fetch);
     expect(fetchMock).toHaveBeenCalledOnce();
     const calledUrl = fetchMock.mock.calls[0]?.[0] as string;
+    const calledInit = fetchMock.mock.calls[0]?.[1] as RequestInit;
     expect(calledUrl).toContain("/api/auth/sign-out");
+    expect(new Headers(calledInit.headers).get("origin")).toBe(
+      "http://localhost:8080",
+    );
   });
 
   it("GET /api/auth/get-session proxies to /api/auth/get-session", async () => {

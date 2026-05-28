@@ -22,7 +22,7 @@
 **Boutique de Regalos Villapinzón**
 
 ### Logo
-<img width="1206" height="1156" alt="Logo" src="https://github.com/user-attachments/assets/b40c8629-5128-4dfd-8458-c0d83faefcfc" />
+<img width="1206" height="1156" alt="Logo" src="assets/Logo.jpeg" />
 
 
 
@@ -41,7 +41,7 @@ The system is built following a **microservices architecture**, where each busin
  #### C&C View
 
 The following diagram illustrates the runtime components of the system and their connectors:
-<img width="794" height="1133" alt="C C View" src="https://github.com/user-attachments/assets/22c71829-aa1b-434f-a067-5627d0bce28a" />
+<img width="794" height="1133" alt="C C View" src="assets/C&C View.drawio (2).png" />
 
 
 
@@ -105,7 +105,7 @@ Why it was chosen: Data layers mirror the logic component topology exclusively. 
 ### 3.2 Deployment Structure
 
 #### Deployment View
-<img width="661" height="664" alt="Deployment View (1)" src="https://github.com/user-attachments/assets/9b1b8f24-9d16-4747-836d-a99fa476eef3" />
+<img width="661" height="664" alt="Deployment View (1)" src="assets/Diagrama despliegue.jpeg" />
 
 #### Description of architectural elements and relations.
 | Node (Environmental Element) | Infrastructure Type | Allocated Software Elements | Provided Properties |
@@ -132,7 +132,7 @@ Although deployed onto managed cloud structures, the underlying system guarantee
 ### 3.3 Layered Structure
 
 #### Layered View
-<img width="491" height="944" alt="Layered view" src="https://github.com/user-attachments/assets/f07eb0fc-09d7-43d6-a72c-216894c81e19" />
+<img width="491" height="944" alt="Layered view" src="assets/Diagrama de Capas.jpeg" />
 #### Description of architectural elements and relations.
 | Layer Name |	Contained Modules / Components	| Responsibility |	Inter-Layer Relation |
 |----|---|---|--|
@@ -155,7 +155,7 @@ Within the Business Logic Layer, the modules are grouped by business subdomain (
 ### 3.4 Decomposition Structure
 
 #### Decomposition View
-<img width="601" height="491" alt="Decomposition View" src="https://github.com/user-attachments/assets/9c11ebe0-6181-4488-b57c-4ca9bddc586c" />
+<img width="601" height="491" alt="Decomposition View" src="assets/Diagrama Descomposicion.jpeg" />
 
 #### Description of architectural elements and relations.
 The entire enterprise solution (<<System>> Boutique de Regalos) is decomposed into three principal architectural modules (<<Subsystems>>), which are subsequently decomposed into functional units (<<Modules>>).
@@ -177,46 +177,58 @@ The entire enterprise solution (<<System>> Boutique de Regalos) is decomposed in
 - Is-part-of (Containment): The exclusive relation depicted. For instance, the Authentication <<Module>> is defined logically as being "contained by" or "is-part-of" the Core Business Logic <<Subsystem>>. This strictly partitions the workload, making each module a discrete candidate for independent development or modification without conceptual overlap.
 ---
 
-## 4. Prototype
+## 🏗️ Patrones de Calidad — Prototipo 3
 
-### Prerequisites
-
-Ensure the following tools are installed on your machine before proceeding:
-
-- [Docker](https://www.docker.com/get-started) (version 20 or later)
-- [Docker Compose](https://docs.docker.com/compose/install/) (version 2 or later)
-- [Git](https://git-scm.com/)
-
-Verify the installations:
-
-```bash
-docker --version
-docker compose version
-git --version
-```
+Se implementaron 6 patrones de arquitectura distribuidos en tres categorías: **Seguridad**, **Rendimiento** y **Resiliencia**.
 
 ---
 
-### Instructions for Deploying the System Locally
+### 🔐 Seguridad
+
+#### S1 · Segmentación de Red
+Aislamiento de servicios internos mediante redes Docker separadas. El API Gateway es el único punto de entrada entre la red pública e interna.
+
+<img width="1206" height="1156" alt="Network Segmenation" src="assets/S1 Network Segementation.png" />
+
+---
+
+#### S2 · Rate Limiting
+Protección contra abuso de endpoints con `express-rate-limit`: 100 req/min general y 10 req/15 min en login.
+
+<img width="1206" height="1156" alt="Rate Limiting" src="assets/S2 Rate Limiting.png" />
+
+---
+
+### ⚡ Rendimiento
+
+#### P1 · Cache-Aside (No lo entendemos muy bien)
+Reducción de latencia almacenando productos en Redis (TTL 300 s). Incluye header `X-Cache: HIT/MISS` y invalidación en mutaciones.
+
+<img width="1206" height="1156" alt="Cache Aside" src="assets/P1 CacheAside.png" />
+
+---
+
+#### P2 · Event-Driven (No lo entendemos muy bien)
+Desacoplamiento de servicios mediante RabbitMQ. Los eventos `order.created` y `login.verify` se procesan de forma asíncrona por los consumidores.
+
+<img width="1206" height="1156" alt="Event Driven" src="assets/P2 Event driven.png" />
 
 
-**Step 1 — Build and start all containers**
+---
 
-```bash
-docker-compose up --build
-```
+### 🛡️ Resiliencia
+
+#### R1 · Circuit Breaker
+Prevención de fallos en cascada usando `opossum`. Si el `product-service` falla, el breaker se abre y retorna un fallback `[]` sin bloquear el sistema.
+
+<img width="1206" height="1156" alt="Circuit Breaker" src="assets/R1 Cicuit Breaker.png" />
 
 
-**Step 2 — Stop the system**
+---
 
-To stop all running containers:
+#### R2 · Bulkhead
+Aislamiento de recursos de base de datos en `order-service` mediante un pool acotado (`max: 10`, `connectionTimeoutMillis: 5000 ms`).
 
-```bash
-docker-compose down
-```
+<img width="1206" height="1156" alt="BulkHead" src="assets/R2 Bulkhead.png" />
 
-To stop and remove persistent volumes (databases):
-
-```bash
-docker-compose down --volumes
 ```

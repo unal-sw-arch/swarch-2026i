@@ -1,6 +1,0 @@
-node_modules/
-.next/
-.env
-frontend-ssr/public/uploads/
-.DS_Store
-Thumbs.db

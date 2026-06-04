@@ -16,5 +16,9 @@ class IUserRepository(ABC):
         pass
 
     @abstractmethod
+    async def create_restaurant(self, name: str, email: str, password_hash: str, restaurant_id: int) -> User:
+        pass
+
+    @abstractmethod
     async def get_restaurant_id(self, user_id: int) -> Optional[int]:
         pass

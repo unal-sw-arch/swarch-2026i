@@ -1,6 +1,7 @@
 import type { RequestContext } from '../../shared/types/request-context';
 
 export interface AuthRegisterCustomerBody extends Record<string, unknown> {}
+export interface AuthRegisterRestaurantBody extends Record<string, unknown> {}
 export interface AuthLoginCustomerBody extends Record<string, unknown> {}
 export interface AuthLoginRestaurantBody extends Record<string, unknown> {}
 
@@ -11,6 +12,11 @@ export interface ProxyResponse<TData = unknown> {
 
 export interface RegisterCustomerInput {
   body: AuthRegisterCustomerBody;
+  context?: RequestContext;
+}
+
+export interface RegisterRestaurantInput {
+  body: AuthRegisterRestaurantBody;
   context?: RequestContext;
 }
 

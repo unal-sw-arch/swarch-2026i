@@ -45,8 +45,7 @@ const envSchema = z
     CACHE_TTL_MENU: z.coerce.number().int().positive().default(60),
     CACHE_TTL_PROMOTIONS: z.coerce.number().int().positive().default(60),
     USE_MOCK_SERVICES: booleanFromEnv.default(false),
-  })
-  .strict();
+  });
 
 export type EnvConfig = Readonly<z.infer<typeof envSchema>>;
 

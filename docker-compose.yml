@@ -12,116 +12,51 @@ services:
     networks:
       - deliunal-network
 
-  # P2. Restaurant Dashboard según la Biblia Técnica
+  # P2. Restaurant Dashboard operativo (React + Vite)
   restaurant-dashboard:
     build:
-      context: ./apps/restaurant-dashboard
-      args:
-        - VITE_ORDER_SERVICE_URL=http://localhost:8080
-        - VITE_TRACKING_SERVICE_URL=http://localhost:8000
+      context: ./apps/restaurant-dashboard-prototype2
     ports:
-      - "5173:80"
+      - "5173:5173"
+    environment:
+      - VITE_DATA_SOURCE=api
+      - VITE_API_BASE_URL=http://localhost:4000
     depends_on:
-      - order-service
-      - notification-service
+      - api-gateway
     networks:
       - deliunal-network
 
   # L1. API Gateway
   api-gateway:
     build:
-      context: ./services/api-gateway
+      context: ./apps/api-gateway
     ports:
       - "4000:4000"
     environment:
       - PORT=4000
+      - NODE_ENV=production
+      - LOG_LEVEL=info
+      - BODY_LIMIT=1mb
+      - HTTP_TIMEOUT_MS=10000
       - AUTH_SERVICE_URL=http://auth-service:8000
       - CATALOG_SERVICE_URL=http://catalog-service:3000
       - ORDER_SERVICE_URL=http://order-service:8080
-      - NOTIFICATION_SERVICE_URL=http://notification-service:8000
+      - KITCHEN_SERVICE_URL=http://kitchen-service:8082
+      - TIMELINE_SERVICE_URL=http://notification-service:8000
+      - PROMOTIONS_SERVICE_URL=http://notification-service:8000
+      - CACHE_ENABLED=false
+      - REDIS_URL=redis://valkey-cache:6379
+      - CACHE_TTL_RESTAURANTS=60
+      - CACHE_TTL_MENU=60
+      - CACHE_TTL_PROMOTIONS=60
+      - USE_MOCK_SERVICES=false
     depends_on:
       - auth-service
       - catalog-service
       - order-service
+      - kitchen-service
       - notification-service
-    networks:
-      - deliunal-network
-
-  # L4. Order Service
-  order-service:
-    build:
-      context: ./services/order-service
-    ports:
-      - "8080:8080"
-    environment:
-      - SERVER_PORT=8080
-      - DB_URL=jdbc:postgresql://order-db:5432/order_db
-      - DB_USERNAME=postgres
-      - DB_PASSWORD=postgres
-      - JPA_DDL_AUTO=update
-      - JPA_SHOW_SQL=false
-      - SQL_INIT_MODE=never
-      - CATALOG_SERVICE_URL=http://catalog-service:3000
-      - TRACKING_SERVICE_URL=http://notification-service:8000 
-      - LOG_LEVEL=INFO
-    depends_on:
-      - order-db
-    networks:
-      - deliunal-network
-
-  # D3. Order DB
-  order-db:
-    image: postgres:15
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=order_db
-    ports:
-      - "5435:5432"
-    volumes:
-      - order-data:/var/lib/postgresql/data
-    networks:
-      - deliunal-network
-
-  # L5. Kitchen Service
-  kitchen-service:
-    build:
-      context: ./services/kitchen-service
-    ports:
-      - "8082:8082"
-    environment:
-      - PORT=8082
-      - AMQP_URL=amqp://guest:guest@event-broker:5672
-      - JWT_SECRET=super-secret-key-for-development
-    depends_on:
-      event-broker:
-        condition: service_healthy
-    networks:
-      - deliunal-network
-
-  # L6. Notification Service
-  notification-service:
-    build:
-      context: ./services/notification-service
-    ports:
-      - "8000:8000"
-    environment:
-      - MONGO_URI=mongodb://tracking_service_user:tracking_password_2026@mongo-db:27017/tracking_context?authSource=tracking_context
-      - MONGO_DB_NAME=tracking_context
-      - MONGO_COLLECTION_NAME=activity_events
-    depends_on:
-      - mongo-db
-    networks:
-      - deliunal-network
-
-  # D4. Tracking DB
-  mongo-db:
-    image: mongo:7
-    ports:
-      - "27018:27017"
-    volumes:
-      - mongo-data:/data/db
-      - ./infrastructure/databases/tracking-db/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      - valkey-cache
     networks:
       - deliunal-network
 
@@ -186,12 +121,96 @@ services:
     networks:
       - deliunal-network
 
-  # A1. Event Broker (Biblia Pág. 5)
+  # L4. Order Service
+  order-service:
+    build:
+      context: ./services/order-service
+    ports:
+      - "8080:8080"
+    environment:
+      - SERVER_PORT=8080
+      - DB_URL=jdbc:postgresql://order-db:5432/order_db
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - JPA_DDL_AUTO=update
+      - JPA_SHOW_SQL=false
+      - SQL_INIT_MODE=never
+      - CATALOG_SERVICE_URL=http://catalog-service:3000
+      - TRACKING_SERVICE_URL=http://notification-service:8000
+      - RABBITMQ_HOST=event-broker
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USERNAME=guest
+      - RABBITMQ_PASSWORD=guest
+      - LOG_LEVEL=INFO
+    depends_on:
+      - order-db
+      - catalog-service
+      - event-broker
+    networks:
+      - deliunal-network
+
+  # D3. Order DB
+  order-db:
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=order_db
+    ports:
+      - "5435:5432"
+    volumes:
+      - order-data:/var/lib/postgresql/data
+    networks:
+      - deliunal-network
+
+  # L5. Kitchen Service
+  kitchen-service:
+    build:
+      context: ./services/kitchen-service
+    ports:
+      - "8082:8082"
+    environment:
+      - PORT=8082
+      - AMQP_URL=amqp://guest:guest@event-broker:5672
+      - JWT_SECRET=super-secret-key-for-development
+    depends_on:
+      event-broker:
+        condition: service_healthy
+    networks:
+      - deliunal-network
+
+  # L6. Notification / Tracking Service
+  notification-service:
+    build:
+      context: ./services/notification-service
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGO_URI=mongodb://tracking_service_user:tracking_password_2026@mongo-db:27017/tracking_context?authSource=tracking_context
+      - MONGO_DB_NAME=tracking_context
+      - MONGO_COLLECTION_NAME=activity_events
+    depends_on:
+      - mongo-db
+    networks:
+      - deliunal-network
+
+  # D4. Tracking DB
+  mongo-db:
+    image: mongo:7
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo-data:/data/db
+      - ./infrastructure/databases/tracking-db/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - deliunal-network
+
+  # A1. Event Broker
   event-broker:
     image: rabbitmq:3-management
     ports:
-      - "5672:5672"   # Puerto AMQP
-      - "15672:15672" # Puerto Management UI
+      - "5672:5672"
+      - "15672:15672"
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
@@ -204,7 +223,7 @@ services:
     networks:
       - deliunal-network
 
-  # D5. Cache (Valkey) - Infraestructura compartida Gateway / Catalog
+  # D5. Cache (Valkey)
   valkey-cache:
     image: valkey/valkey:7.2
     ports:

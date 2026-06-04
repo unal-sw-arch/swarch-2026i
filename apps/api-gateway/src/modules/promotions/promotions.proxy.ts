@@ -14,6 +14,25 @@ const isSuccessStatus = (status: number): boolean => status >= 200 && status < 3
 const normalizeError = (error: unknown): string =>
   error instanceof Error ? error.message : String(error);
 
+const fallbackPromotions = {
+  items: [
+    {
+      id: 9001,
+      title: 'Combo Almuerzo',
+      description: 'Bebida gratis',
+    },
+    {
+      id: 9002,
+      title: 'Entrega Premium',
+      description: '10% off on your first prototype order',
+    },
+  ],
+};
+
+const fallbackRecommendations = {
+  items: [],
+};
+
 export class PromotionsProxy {
   constructor(
     private readonly client: PromotionsClient = new PromotionsClient(),
@@ -36,12 +55,22 @@ export class PromotionsProxy {
       });
     }
 
-    const response = await this.client.forward({
-      method: 'GET',
-      path: '/promotions/active',
-      query: input.query,
-      context: input.context,
-    });
+    let response: ProxyResponse;
+
+    try {
+      response = await this.client.forward({
+        method: 'GET',
+        path: '/promotions/active',
+        query: input.query,
+        context: input.context,
+      });
+    } catch (error: unknown) {
+      logger.warn('Promotions upstream unavailable. Returning demo promotions fallback.', {
+        error: normalizeError(error),
+      });
+
+      response = { status: 200, data: fallbackPromotions };
+    }
 
     if (isSuccessStatus(response.status)) {
       try {
@@ -58,13 +87,21 @@ export class PromotionsProxy {
   }
 
   public async recommendations(input: RecommendationsInput): Promise<ProxyResponse> {
-    const response = await this.client.forward({
-      method: 'GET',
-      path: '/recommendations',
-      query: input.query,
-      context: input.context,
-    });
+    try {
+      const response = await this.client.forward({
+        method: 'GET',
+        path: '/recommendations',
+        query: input.query,
+        context: input.context,
+      });
 
-    return { status: response.status, data: response.data };
+      return { status: response.status, data: response.data };
+    } catch (error: unknown) {
+      logger.warn('Recommendations upstream unavailable. Returning empty recommendations fallback.', {
+        error: normalizeError(error),
+      });
+
+      return { status: 200, data: fallbackRecommendations };
+    }
   }
 }

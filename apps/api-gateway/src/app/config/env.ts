@@ -45,6 +45,9 @@ const envSchema = z
     CACHE_TTL_MENU: z.coerce.number().int().positive().default(60),
     CACHE_TTL_PROMOTIONS: z.coerce.number().int().positive().default(60),
     USE_MOCK_SERVICES: booleanFromEnv.default(false),
+    WAF_ENABLED: booleanFromEnv.default(true),
+    WAF_MODE: z.enum(['detect', 'block']).default('block'),
+    WAF_MAX_BODY_BYTES: z.coerce.number().int().positive().default(1048576),
   });
 
 export type EnvConfig = Readonly<z.infer<typeof envSchema>>;

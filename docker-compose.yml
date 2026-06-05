@@ -50,6 +50,9 @@ services:
       - CACHE_TTL_MENU=60
       - CACHE_TTL_PROMOTIONS=60
       - USE_MOCK_SERVICES=false
+      - WAF_ENABLED=true
+      - WAF_MODE=block
+      - WAF_MAX_BODY_BYTES=1048576
     depends_on:
       - auth-service
       - catalog-service

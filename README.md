@@ -1,96 +1,140 @@
-```
-● Team : Team B 
-```
-```
-● Full names:
-○ Manuel Alejandro Navas Bohorquez
-○ German Camilo Bernal Ladino
-○ Edwin Felipe Pinilla Peralta
-○ Juan David Rivera Buitrago
-○ Obed Felipe Espinosa Angarita
-```
-```
-● Software System:
-○ Name: DELIUNAL
-○ logo:
-```
-![Descripción de la imagen](./docs/LOGO%20FORMATO%20ESCALA%20500x500px.png)
+# DELIUNAL
+
+Team B - Software Architecture 2026-I
+
+## Team Members
+
+- Manuel Alejandro Navas Bohorquez
+- German Camilo Bernal Ladino
+- Edwin Felipe Pinilla Peralta
+- Juan David Rivera Buitrago
+- Obed Felipe Espinosa Angarita
+
+## System Overview
+
+DELIUNAL is a delivery platform for two main user groups:
+
+- Customers browse restaurants, select menu items, place orders, and follow order status.
+- Restaurants manage menu availability and operational order flow.
+
+The system is organized as a microservice-based architecture with separate presentation, application, and data components.
+
+## Main Components
+
+| Layer | Component | Technology | Responsibility |
+| --- | --- | --- | --- |
+| Presentation | Customer App | Next.js | Customer-facing ordering experience |
+| Presentation | Restaurant Dashboard | React + Vite | Restaurant operations dashboard |
+| Boundary | API Gateway | Node.js + Express + TypeScript | Public HTTP entry point, routing, security controls |
+| Logic | Auth Service | FastAPI | Customer and restaurant authentication |
+| Logic | Catalog Service | NestJS | Restaurants, menus, product availability |
+| Logic | Order Service | Spring Boot | Order creation and order queries |
+| Logic | Kitchen Service | Go | Kitchen queue and status transitions |
+| Logic | Notification / Tracking Service | Django | Activity history and order timeline |
+| Data | PostgreSQL | Docker | Auth, catalog, and order persistence |
+| Data | MongoDB | Docker / Atlas | Tracking events |
+| Infrastructure | RabbitMQ | Docker | Event broker |
+| Infrastructure | Valkey | Docker | Shared cache |
+
+## Architecture
+
+The system combines layered architecture and service-based architecture. Public clients communicate with the API Gateway, and the Gateway forwards requests to internal services. Services own their data stores and communicate through HTTP and asynchronous events where required.
+
+![C&C View](./docs/4097ff58-1e23-493c-a4fb-0826dbd1d105.jpg)
+
+## Lab 4 - Security
+
+Lab 4 implements the **Web Application Firewall (WAF)** security pattern in the API Gateway.
+
+The WAF inspects incoming HTTP requests before they reach downstream services and blocks:
+
+- SQL injection signatures.
+- Cross-site scripting signatures.
+- Path traversal attempts.
+- Oversized requests.
+
+Lab 4 deliverables:
+
+- Technical guide: [docs/lab4-security/README.md](./docs/lab4-security/README.md)
+- Classroom PDF: [docs/lab4-security/Lab_4_Security_DELIUNAL_WAF.pdf](./docs/lab4-security/Lab_4_Security_DELIUNAL_WAF.pdf)
+
+## Running the Prototype
+
+Requirements:
+
+- Docker Desktop
+- Node.js 18.18 or newer for local API Gateway checks
+
+Run all services:
+
+```powershell
+docker compose up -d --build
 ```
 
-○ Description: This project focuses on creating a delivery platform where there
-is two main users first restaurants can publish their menus, and items with its
-respective prices, descriptions and other information, and second one is the
-customer which can select their preferred item or items offered in the app,
-place the order requesting this items and do the corresponding followup
-```
-```
-● Architectural Structures:
-○ Component-and Connector (C&C) Structure:
-```
-■ C&C View: ![C&C VIEW](./docs/4097ff58-1e23-493c-a4fb-0826dbd1d105.jpg)
-```
-■ Description of architectural styles used:
+Stop all services:
 
-The diagram shows a layered architecture combined with a microservices-oriented style.
-The system is organized into three clear layers: a presentation layer, a logic layer, and a
-data layer. This separation improves maintainability by assigning a specific responsibility to
-
-
-each layer. at the same time, the logic layer is split into two independent services: order
-Service and Tracking Service. This reflects a microservices or service-based architecture,
-where each service is responsible for a specific business capability. the diagram also
-suggests a Domain-Driven Design (DDD) influence, since each service is associated with a
-bounded context: Order Management and Activity Tracking.the data design follows a
-polyglot persistence approach. the Order Service uses PostgreSQL, a relational database
-suited for transactional business data, while the Tracking Service uses MongoDB, a
-document database better suited for logs, trace events, and operational history.In addition,
-the system is deployed in a local Docker Compose environment, which indicates a
-containerized architectural approach for development and integration.
-```
-# ■ Description of architectural elements and relations.
-
-The main architectural elements are:
-
-```
-● Web App (React):
-This is the presentation component used by users to create orders, view orders, and
-check tracking history.
-● Order Service (Spring Boot):
-This service belongs to the Order Management bounded context. It is responsible
-for creating orders, updating order status, querying orders, and applying business
-rules.
-● Tracking Service (Python + Django):
-This service belongs to the Activity Tracking bounded context. It stores activity
-events, exposes trace history, and records operational actions.
-● PostgreSQL:
-This is the relational data store for core business entities such as orders ,
-order_items , customers , and statuses.
-● MongoDB:
-This is the document data store for activity_logs , trace_events , and
-```
-## operational_history.
-
-The relations in the diagram are expressed through connectors:
-
-```
-● The Web App communicates with both backend services through REST
-HTTP/JSON connectors. These are synchronous interactions, as indicated by the
-solid lines.
-● The Order Service communicates with the Tracking Service through an internal
-HTTP POST connector. This relation is shown as an internal service integration,
-represented by the dashed line.
-● The Order Service connects to PostgreSQL through JPA/JDBC , which defines how
-it persists and retrieves relational data.
-● The Tracking Service connects to MongoDB through a Mongo Client / ODM , which
-supports document-oriented storage and retrieval.
+```powershell
+docker compose down
 ```
 
-## Prototype
+Main local URLs:
 
+| Component | URL |
+| --- | --- |
+| Customer App | http://localhost:3001 |
+| Restaurant Dashboard | http://localhost:5173 |
+| API Gateway | http://localhost:4000 |
+| Catalog Service | http://localhost:3000 |
+| Order Service | http://localhost:8080 |
+| Notification / Tracking Service | http://localhost:8000 |
+| Auth Service | http://localhost:8001 |
+| RabbitMQ Management | http://localhost:15672 |
+
+## Security Configuration
+
+The API Gateway WAF is enabled through environment variables:
+
+```env
+WAF_ENABLED=true
+WAF_MODE=block
+WAF_MAX_BODY_BYTES=1048576
 ```
-● To run the prototype load the .env file upload separatedly on the google classroom and then place yourself in the directory with the docker-compose.yml and run the command docker compose up -d
+
+Modes:
+
+- `block`: malicious requests are rejected with `403` or `413`.
+- `detect`: malicious requests are logged but forwarded, useful for rule tuning.
+
+Do not commit real secrets. Use `.env.example` as the template and keep local `.env` files private.
+
+## Verification
+
+API Gateway local checks:
+
+```powershell
+cd apps/api-gateway
+npm ci
+npm run test:waf
+npm run build
 ```
 
+Docker image smoke test:
 
+```powershell
+cd apps/api-gateway
+docker build -t deliunal-api-gateway-waf-test .
+```
 
+WAF runtime examples:
 
+```powershell
+curl.exe -i http://localhost:4000/health
+curl.exe -i "http://localhost:4000/health?search=%27%20OR%201%3D1%20--"
+curl.exe --path-as-is -i "http://localhost:4000/%2e%2e/%2e%2e/etc/passwd"
+```
+
+Expected result:
+
+- Clean `/health` request returns `200`.
+- SQL injection request returns `403`.
+- Path traversal request returns `403`.

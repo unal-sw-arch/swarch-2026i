@@ -176,8 +176,3 @@ Observed blocked response:
 3. Replace custom regex rules with a maintained rule set such as OWASP CRS if the system moves behind Nginx, Envoy, ModSecurity, Cloudflare, or AWS WAF.
 4. Monitor WAF logs by `ruleId`, `matchedOn`, and `requestId` so blocked requests can be traced end-to-end.
 
-## Pull Request
-
-Implementation branch: `codex/lab4-security-waf`.
-
-Pull request URL: add the repository PR URL here after opening the PR toward the prototype branch.

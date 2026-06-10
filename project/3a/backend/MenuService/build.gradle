@@ -1,0 +1,68 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '4.0.0'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.clickmunch'
+version = '0.0.1-SNAPSHOT'
+description = 'Menu Service for click & Munch'
+springBoot {
+	mainClass.value('com.clickmunch.MenuService.MenuServiceApplication')
+}
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+ext {
+	set('snippetsDir', file("build/generated-snippets"))
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+	// Provides Spring MVC, embedded servlet container and common web utilities for building REST APIs.
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	// Spring Data MongoDB support for document-based repositories and mapping.
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+	// Developer conveniences: automatic restart, live reload and other development-time features.
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
+
+	// Testing libraries:
+	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-validation-test'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	testImplementation 'org.mockito:mockito-core:4.2.0'
+	testImplementation 'org.mockito:mockito-junit-jupiter:4.2.0'
+
+	// Docs
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.14'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

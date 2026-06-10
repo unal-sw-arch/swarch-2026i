@@ -228,12 +228,14 @@ pnpm-debug.log*
 
 # Env files (nunca commitear secretos)
 .env
-.env.local
-.env.production
-.env.staging
+.env.*
 *.env
-.env.docker
-.env.docker.local
+**/.env
+**/.env.*
+
+# Keep template env files versioned
+!.env.example
+!**/.env.example
 
 # Docker
 *.log

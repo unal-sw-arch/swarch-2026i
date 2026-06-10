@@ -17,7 +17,7 @@ import type {
 } from '../types';
 
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_URL = import.meta.env.VITE_API_URL || window.location.origin;
 
 // Helper para manejar respuestas
 async function handleResponse<T>(response: Response): Promise<T> {

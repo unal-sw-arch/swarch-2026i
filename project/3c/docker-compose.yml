@@ -1,0 +1,168 @@
+services:
+  scrapper-service:
+    build:
+      context: ./scrapper-service
+      dockerfile: Dockerfile
+    container_name: scrapper-service
+    ports:
+      - "5010:5000"
+    environment:
+      - FLASK_ENV=production
+      - PYTHONUNBUFFERED=1
+      - SCRAPPER_LOOP_INTERVAL_MINUTES=2
+      - USER_SERVICE_URL=http://user-service:4000
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASSWORD=guest
+    depends_on:
+      - rabbitmq
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  user-service:
+    build:
+      context: ./user-service
+    container_name: user-service
+    ports:
+      - "4000:4000"
+    env_file:
+      - ./user-service/.env
+    environment:
+      BETTER_AUTH_URL: http://localhost:4000
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/users_db
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+    restart: always
+
+  postgres:
+    image: postgres:15
+    container_name: user-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: users_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    container_name: notification-service
+    ports:
+      - "3001:3001"
+    env_file:
+      - ./notification-service/.env
+    environment:
+      PORT: 3001
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: guest
+      RABBITMQ_PASSWORD: guest
+      NOTIFICATION_QUEUE: notification_queue
+    depends_on:
+      - rabbitmq
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  ranking-service:
+    build:
+      context: ./ranking-service
+      dockerfile: Dockerfile
+    container_name: ranking-service
+    ports:
+      - "6001:6001"
+    environment:
+      SERVER_PORT: 6001
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: guest
+      RABBITMQ_PASSWORD: guest
+      RABBITMQ_RANKING_QUEUE: ranking_prices_queue
+    depends_on:
+      - redis
+      - rabbitmq
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  gateway-service:
+    build:
+      context: ./gateway-service
+      dockerfile: Dockerfile
+    container_name: gateway-service
+    ports:
+      - "8080:8080"
+    environment:
+      PORT: 8080
+      USER_SERVICE_URL: http://user-service:4000
+      SCRAPPER_SERVICE_URL: http://scrapper-service:5000
+      RANKING_SERVICE_URL: http://ranking-service:6001
+      REDIS_URL: redis://redis:6379
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: guest
+      RABBITMQ_PASSWORD: guest
+      RABBITMQ_QUEUE: game_prices_queue
+    depends_on:
+      - user-service
+      - scrapper-service
+      - redis
+      - rabbitmq
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  frontend-service:
+    build:
+      context: ./frontend-service
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      GATEWAY_URL: http://gateway-service:8080
+      NEXT_PUBLIC_GATEWAY_URL: http://localhost:8080
+    depends_on:
+      - gateway-service
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

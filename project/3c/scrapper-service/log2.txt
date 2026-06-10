@@ -1,0 +1,31 @@
+2026-04-18 19:34:42,606 - repositories.scrapers.currencyExchange - INFO - Fetched USD to COP exchange rate: 3600.82
+2026-04-18 19:34:43,271 - repositories.scrapers.currencyExchange - INFO - Fetched USD to COP exchange rate: 3600.82
+2026-04-18 19:34:43,271 - __main__ - INFO - Starting Game Price Scraper (Layered Architecture)...
+2026-04-18 19:34:43,271 - __main__ - INFO - === Running Trending Games Pipeline ===
+2026-04-18 19:34:43,275 - pika.adapters.utils.connection_workflow - INFO - Pika version 1.3.2 connecting to ('::1', 5672, 0, 0)
+2026-04-18 19:34:43,276 - pika.adapters.utils.io_services_utils - INFO - Socket connected: <socket.socket fd=748, family=23, type=1, proto=6, laddr=('::1', 65206, 0, 0), raddr=('::1', 5672, 0, 0)>
+2026-04-18 19:34:43,276 - pika.adapters.utils.connection_workflow - INFO - Streaming transport linked up: (<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x000001A91024F450>, _StreamingProtocolShim: <SelectConnection PROTOCOL transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x000001A91024F450> params=<ConnectionParameters host=localhost port=5672 virtual_host=/ ssl=False>>).
+2026-04-18 19:34:43,326 - pika.adapters.utils.connection_workflow - INFO - AMQPConnector - reporting success: <SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x000001A91024F450> params=<ConnectionParameters host=localhost port=5672 virtual_host=/ ssl=False>>
+2026-04-18 19:34:43,326 - pika.adapters.utils.connection_workflow - INFO - AMQPConnectionWorkflow - reporting success: <SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x000001A91024F450> params=<ConnectionParameters host=localhost port=5672 virtual_host=/ ssl=False>>
+2026-04-18 19:34:43,326 - pika.adapters.blocking_connection - INFO - Connection workflow succeeded: <SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x000001A91024F450> params=<ConnectionParameters host=localhost port=5672 virtual_host=/ ssl=False>>
+2026-04-18 19:34:43,326 - pika.adapters.blocking_connection - INFO - Created channel=1
+2026-04-18 19:34:43,329 - repositories.brokers.rabbitmq - INFO - Connected to RabbitMQ at localhost:5672
+2026-04-18 19:34:43,329 - __main__ - INFO - Scraping trending games from steam...
+2026-04-18 19:34:43,329 - repositories.scrapers.steam - INFO - Fetching data from Steam API (CO Region): https://store.steampowered.com/api/featuredcategories?cc=CO
+2026-04-18 19:34:43,666 - __main__ - INFO - Scraping trending games from gog...
+2026-04-18 19:34:43,666 - repositories.scrapers.gog - INFO - Fetching data from GOG API: https://catalog.gog.com/v1/catalog?limit=50&order=trending
+2026-04-18 19:34:44,533 - __main__ - INFO - Total games scraped: 60
+2026-04-18 19:34:44,537 - __main__ - INFO - Successfully published all games to the message broker.
+2026-04-18 19:34:44,537 - pika.adapters.blocking_connection - INFO - Closing connection (200): Normal shutdown
+2026-04-18 19:34:44,537 - pika.channel - INFO - Closing channel (200): 'Normal shutdown' on <Channel number=1 OPEN conn=<SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x000001A91024F450> params=<ConnectionParameters host=localhost port=5672 virtual_host=/ ssl=False>>>
+2026-04-18 19:34:44,578 - pika.channel - INFO - Received <Channel.CloseOk> on <Channel number=1 CLOSING conn=<SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x000001A91024F450> params=<ConnectionParameters host=localhost port=5672 virtual_host=/ ssl=False>>>
+2026-04-18 19:34:44,578 - pika.connection - INFO - Closing connection (200): 'Normal shutdown'
+2026-04-18 19:34:44,579 - pika.adapters.utils.io_services_utils - INFO - Aborting transport connection: state=1; <socket.socket fd=748, family=23, type=1, proto=6, laddr=('::1', 65206, 0, 0), raddr=('::1', 5672, 0, 0)>
+2026-04-18 19:34:44,579 - pika.adapters.utils.io_services_utils - INFO - _AsyncTransportBase._initate_abort(): Initiating abrupt asynchronous transport shutdown: state=1; error=None; <socket.socket fd=748, family=23, type=1, proto=6, laddr=('::1', 65206, 0, 0), raddr=('::1', 5672, 0, 0)>
+2026-04-18 19:34:44,579 - pika.adapters.utils.io_services_utils - INFO - Deactivating transport: state=1; <socket.socket fd=748, family=23, type=1, proto=6, laddr=('::1', 65206, 0, 0), raddr=('::1', 5672, 0, 0)>
+2026-04-18 19:34:44,579 - pika.connection - INFO - AMQP stack terminated, failed to connect, or aborted: opened=True, error-arg=None; pending-error=ConnectionClosedByClient: (200) 'Normal shutdown'
+2026-04-18 19:34:44,580 - pika.connection - INFO - Stack terminated due to ConnectionClosedByClient: (200) 'Normal shutdown'
+2026-04-18 19:34:44,580 - pika.adapters.utils.io_services_utils - INFO - Closing transport socket and unlinking: state=3; <socket.socket fd=748, family=23, type=1, proto=6, laddr=('::1', 65206, 0, 0), raddr=('::1', 5672, 0, 0)>
+2026-04-18 19:34:44,580 - pika.adapters.blocking_connection - INFO - User-initiated close: result=BlockingConnection__OnClosedArgs(connection=<SelectConnection CLOSED transport=None params=<ConnectionParameters host=localhost port=5672 virtual_host=/ ssl=False>>, error=ConnectionClosedByClient: (200) 'Normal shutdown')
+2026-04-18 19:34:44,580 - repositories.brokers.rabbitmq - INFO - Closed RabbitMQ connection.
+2026-04-18 19:34:44,580 - __main__ - INFO - Scraper finished.

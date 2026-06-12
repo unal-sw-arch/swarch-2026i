@@ -1,8 +1,27 @@
 services:
+
+  #HOT SPARE: Coordinator
+  #Reemplaza al api-gateway como punto de entrada.
+  coordinator:
+    build:
+      context: ./coordinator          
+      dockerfile: Dockerfile.coordinator
+    ports:
+      - "8080:8080"
+    environment:
+      - PRIMARY_URL=http://api-gateway:3000
+      - SECONDARY_URL=http://api-gateway-spare:3000
+      - PORT=8080
+    depends_on:
+      - api-gateway
+      - api-gateway-spare
+    networks:
+      - public-network
+      - private-network
+
   api-gateway:
     build: ./api-gateway
-    ports:
-      - "3000:3000"
+    #el coordinator es quien recibe el tráfico externo
     environment:
       - PRODUCT_SERVICE_URL=http://product-service:4000
       - ORDER_SERVICE_URL=http://order-service:5000
@@ -10,6 +29,7 @@ services:
       - AUTH_SERVICE_URL=http://auth-service:8080
       - RABBITMQ_URL=amqp://admin:admin@rabbitmq:5672
       - REDIS_URL=redis://redis:6379
+      - NODE_ROLE=active              
     depends_on:
       - product-service
       - order-service
@@ -17,9 +37,28 @@ services:
       - auth-service
       - rabbitmq
       - redis
-    # S1: api-gateway es el único bridge entre redes
     networks:
-      - public-network
+      - private-network
+
+
+  api-gateway-spare:
+    build: ./api-gateway
+    environment:
+      - PRODUCT_SERVICE_URL=http://product-service:4000
+      - ORDER_SERVICE_URL=http://order-service:5000
+      - REVIEW_SERVICE_URL=http://review-service:6000
+      - AUTH_SERVICE_URL=http://auth-service:8080
+      - RABBITMQ_URL=amqp://admin:admin@rabbitmq:5672
+      - REDIS_URL=redis://redis:6379
+      - NODE_ROLE=spare
+    depends_on:
+      - product-service
+      - order-service
+      - notification-service
+      - auth-service
+      - rabbitmq
+      - redis
+    networks:
       - private-network
 
   product-service:
@@ -79,9 +118,9 @@ services:
   frontend:
     build: ./frontend
     ports:
-      - "8080:80"
+      - "80:80"
     depends_on:
-      - api-gateway
+      - coordinator
     networks:
       - public-network
 
@@ -89,13 +128,13 @@ services:
     build:
       context: ./frontend-ssr
       args:
-        - NEXT_PUBLIC_API_URL=http://localhost:3000
+        - NEXT_PUBLIC_API_URL=http://localhost:8080
     ports:
       - "3001:3001"
     depends_on:
-      - api-gateway
+      - coordinator
     environment:
-      - API_URL=http://api-gateway:3000
+      - API_URL=http://coordinator:8080
     volumes:
       - ./frontend-ssr/public/uploads:/app/public/uploads
     networks:
@@ -106,8 +145,8 @@ services:
     depends_on:
       - mongo
     environment:
-    - PORT=6000
-    - MONGO_URI=mongodb://mongo:27017/reviewsdb
+      - PORT=6000
+      - MONGO_URI=mongodb://mongo:27017/reviewsdb
     networks:
       - private-network
 
@@ -185,8 +224,8 @@ services:
       - private-network
 
 # S1: Network Segmentation
-# public-network  → frontend + api-gateway (expuesto al exterior)
-# private-network → microservicios + bases de datos (solo accesible internamente)
+# public-network  → frontend + coordinator (expuesto al exterior)
+# private-network → coordinator + api-gateway + api-gateway-spare + microservicios + BDs
 networks:
   public-network:
   private-network:

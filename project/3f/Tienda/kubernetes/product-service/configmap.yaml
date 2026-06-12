@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: product-service-config
+  namespace: default
+data:
+  PORT: "4000"
+  DB_HOST: "postgres"
+  DB_USER: "admin"
+  DB_PASSWORD: "admin"
+  DB_NAME: "giftshop"
+  DB_PORT: "5432"
+  NODE_ENV: "production"

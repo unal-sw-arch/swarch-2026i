@@ -1,4 +1,5 @@
-﻿# 🧠 Planio — Prototype 2
+
+# 🧠 Planio — Prototype 2
 
 ## 👥 Team
 

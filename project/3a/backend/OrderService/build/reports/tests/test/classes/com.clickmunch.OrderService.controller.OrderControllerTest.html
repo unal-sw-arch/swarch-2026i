@@ -41,7 +41,7 @@
 </td>
 <td>
 <div class="infoBox" id="duration">
-<div class="counter">0.280s</div>
+<div class="counter">0.250s</div>
 <p>duration</p>
 </div>
 </td>
@@ -79,22 +79,22 @@
 </thead>
 <tr>
 <td class="success">createOrder_returns201()</td>
-<td class="success">0.192s</td>
+<td class="success">0.204s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">createOrder_withEmptyItems_returns400()</td>
-<td class="success">0.032s</td>
+<td class="success">0.015s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">getKitchenOrders_returns200()</td>
-<td class="success">0.009s</td>
+<td class="success">0.003s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">getOrder_notFound_returns404()</td>
-<td class="success">0.007s</td>
+<td class="success">0.003s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -104,17 +104,17 @@
 </tr>
 <tr>
 <td class="success">getRestaurantOrders_withStatusFilter_returns200()</td>
-<td class="success">0.014s</td>
+<td class="success">0.008s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">updateStatus_invalidTransition_returns400()</td>
-<td class="success">0.015s</td>
+<td class="success">0.007s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">updateStatus_returns200()</td>
-<td class="success">0.005s</td>
+<td class="success">0.004s</td>
 <td class="success">passed</td>
 </tr>
 </table>
@@ -122,8 +122,8 @@
 <div class="tab">
 <h2>Standard output</h2>
 <span class="code">
-<pre id="class-stdout">21:56:37.641 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.clickmunch.OrderService.controller.OrderControllerTest]: OrderControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-21:56:37.800 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.clickmunch.OrderService.OrderServiceApplication for test class com.clickmunch.OrderService.controller.OrderControllerTest
+<pre id="class-stdout">23:25:43.759 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.clickmunch.OrderService.controller.OrderControllerTest]: OrderControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+23:25:43.875 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.clickmunch.OrderService.OrderServiceApplication for test class com.clickmunch.OrderService.controller.OrderControllerTest
 
   .   ____          _            __ _ _
  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
@@ -134,13 +134,13 @@
 
  :: Spring Boot ::                (v4.0.0)
 
-2026-04-20T21:56:38.201-05:00  INFO 49513 --- [OrderService] [    Test worker] c.c.O.controller.OrderControllerTest     : Starting OrderControllerTest using Java 21.0.5 with PID 49513 (started by mikebetancourt in /Users/mikebetancourt/Documents/University/Soft Arch/Project/ClickAndMunchApp/backend/OrderService)
-2026-04-20T21:56:38.203-05:00  INFO 49513 --- [OrderService] [    Test worker] c.c.O.controller.OrderControllerTest     : No active profile set, falling back to 1 default profile: &quot;default&quot;
-2026-04-20T21:56:39.190-05:00  INFO 49513 --- [OrderService] [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
-2026-04-20T21:56:39.190-05:00  INFO 49513 --- [OrderService] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
-2026-04-20T21:56:39.192-05:00  INFO 49513 --- [OrderService] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
-2026-04-20T21:56:39.216-05:00  INFO 49513 --- [OrderService] [    Test worker] c.c.O.controller.OrderControllerTest     : Started OrderControllerTest in 1.337 seconds (process running for 2.352)
-2026-04-20T21:56:39.486-05:00  WARN 49513 --- [OrderService] [    Test worker] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.bind.MethodArgumentNotValidException: Validation failed for argument [0] in public org.springframework.http.ResponseEntity&lt;com.clickmunch.OrderService.dto.ApiResponse&lt;com.clickmunch.OrderService.dto.OrderResponse&gt;&gt; com.clickmunch.OrderService.controller.OrderController.createOrder(com.clickmunch.OrderService.dto.CreateOrderRequest): [Field error in object 'createOrderRequest' on field 'items': rejected value [[]]; codes [NotEmpty.createOrderRequest.items,NotEmpty.items,NotEmpty.java.util.List,NotEmpty]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [createOrderRequest.items,items]; arguments []; default message [items]]; default message [must not be empty]] ]
+2026-06-09T23:25:44.181-05:00  INFO 55200 --- [OrderService] [    Test worker] c.c.O.controller.OrderControllerTest     : Starting OrderControllerTest using Java 21.0.5 with PID 55200 (started by mikebetancourt in /Users/mikebetancourt/Documents/University/Soft Arch/Project/ClickAndMunchApp/backend/OrderService)
+2026-06-09T23:25:44.184-05:00  INFO 55200 --- [OrderService] [    Test worker] c.c.O.controller.OrderControllerTest     : No active profile set, falling back to 1 default profile: &quot;default&quot;
+2026-06-09T23:25:45.077-05:00  INFO 55200 --- [OrderService] [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-06-09T23:25:45.077-05:00  INFO 55200 --- [OrderService] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-06-09T23:25:45.078-05:00  INFO 55200 --- [OrderService] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-06-09T23:25:45.111-05:00  INFO 55200 --- [OrderService] [    Test worker] c.c.O.controller.OrderControllerTest     : Started OrderControllerTest in 1.172 seconds (process running for 2.29)
+2026-06-09T23:25:45.361-05:00  WARN 55200 --- [OrderService] [    Test worker] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.bind.MethodArgumentNotValidException: Validation failed for argument [0] in public org.springframework.http.ResponseEntity&lt;com.clickmunch.OrderService.dto.ApiResponse&lt;com.clickmunch.OrderService.dto.OrderResponse&gt;&gt; com.clickmunch.OrderService.controller.OrderController.createOrder(com.clickmunch.OrderService.dto.CreateOrderRequest): [Field error in object 'createOrderRequest' on field 'items': rejected value [[]]; codes [NotEmpty.createOrderRequest.items,NotEmpty.items,NotEmpty.java.util.List,NotEmpty]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [createOrderRequest.items,items]; arguments []; default message [items]]; default message [must not be empty]] ]
 </pre>
 <button class="clipboard-copy-btn" aria-label="Copy to clipboard" data-copy-element-id="class-stdout">Copy</button>
 </span>
@@ -153,7 +153,7 @@
 <input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
 </label>
 </div>Generated by 
-<a href="https://www.gradle.org">Gradle 9.2.1</a> at Apr 20, 2026, 9:56:39 PM</p>
+<a href="https://www.gradle.org">Gradle 9.2.1</a> at Jun 9, 2026, 11:25:45 PM</p>
 </div>
 </div>
 </body>

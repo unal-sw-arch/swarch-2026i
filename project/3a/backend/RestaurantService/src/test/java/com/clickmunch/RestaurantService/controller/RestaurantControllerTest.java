@@ -1,9 +1,5 @@
 package com.clickmunch.RestaurantService.controller;
 
-import com.clickmunch.RestaurantService.client.AuthClient;
-import com.clickmunch.RestaurantService.dto.CreateRestaurantRequest;
-import com.clickmunch.RestaurantService.dto.RestaurantResponse;
-import com.clickmunch.RestaurantService.service.RestaurantService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +7,14 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.clickmunch.RestaurantService.client.AuthClient;
+import com.clickmunch.RestaurantService.dto.CreateRestaurantRequest;
+import com.clickmunch.RestaurantService.dto.RestaurantResponse;
+import com.clickmunch.RestaurantService.service.RestaurantService;
 
 @WebMvcTest(RestaurantController.class)
 class RestaurantControllerTest {
@@ -31,7 +31,7 @@ class RestaurantControllerTest {
     @Test
     void createRestaurant_returnsOk() throws Exception {
         Mockito.when(restaurantService.createRestaurant(Mockito.any(CreateRestaurantRequest.class)))
-                .thenReturn(new RestaurantResponse(1L, "Resto", null, null, null, null, 2L));
+                .thenReturn(new RestaurantResponse(1L, "Resto", null, null, null, null, null, 2L));
 
         mockMvc.perform(post("/api/restaurants")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -42,7 +42,7 @@ class RestaurantControllerTest {
     @Test
     void getRestaurant_returnsOk() throws Exception {
         Mockito.when(restaurantService.getRestaurant(1L))
-                .thenReturn(new RestaurantResponse(1L, "Resto", null, null, null, null, 2L));
+                .thenReturn(new RestaurantResponse(1L, "Resto", null, null, null, null, null, 2L));
 
         mockMvc.perform(get("/api/restaurants/1"))
                 .andExpect(status().isOk());

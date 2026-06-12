@@ -1,12 +1,14 @@
 spring:
   application:
     name: APIGateway
+  main:
+    web-application-type: reactive
   logging:
     level:
       org.springframework.cloud.gateway: INFO
 
 jwt:
-  secret: "1245789630ClickAndMunchSuperSecretKey1245789630"
+  secret: ${JWT_SECRET}
   prefix: "Bearer "
 
 server:

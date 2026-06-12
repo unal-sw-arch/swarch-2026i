@@ -1,8 +1,9 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react';
-import { Search, Bell, MessageSquare, Settings, LogOut } from 'lucide-react';
+import { Search, Bell, MessageSquare, Settings, LogOut, KeyRound } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { getCurrentUserInitials, getCurrentUserRole } from '@/lib/auth';
+import { AccountSettingsModal } from './AccountSettingsModal';
 
 export const AdminHeader: React.FC = () => {
   const navigate = useNavigate();
@@ -10,6 +11,7 @@ export const AdminHeader: React.FC = () => {
   const [query, setQuery] = useState("");
   const [focused, setFocused] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [configOpen, setConfigOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -40,8 +42,10 @@ export const AdminHeader: React.FC = () => {
     { label: "Dashboard", path: "/", roles: ['ADMIN', 'RESTAURANT_MANAGER'] },
     { label: "Productos", path: "/products", roles: ['ADMIN', 'RESTAURANT_MANAGER'] },
     { label: "Usuarios", path: "/users", roles: ['ADMIN'] },
-    { label: "Órdenes", path: "/orders", roles: ['ADMIN', 'RESTAURANT_MANAGER'] },
-    { label: "Reservas", path: "/reservations", roles: ['ADMIN', 'RESTAURANT_MANAGER'] },
+    { label: "Órdenes", path: "/orders", roles: ['ADMIN', 'RESTAURANT_MANAGER', 'WAITER'] },
+    { label: "Cocina", path: "/kitchen", roles: ['ADMIN', 'RESTAURANT_MANAGER', 'CHEF'] },
+    { label: "Reservas", path: "/reservations", roles: ['ADMIN', 'RESTAURANT_MANAGER', 'WAITER'] },
+    { label: "Mesas", path: "/tables", roles: ['RESTAURANT_MANAGER', 'WAITER'] },
     { label: "Restaurantes", path: "/restaurants", roles: ['ADMIN'] },
     { label: "Ratings", path: "/ratings", roles: ['ADMIN', 'RESTAURANT_MANAGER'] },
     { label: "Reportes", path: "/reports", roles: ['ADMIN', 'RESTAURANT_MANAGER'] },
@@ -140,6 +144,16 @@ export const AdminHeader: React.FC = () => {
                 </div>
                 <button
                   onClick={() => {
+                    setConfigOpen(true);
+                    setDropdownOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                >
+                  <KeyRound size={16} />
+                  Configuración
+                </button>
+                <button
+                  onClick={() => {
                     logout();
                     setDropdownOpen(false);
                     navigate('/auth/login');
@@ -154,6 +168,13 @@ export const AdminHeader: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <AccountSettingsModal
+        open={configOpen}
+        onClose={() => setConfigOpen(false)}
+        username={user?.username}
+        role={user?.role}
+      />
     </header>
   );
 };

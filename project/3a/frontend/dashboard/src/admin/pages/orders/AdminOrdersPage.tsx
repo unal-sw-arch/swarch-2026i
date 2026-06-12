@@ -1,31 +1,35 @@
 import { useEffect, useState } from "react";
-import { RefreshCw, Clock } from "lucide-react";
+import { RefreshCw, Clock, ArrowUp, ArrowDown, XCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   orderService,
   getMinutes,
   getTimeColor,
   getNextStatus,
-  isTableFree,
 } from "@/lib/services/orderService";
-import { tableService } from "@/lib/services/tableServices";
-import type { Order, OrderStatus, Table } from "@/lib/types";
+import type { Order, OrderStatus } from "@/lib/types";
 
 const STATUS_OPTIONS: (OrderStatus | "ALL")[] = [
   "ALL",
-  "Pending",
-  "SentToKitchen",
-  "Preparing",
-  "Ready",
-  "Served",
+  "PENDING",
+  "IN_PREPARATION",
+  "READY",
+  "DELIVERED",
+  "CANCELLED",
 ];
+
+const STATUS_LABELS: Record<OrderStatus, string> = {
+  PENDING: "Pendiente",
+  IN_PREPARATION: "En preparación",
+  READY: "Listo",
+  DELIVERED: "Entregado",
+  CANCELLED: "Cancelado",
+};
 
 export const AdminOrdersPage = () => {
   const { restaurantId } = useAuth();
 
   const [orders, setOrders] = useState<Order[]>([]);
-  const [tables, setTables] = useState<Table[]>([]);
-  const [selectedTables, setSelectedTables] = useState<Record<number, number>>({});
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "ALL">("ALL");
   const [updatingId, setUpdatingId] = useState<number | null>(null);
@@ -35,7 +39,7 @@ export const AdminOrdersPage = () => {
     if (!restaurantId) return;
     setLoading(true);
     try {
-      const data = await orderService.getActive(Number(restaurantId));
+      const data = await orderService.getByRestaurant(Number(restaurantId));
       setOrders(data);
     } catch (err) {
       console.error(err);
@@ -44,23 +48,12 @@ export const AdminOrdersPage = () => {
     }
   };
 
-  // 🍽️ Cargar mesas disponibles
-  const loadTables = async () => {
-    if (!restaurantId) return;
-    const data = await tableService.getByRestaurantId(restaurantId);
-
-    const freeTables = data.filter((t) => t.status === "AVAILABLE");
-    setTables(freeTables);
-  };
-
   // ⏱️ Auto refresh
   useEffect(() => {
     loadOrders();
-    loadTables();
 
     const interval = setInterval(() => {
       loadOrders();
-      loadTables();
     }, 10000);
 
     return () => clearInterval(interval);
@@ -82,40 +75,31 @@ export const AdminOrdersPage = () => {
     }
   };
 
-  // 🍽️ Confirmar mesa
-  const handleConfirmTable = async (order: Order) => {
-    const tableId = selectedTables[order.id];
-
-    if (!tableId) {
-      alert("Selecciona una mesa");
-      return;
-    }
-
-    if (!tables.find((t) => t.id === tableId)) {
-      alert("Mesa inválida");
-      return;
-    }
-
-    if (!isTableFree(tableId, orders)) {
-      alert("⚠️ La mesa ya está ocupada");
-      return;
-    }
-
+  const handlePriority = async (order: Order, delta: number) => {
+    setUpdatingId(order.id);
     try {
-      await orderService.assignTable(order.id, tableId);
-      await tableService.updateStatus(tableId, "OCCUPIED");
-
-      setSelectedTables((prev) => {
-        const copy = { ...prev };
-        delete copy[order.id];
-        return copy;
-      });
-
+      await orderService.updatePriority(order.id, Math.max(0, order.priority + delta));
       await loadOrders();
-      await loadTables();
-    } catch (error) {
-      console.error(error);
-      alert("Error asignando mesa");
+    } catch (err) {
+      console.error(err);
+      alert("Error actualizando prioridad");
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  const handleCancel = async (order: Order) => {
+    const reason = window.prompt("Motivo de cancelación", "El cliente no llegó a tiempo");
+    if (!reason?.trim()) return;
+    setUpdatingId(order.id);
+    try {
+      await orderService.cancelOrder(order.id, reason.trim());
+      await loadOrders();
+    } catch (err) {
+      console.error(err);
+      alert("Error cancelando la orden");
+    } finally {
+      setUpdatingId(null);
     }
   };
 
@@ -137,8 +121,8 @@ export const AdminOrdersPage = () => {
       {/* HEADER */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Órdenes Activas</h1>
-          <p className="text-sm text-gray-500">Gestión en tiempo real</p>
+          <h1 className="text-2xl font-bold text-gray-900">Órdenes del Restaurante</h1>
+          <p className="text-sm text-gray-500">Historial, prioridad y estado</p>
         </div>
 
         <button
@@ -190,16 +174,18 @@ export const AdminOrdersPage = () => {
 
                 <span
                   className={`text-xs font-bold px-2 py-1 rounded ${
-                    order.status === "Preparing"
+                    order.status === "IN_PREPARATION"
                       ? "bg-yellow-100 text-yellow-700"
-                      : order.status === "Ready"
+                    : order.status === "READY"
                       ? "bg-green-100 text-green-700"
-                      : order.status === "Pending"
+                      : order.status === "PENDING"
                       ? "bg-gray-100 text-gray-700"
+                      : order.status === "CANCELLED"
+                        ? "bg-red-100 text-red-700"
                       : "bg-blue-100 text-blue-700"
                   }`}
                 >
-                  {order.status}
+                    {STATUS_LABELS[order.status]}
                 </span>
               </div>
 
@@ -207,7 +193,7 @@ export const AdminOrdersPage = () => {
               <div className="flex justify-between text-sm text-gray-600">
                 <span>
                   Mesa:{" "}
-                  {order.tableId ? `#${order.tableId}` : "Sin asignar"}
+                    {order.tableNumber ? `#${order.tableNumber}` : "Sin asignar"}
                 </span>
                 <span
                   className={`flex items-center gap-1 ${getTimeColor(minutes)}`}
@@ -216,6 +202,26 @@ export const AdminOrdersPage = () => {
                   {minutes} min
                 </span>
               </div>
+
+              <div className="flex justify-between text-sm text-gray-600">
+                <span>Total: ${order.total.toLocaleString("es-CO")}</span>
+                <span>Prioridad: {order.priority}</span>
+              </div>
+
+              {order.arrivalMessage && (
+                <div className="rounded-lg bg-blue-50 p-3 text-xs text-blue-700">
+                  <strong>Mensaje:</strong> {order.arrivalMessage}
+                  {order.requestedArrivalTime && (
+                    <span> · Llegada: {new Date(order.requestedArrivalTime).toLocaleString()}</span>
+                  )}
+                </div>
+              )}
+
+              {order.cancellationReason && (
+                <div className="rounded-lg bg-red-50 p-3 text-xs text-red-700">
+                  <strong>Cancelación:</strong> {order.cancellationReason}
+                </div>
+              )}
 
               {/* ITEMS */}
               <div className="text-xs text-gray-500 space-y-1">
@@ -237,41 +243,35 @@ export const AdminOrdersPage = () => {
                   >
                     {updatingId === order.id
                       ? "..."
-                      : getNextStatus(order.status)}
+                      : STATUS_LABELS[getNextStatus(order.status)!]}
                   </button>
                 )}
 
-                {/* SELECT MESA */}
-                <select
-                  value={selectedTables[order.id] ?? ""}
-                  onChange={(e) =>
-                    setSelectedTables((prev) => ({
-                      ...prev,
-                      [order.id]: Number(e.target.value),
-                    }))
-                  }
-                  className="text-xs border rounded px-2 py-1"
-                >
-                  <option value="">Seleccionar mesa</option>
-                  {tables.map((table) => (
-                    <option key={table.id} value={table.id}>
-                      Mesa {table.tableNumber}
-                    </option>
-                  ))}
-                </select>
-
-                {/* CONFIRMAR */}
                 <button
-                  onClick={() => handleConfirmTable(order)}
-                  disabled={!selectedTables[order.id]}
-                  className={`text-xs px-3 py-1 rounded-md ${
-                    selectedTables[order.id]
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-200 text-gray-400 cursor-not-allowed"
-                  }`}
+                  onClick={() => handlePriority(order, 1)}
+                  disabled={updatingId === order.id || order.status === "DELIVERED" || order.status === "CANCELLED"}
+                  className="inline-flex items-center gap-1 text-xs bg-blue-600 text-white px-3 py-1 rounded-md disabled:bg-gray-200 disabled:text-gray-400"
                 >
-                  Confirmar
+                  <ArrowUp size={12} /> Priorizar
                 </button>
+
+                <button
+                  onClick={() => handlePriority(order, -1)}
+                  disabled={updatingId === order.id || order.priority === 0 || order.status === "DELIVERED" || order.status === "CANCELLED"}
+                  className="inline-flex items-center gap-1 text-xs bg-slate-600 text-white px-3 py-1 rounded-md disabled:bg-gray-200 disabled:text-gray-400"
+                >
+                  <ArrowDown size={12} /> Bajar
+                </button>
+
+                {order.status !== "DELIVERED" && order.status !== "CANCELLED" && (
+                  <button
+                    onClick={() => handleCancel(order)}
+                    disabled={updatingId === order.id}
+                    className="inline-flex items-center gap-1 text-xs bg-red-600 text-white px-3 py-1 rounded-md"
+                  >
+                    <XCircle size={12} /> Cancelar
+                  </button>
+                )}
               </div>
             </div>
           );
@@ -280,7 +280,7 @@ export const AdminOrdersPage = () => {
 
       {filteredOrders.length === 0 && (
         <p className="text-center text-gray-400 text-sm">
-          No hay órdenes activas
+          No hay órdenes para este filtro
         </p>
       )}
     </div>

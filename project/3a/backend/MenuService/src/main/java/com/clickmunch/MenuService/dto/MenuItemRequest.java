@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalTime;
 
 public record MenuItemRequest(
+    String categoryId,
     String name,
     String description,
     BigDecimal price,

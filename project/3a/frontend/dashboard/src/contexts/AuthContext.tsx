@@ -27,6 +27,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const handleUserSession = async (token: string) => {
     const decoded = decodeJwtPayload(token);
 
+    if (!decoded || !decoded.sub) {
+      console.error('❌ [Auth] Token inválido o no decodificable, limpiando sesión');
+      auth.clearSession();
+      setUser(null);
+      return;
+    }
+
     const mappedUser: User = {
       username: decoded.sub,
       role: decoded.role,
@@ -35,7 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     console.log("👤 [Auth] Usuario normalizado:", mappedUser);
     setUser(mappedUser);
 
-    if (mappedUser.role === 'RESTAURANT_MANAGER') {
+    if (['RESTAURANT_MANAGER', 'WAITER', 'CHEF', 'ADMIN'].includes(mappedUser.role)) {
       try {
         const id = await auth.getOwnerRestaurantId();
         setRestaurantId(id);
@@ -55,14 +62,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (session?.token) {
           console.log("🔍 [Auth] Sesión encontrada:", session);
           await handleUserSession(session.token);
-        } else if (session?.user) {
-          // fallback estilo main
-          setUser(session.user);
-
-          if (session.user.role === 'RESTAURANT_MANAGER') {
-            const id = await auth.getOwnerRestaurantId();
-            setRestaurantId(id);
-          }
         }
 
       } catch (error) {
@@ -85,15 +84,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (result.success && result.token) {
       await handleUserSession(result.token);
       console.log("✅ [Auth] Login exitoso");
-    } else if (result.success && result.user) {
-      // fallback estilo main
-      setUser(result.user);
-
-      if (result.user.role === 'RESTAURANT_MANAGER') {
-        const id = await auth.getOwnerRestaurantId();
-        setRestaurantId(id);
-      }
     } else {
+      auth.clearSession();
       console.error("❌ [Auth] Fallo en login:", result.message);
       throw new Error(result.message || 'Error al iniciar sesión');
     }

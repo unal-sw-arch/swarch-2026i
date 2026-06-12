@@ -1,0 +1,12 @@
+# Test-only configuration. Contains NO production secrets.
+# Provides a throwaway MongoDB URI so the Spring context can start during tests
+# without a real datastore, and disables data seeding so unit/context tests stay
+# hermetic and fast.
+spring:
+  mongodb:
+    uri: ${SPRING_MONGODB_URI:mongodb://localhost:27017/menu_test_db}
+    database: ${SPRING_MONGODB_DATABASE:menu_test_db}
+
+app:
+  seed:
+    enabled: false

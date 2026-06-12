@@ -1,10 +1,10 @@
-// Auth Service - Conexión con backend AuthService (puerto 8081)
+// Auth Service - Conexión con backend AuthService vía API Gateway
 
 // Cambia 8081 por el puerto de tu Gateway (ej: 8080)
 const AUTH_API_BASE =
   import.meta.env.VITE_API_GATEWAY_URL ??
   import.meta.env.VITE_API_URL ??
-  "http://localhost:8080";
+  "";
 
 // Tipos de respuesta del backend
 interface ApiResponse<T> {
@@ -12,11 +12,8 @@ interface ApiResponse<T> {
   data: T | null;
 }
 
-interface LoginResponseData {
-  token: string;
-  username: string;
-  role: string;
-}
+// AuthService returns the JWT as a plain string in data, or legacy { token } object
+type LoginResponseData = string | { token: string };
 
 interface RegisterRequest {
   name: string;
@@ -46,9 +43,22 @@ export function getSession() {
   const token = localStorage.getItem(TOKEN_KEY);
   const userStr = localStorage.getItem(USER_KEY);
   if (!token || !userStr) return null;
+  const jwtParts = token.split('.');
+  // Reject garbage tokens left by old/broken code (must be a 3-part JWT)
+  if (
+    token === 'undefined' ||
+    token === 'null' ||
+    token.startsWith('mock-token-') ||
+    jwtParts.length !== 3 ||
+    jwtParts.some((part) => part.length === 0)
+  ) {
+    clearSession();
+    return null;
+  }
   try {
     return { token, user: JSON.parse(userStr) };
   } catch {
+    clearSession();
     return null;
   }
 }
@@ -122,20 +132,24 @@ export async function login(username: string, password: string): Promise<{ succe
     });
 
     const data: ApiResponse<LoginResponseData> = await res.json();
-    console.log(data.data);
+
     if (!res.ok || !data.data) {
       return { success: false, message: data.message || 'Error al iniciar sesión' };
     }
 
-    const { token, username: user } = data.data;
-    
-    // Decodificar el rol desde el token JWT
+    // AuthService returns either a plain JWT string or { token } object
+    const token = typeof data.data === 'string' ? data.data : data.data.token;
+    if (!token) {
+      return { success: false, message: 'No token received from server' };
+    }
+
     const decodedPayload = decodeJwtPayload(token);
-    const role = decodedPayload?.role || 'USER'; // fallback a 'USER' si no se puede decodificar
-    
+    const role = decodedPayload?.role || 'USER';
+    const user = decodedPayload?.sub || username;
+
     saveSession(token, { username: user, role });
 
-    return { success: true, message: data.message,user: { username: user, role }, token: token };
+    return { success: true, message: data.message, user: { username: user, role }, token };
   } catch (error) {
     console.error('Login error (usando modo desarrollo):', error);
     
@@ -185,6 +199,40 @@ export async function register(
     return { success: false, message: 'Error de conexión con el servidor' };
   }
 }
+// Cambiar contraseña del usuario actual
+export async function changePassword(
+  currentPassword: string,
+  newPassword: string
+): Promise<{ success: boolean; message: string }> {
+  const session = getSession();
+  const userId = getCurrentUserId();
+  if (!session || !userId) {
+    return { success: false, message: 'Sesión no válida. Inicia sesión de nuevo.' };
+  }
+
+  try {
+    const res = await fetch(`${AUTH_API_BASE}/auth/users/${userId}/password`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.token}`,
+      },
+      body: JSON.stringify({ currentPassword, newPassword }),
+    });
+
+    const data: ApiResponse<string> = await res.json().catch(() => ({ message: '', data: null }));
+
+    if (!res.ok) {
+      return { success: false, message: data.message || 'No se pudo cambiar la contraseña' };
+    }
+
+    return { success: true, message: data.message || 'Contraseña actualizada correctamente' };
+  } catch (error) {
+    console.error('Change password error:', error);
+    return { success: false, message: 'Error de conexión con el servidor' };
+  }
+}
+
 //decode
 export function decodeJwtPayload(token: string): any | null {
   try {
@@ -207,20 +255,66 @@ export function decodeJwtPayload(token: string): any | null {
 // Obtener el restaurantId del manager actual
 export async function getOwnerRestaurantId(): Promise<number | null> {
   const session = getSession();
-  if (!session || session.user.role !== 'RESTAURANT_MANAGER') return null;
+  if (!session) return null;
+  const role = session.user.role;
+  if (!['RESTAURANT_MANAGER', 'WAITER', 'CHEF', 'ADMIN'].includes(role)) return null;
 
   const userId = getCurrentUserId();
-  if (!userId) return null;
+  const apiBase = import.meta.env.VITE_API_URL ?? '';
 
-  const apiBase = import.meta.env.VITE_API_URL ?? 'http://localhost:8080';
+  // ADMIN can still work with a fallback restaurant to demo operational pages.
+  if (!userId && role !== 'ADMIN') return null;
+
   try {
-    const res = await fetch(`${apiBase}/restaurant/admin/${userId}`, {
-      headers: { Authorization: `Bearer ${session.token}` },
-    });
-    if (!res.ok) return null;
-    const restaurants = await res.json();
-    // MVP: uses first restaurant. Multi-restaurant support requires a switcher.
-    return restaurants[0]?.id ?? null;
+    const auth = { Authorization: `Bearer ${session.token}` };
+    if (userId) {
+      // Most staff roles are associated through restaurant_admins.
+      const adminRes = await fetch(`${apiBase}/restaurant/admin/${userId}`, { headers: auth });
+      if (adminRes.ok) {
+        const adminRestaurants = await adminRes.json();
+        if (Array.isArray(adminRestaurants) && adminRestaurants.length > 0) {
+          return adminRestaurants[0]?.id ?? null;
+        }
+      }
+
+      // Owner fallback (legacy path used by some manager accounts).
+      const ownerRes = await fetch(`${apiBase}/restaurant/owner/${userId}`, { headers: auth });
+      if (ownerRes.ok) {
+        const ownerRestaurants = await ownerRes.json();
+        if (Array.isArray(ownerRestaurants) && ownerRestaurants.length > 0) {
+          return ownerRestaurants[0]?.id ?? null;
+        }
+      }
+    }
+
+    if (role === 'ADMIN') {
+      const cardsRes = await fetch(`${apiBase}/restaurant/cards`, { headers: auth });
+      if (cardsRes.ok) {
+        const cards = await cardsRes.json();
+        if (Array.isArray(cards) && cards.length > 0) {
+          return cards[0]?.id ?? null;
+        }
+      }
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+// Decode JWT payload claims
+export function getTokenPayload(): { userId: number; username: string; role: string; name: string } | null {
+  const token = localStorage.getItem(TOKEN_KEY);
+  if (!token) return null;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return {
+      userId: Number(payload.userId),
+      username: payload.username ?? payload.sub ?? '',
+      role: payload.role ?? 'CUSTOMER',
+      name: payload.name ?? payload.username ?? payload.sub ?? '',
+    };
   } catch {
     return null;
   }
@@ -230,4 +324,3 @@ export async function getOwnerRestaurantId(): Promise<number | null> {
 export function logout() {
   clearSession();
 }
-

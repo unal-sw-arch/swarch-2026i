@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Trash2, Plus, AlertCircle, RefreshCw, Save } from "lucide-react";
+import { Trash2, Plus, AlertCircle, RefreshCw } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { hoursService } from "@/lib/services/hoursService";
 import type { OperatingHours } from "@/lib/types";

@@ -1,5 +1,6 @@
 package com.clickmunch.OrderService.service;
 
+import com.clickmunch.OrderService.client.GeoClient;
 import com.clickmunch.OrderService.dto.*;
 import com.clickmunch.OrderService.entity.Order;
 import com.clickmunch.OrderService.entity.OrderItem;
@@ -14,6 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -34,6 +36,9 @@ class OrderServiceTest {
     @Mock
     private KitchenEventsPublisher events;
 
+    @Mock
+    private GeoClient geoClient;
+
     @InjectMocks
     private OrderService orderService;
 
@@ -45,9 +50,13 @@ class OrderServiceTest {
         testOrder = new Order();
         testOrder.setId(1L);
         testOrder.setRestaurantId(10L);
+        testOrder.setCustomerId(18L);
+        testOrder.setCustomerName("Customer Demo");
         testOrder.setTableNumber(5);
         testOrder.setStatus(OrderStatus.PENDING);
         testOrder.setNotes("No onions");
+        testOrder.setTotalAmount(BigDecimal.valueOf(25.50));
+        testOrder.setPriority(0);
         testOrder.setCreatedAt(LocalDateTime.now());
         testOrder.setUpdatedAt(LocalDateTime.now());
 
@@ -79,7 +88,7 @@ class OrderServiceTest {
         when(orderItemRepository.saveAll(anyList())).thenReturn(List.of(noLettuce, full));
 
         CreateOrderRequest request = new CreateOrderRequest(
-                10L, 5, "Table 5",
+            10L, 5, 18L, "Customer Demo", BigDecimal.valueOf(25.50), "Table 5",
                 List.of(
                         new CreateOrderItemRequest("Burger", "sin lechuga"),
                         new CreateOrderItemRequest("Burger", "con todo")
@@ -257,7 +266,7 @@ class OrderServiceTest {
         when(orderItemRepository.saveAll(anyList())).thenReturn(List.of(testItem));
 
         CreateOrderRequest request = new CreateOrderRequest(
-                10L, 5, null,
+            10L, 5, 18L, "Customer Demo", BigDecimal.valueOf(12.00), null,
                 List.of(new CreateOrderItemRequest("Burger", null))
         );
 

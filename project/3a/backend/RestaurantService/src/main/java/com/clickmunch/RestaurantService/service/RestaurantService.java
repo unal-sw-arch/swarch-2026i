@@ -1,6 +1,7 @@
 package com.clickmunch.RestaurantService.service;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -129,19 +130,17 @@ public class RestaurantService {
         );
     }
 
-    public List<RestaurantCardResponse> listRestaurantCards() {
+    public List<RestaurantCardResponse> listRestaurantCards(Double userLat, Double userLng) {
         List<Restaurant> restaurants = restaurantRepository.findAll();
-        if (restaurants.isEmpty()) {
-            return List.of();
-        }
+        if (restaurants.isEmpty()) return List.of();
 
         List<Long> restaurantIds = restaurants.stream().map(Restaurant::getId).toList();
         Map<Long, RestaurantProfile> profilesByRestaurantId = restaurantProfileRepository
                 .findByRestaurantIdIn(restaurantIds)
                 .stream()
-                .collect(Collectors.toMap(RestaurantProfile::getRestaurantId, profile -> profile));
+                .collect(Collectors.toMap(RestaurantProfile::getRestaurantId, p -> p));
 
-        return restaurants.stream().map(restaurant -> {
+        List<RestaurantCardResponse> cards = restaurants.stream().map(restaurant -> {
             RestaurantProfile profile = profilesByRestaurantId.get(restaurant.getId());
 
             String category = profile != null && profile.getCategory() != null ? profile.getCategory() : "General";
@@ -152,21 +151,32 @@ public class RestaurantService {
             String badge = profile != null ? profile.getBadge() : null;
             Double latitude = profile != null && profile.getLatitude() != null ? profile.getLatitude() : 4.711;
             Double longitude = profile != null && profile.getLongitude() != null ? profile.getLongitude() : -74.0721;
+            Boolean freeShipping = profile != null && Boolean.TRUE.equals(profile.getFreeShipping());
+            Double distanceKm = (userLat != null && userLng != null)
+                    ? haversine(userLat, userLng, latitude, longitude)
+                    : null;
 
             return new RestaurantCardResponse(
-                    restaurant.getId(),
-                    restaurant.getName(),
-                    restaurant.getImageUrl(),
-                    rating,
-                    deliveryTime,
-                    price,
-                    badge,
-                    category,
-                    city,
-                    latitude,
-                    longitude
-            );
-        }).toList();
+                    restaurant.getId(), restaurant.getName(), restaurant.getImageUrl(),
+                    rating, deliveryTime, price, badge, category, city,
+                    latitude, longitude, freeShipping, distanceKm);
+        }).collect(Collectors.toList());
+
+        if (userLat != null && userLng != null) {
+            cards.sort(Comparator.comparingDouble(RestaurantCardResponse::distanceKm));
+        }
+
+        return cards;
+    }
+
+    private static double haversine(double lat1, double lon1, double lat2, double lon2) {
+        final double R = 6371.0;
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
 
     // ─── Table Management ───

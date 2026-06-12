@@ -35,12 +35,12 @@ export const AdminSidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggle }) 
     { icon: Home, label: 'Dashboard', to: '/', roles: ['ADMIN', 'RESTAURANT_MANAGER'] },
     { icon: BarChart3, label: 'Productos', to: '/products', roles: ['ADMIN', 'RESTAURANT_MANAGER'] },
     { icon: Users, label: 'Usuarios', to: '/users', roles: ['ADMIN'] },
-    { icon: ShoppingCart, label: 'Ordenes', to: '/orders', roles: ['ADMIN', 'RESTAURANT_MANAGER'] },
+    { icon: ShoppingCart, label: 'Ordenes', to: '/orders', roles: ['ADMIN', 'RESTAURANT_MANAGER', 'WAITER'] },
 
     // 🔥 NUEVO DE MAIN
-    { icon: ChefHat, label: 'Cocina', to: '/kitchen', roles: ['ADMIN', 'RESTAURANT_MANAGER'] },
+    { icon: ChefHat, label: 'Cocina', to: '/kitchen', roles: ['ADMIN', 'RESTAURANT_MANAGER', 'CHEF'] },
 
-    { icon: FileText, label: 'Reservas', to: '/reservations', roles: ['ADMIN', 'RESTAURANT_MANAGER'] },
+    { icon: FileText, label: 'Reservas', to: '/reservations', roles: ['ADMIN', 'RESTAURANT_MANAGER', 'WAITER'] },
     { icon: FileText, label: 'Restaurantes', to: '/restaurants', roles: ['ADMIN'] },
     { icon: FileText, label: 'Reportes', to: '/reports', roles: ['ADMIN', 'RESTAURANT_MANAGER'] },
     { icon: FileText, label: 'Ratings', to: '/ratings', roles: ['ADMIN', 'RESTAURANT_MANAGER'] },
@@ -48,7 +48,7 @@ export const AdminSidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggle }) 
     { icon: Settings, label: 'Ajustes', to: '/settings', roles: ['ADMIN'] },
     { icon: HelpCircle, label: 'Ayuda', to: '/help', roles: ['ADMIN'] },
 
-    { icon: Table, label: 'Mesas', to: '/tables', roles: ['RESTAURANT_MANAGER'] },
+    { icon: Table, label: 'Mesas', to: '/tables', roles: ['RESTAURANT_MANAGER', 'WAITER'] },
     { icon: Calendar, label: 'Horarios', to: '/hours', roles: ['RESTAURANT_MANAGER'] },
   ];
 

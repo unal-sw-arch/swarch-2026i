@@ -77,6 +77,17 @@ public class AuthController {
         return ResponseEntity.ok(authService.updateProfile(userId, request));
     }
 
+    @PutMapping("/users/{userId}/password")
+    public ResponseEntity<ApiResponse<String>> changePassword(
+            @PathVariable Long userId,
+            @Valid @RequestBody ChangePasswordRequest request) {
+        var response = authService.changePassword(userId, request);
+        if (response.data() == null && !"Password updated successfully".equals(response.message())) {
+            return ResponseEntity.badRequest().body(response);
+        }
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/users/role/{role}")
     public ResponseEntity<List<UserInfoResponse>> getUsersByRole(@PathVariable Role role) {
         return ResponseEntity.ok(authService.getUsersByRole(role));

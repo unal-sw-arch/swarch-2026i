@@ -201,7 +201,7 @@ export const TablesPage = () => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className={`px-2 py-0.5 ${statusColors[table.status]}`}>
+                      <Badge variant="default" className={`px-2 py-0.5 ${statusColors[table.status]}`}>
                         {statusLabels[table.status]}
                       </Badge>
                     </TableCell>

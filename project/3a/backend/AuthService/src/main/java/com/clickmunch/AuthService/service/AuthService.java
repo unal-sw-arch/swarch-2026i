@@ -1,20 +1,28 @@
 package com.clickmunch.AuthService.service;
 
-import com.clickmunch.AuthService.config.JwtTokenUtil;
-import com.clickmunch.AuthService.dto.*;
-import com.clickmunch.AuthService.entity.ApprovalStatus;
-import com.clickmunch.AuthService.entity.Role;
-import com.clickmunch.AuthService.entity.User;
-import com.clickmunch.AuthService.repository.UserRepository;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import com.clickmunch.AuthService.config.JwtTokenUtil;
+import com.clickmunch.AuthService.dto.ApiResponse;
+import com.clickmunch.AuthService.dto.LoginRequest;
+import com.clickmunch.AuthService.dto.LoginResponse;
+import com.clickmunch.AuthService.dto.RegisterRequest;
+import com.clickmunch.AuthService.dto.StaffInviteRequest;
+import com.clickmunch.AuthService.dto.StaffRegisterRequest;
+import com.clickmunch.AuthService.dto.UpdateProfileRequest;
+import com.clickmunch.AuthService.dto.UserInfoResponse;
+import com.clickmunch.AuthService.entity.ApprovalStatus;
+import com.clickmunch.AuthService.entity.Role;
+import com.clickmunch.AuthService.entity.User;
+import com.clickmunch.AuthService.repository.UserRepository;
 
 @Service
 public class AuthService {
@@ -98,7 +106,7 @@ public class AuthService {
             return new ApiResponse<>("Your account has been rejected", null);
         }
 
-        String token = jwtTokenUtil.generateToken(user.getId(), user.getUsername(), user.getRole().name(),user.getName());
+        String token = jwtTokenUtil.generateToken(user.getId(), user.getUsername(), user.getRole().name(), user.getName());
         return new ApiResponse<>("Login successful", new LoginResponse(token));
     }
 
@@ -234,6 +242,17 @@ public class AuthService {
         if (request.governmentId() != null) user.setGovernmentId(request.governmentId());
         User saved = userRepository.save(user);
         return toResponse(saved);
+    }
+
+    public ApiResponse<String> changePassword(Long id, com.clickmunch.AuthService.dto.ChangePasswordRequest request) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + id));
+        if (!passwordEncoder.matches(request.currentPassword(), user.getPasswordHash())) {
+            return new ApiResponse<>("Current password is incorrect", null);
+        }
+        user.setPasswordHash(passwordEncoder.encode(request.newPassword()));
+        userRepository.save(user);
+        return new ApiResponse<>("Password updated successfully", null);
     }
 
     public List<UserInfoResponse> getUsersByRole(Role role) {

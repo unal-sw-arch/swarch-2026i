@@ -11,6 +11,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -26,7 +27,8 @@ class OrderControllerTest {
     private OrderService orderService;
 
     private OrderResponse sampleOrder() {
-        return new OrderResponse(1L, 10L, 5, "PENDING", "No onions",
+        return new OrderResponse(1L, 10L, 18L, "Customer Demo", 5, "PENDING", "No onions",
+                BigDecimal.valueOf(25.50), 0, null, null, null, null,
                 LocalDateTime.now(), LocalDateTime.now(),
                 List.of(
                         new OrderItemResponse(1L, "Burger", "sin lechuga"),
@@ -114,7 +116,8 @@ class OrderControllerTest {
 
     @Test
     void updateStatus_returns200() throws Exception {
-        OrderResponse updated = new OrderResponse(1L, 10L, 5, "IN_PREPARATION", null,
+        OrderResponse updated = new OrderResponse(1L, 10L, 18L, "Customer Demo", 5, "IN_PREPARATION", null,
+                BigDecimal.valueOf(25.50), 0, null, null, null, null,
                 LocalDateTime.now(), LocalDateTime.now(),
                 List.of(new OrderItemResponse(1L, "Burger", null)));
         Mockito.when(orderService.updateStatus(Mockito.eq(1L), Mockito.any(UpdateStatusRequest.class)))

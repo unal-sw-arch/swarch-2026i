@@ -79,7 +79,7 @@ class MenuServiceTest {
         @DisplayName("Should return menu with items when restaurant has categories")
         void shouldReturnMenuWithItems() {
             Long restaurantId = 1L;
-            MenuCategory category = createMenuCategory("cat10", restaurantId, Category.PLATO);
+            MenuCategory category = createMenuCategory("cat10", restaurantId, Category.PLATO_FUERTE);
             MenuItem item = createMenuItem("item100", "cat10", "Burger", BigDecimal.valueOf(9.99));
 
             when(menuCategoryRepository.findByRestaurantId(restaurantId))
@@ -186,7 +186,7 @@ class MenuServiceTest {
         void shouldCreateMenuItem() {
             String categoryId = "cat10";
             MenuItemRequest request = new MenuItemRequest(
-                    "Pizza", "Delicious pizza", BigDecimal.valueOf(12.99), "http://example.com/pizza.jpg"
+                    categoryId, "Pizza", "Delicious pizza", BigDecimal.valueOf(12.99), "http://example.com/pizza.jpg", null, null, null
             );
             MenuItem savedItem = createMenuItem("item100", categoryId, "Pizza", BigDecimal.valueOf(12.99));
 
@@ -210,7 +210,7 @@ class MenuServiceTest {
         void shouldCreateFullMenu() {
             Long restaurantId = 1L;
             MenuCreateRequest.ItemRequest itemReq = new MenuCreateRequest.ItemRequest(
-                    "Salad", "Fresh salad", BigDecimal.valueOf(7.99), "http://example.com/salad.jpg"
+                    "Salad", "Fresh salad", BigDecimal.valueOf(7.99), "http://example.com/salad.jpg", null, null, null
             );
             MenuCreateRequest.CategoryRequest categoryReq = new MenuCreateRequest.CategoryRequest(
                     Category.ENSALADA, List.of(itemReq)
@@ -369,7 +369,7 @@ class MenuServiceTest {
         void shouldUpdateCategory() {
             String id = "cat10";
             MenuCategory existing = createMenuCategory(id, 1L, Category.ENTRADA);
-            MenuCategoryRequest request = new MenuCategoryRequest(1L, Category.PLATO);
+            MenuCategoryRequest request = new MenuCategoryRequest(1L, Category.PLATO_FUERTE);
 
             when(menuCategoryRepository.findById(id)).thenReturn(Optional.of(existing));
             when(menuCategoryRepository.save(any(MenuCategory.class)))
@@ -377,7 +377,7 @@ class MenuServiceTest {
 
             MenuCategory result = menuService.updateMenuCategory(id, request);
 
-            assertThat(result.getCategory()).isEqualTo(Category.PLATO);
+            assertThat(result.getCategory()).isEqualTo(Category.PLATO_FUERTE);
             assertThat(result.getId()).isEqualTo(id);
         }
 
@@ -404,7 +404,7 @@ class MenuServiceTest {
             String id = "item100";
             MenuItem existing = createMenuItem(id, "cat10", "Old Name", BigDecimal.valueOf(9.99));
             MenuItemRequest request = new MenuItemRequest(
-                    "New Name", "New Description", BigDecimal.valueOf(14.99), "http://new.jpg"
+                    "cat10", "New Name", "New Description", BigDecimal.valueOf(14.99), "http://new.jpg", null, null, null
             );
 
             when(menuItemRepository.findById(id)).thenReturn(Optional.of(existing));
@@ -423,7 +423,7 @@ class MenuServiceTest {
         void shouldPreserveExistingWhenNull() {
             String id = "item100";
             MenuItem existing = createMenuItem(id, "cat10", "Original", BigDecimal.valueOf(9.99));
-            MenuItemRequest request = new MenuItemRequest(null, null, null, null);
+            MenuItemRequest request = new MenuItemRequest(null, null, null, null, null, null, null, null);
 
             when(menuItemRepository.findById(id)).thenReturn(Optional.of(existing));
             when(menuItemRepository.save(any(MenuItem.class)))

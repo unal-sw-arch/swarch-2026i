@@ -25,7 +25,7 @@ const StatCard: React.FC<StatCardProps> = ({
   }[changeType];
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+    <div className="h-full bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>

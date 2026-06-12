@@ -1,6 +1,6 @@
 import type { Table, TableApiResponse } from "@/lib/types";
 
-const API_GATEWAY_BASE = import.meta.env.VITE_API_GATEWAY_BASE ?? "http://localhost:8080";
+const API_GATEWAY_BASE = import.meta.env.VITE_API_GATEWAY_BASE ?? "";
 
 export const tableService = {
   async getByRestaurantId(restaurantId: number | string): Promise<Table[]> {

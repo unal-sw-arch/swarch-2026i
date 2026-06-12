@@ -45,6 +45,12 @@ const envSchema = z
     CACHE_TTL_MENU: z.coerce.number().int().positive().default(60),
     CACHE_TTL_PROMOTIONS: z.coerce.number().int().positive().default(60),
     USE_MOCK_SERVICES: booleanFromEnv.default(false),
+    // Resilience (Retry + Circuit Breaker) towards upstream services.
+    RESILIENCE_ENABLED: booleanFromEnv.default(true),
+    RETRY_MAX_ATTEMPTS: z.coerce.number().int().min(0).default(2),
+    RETRY_BASE_DELAY_MS: z.coerce.number().int().positive().default(100),
+    BREAKER_FAILURE_THRESHOLD: z.coerce.number().int().positive().default(5),
+    BREAKER_RESET_TIMEOUT_MS: z.coerce.number().int().positive().default(10000),
   });
 
 export type EnvConfig = Readonly<z.infer<typeof envSchema>>;

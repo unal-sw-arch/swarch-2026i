@@ -4,6 +4,7 @@ import { BaseAxiosHttpClient, type ForwardableHttpRequest } from './base-http.cl
 
 export class AuthClient {
   private readonly http = new BaseAxiosHttpClient({
+    name: 'auth',
     baseURL: services.auth.baseUrl,
     timeoutMs: services.auth.timeoutMs,
   });

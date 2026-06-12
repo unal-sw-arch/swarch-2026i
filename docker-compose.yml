@@ -1,4 +1,18 @@
 services:
+  # E0. Edge — Secure Channel (TLS terminator) + reverse proxy hacia el gateway
+  nginx-tls:
+    image: nginx:1.27-alpine
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - ./infrastructure/edge/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./infrastructure/edge/certs:/etc/nginx/certs:ro
+    depends_on:
+      - api-gateway
+    networks:
+      - edge-net
+
   # P1. Customer App (Next.js SSR)
   customer-app:
     build:
@@ -10,7 +24,7 @@ services:
     depends_on:
       - api-gateway
     networks:
-      - deliunal-network
+      - edge-net
 
   # P2. Restaurant Dashboard operativo (React + Vite)
   restaurant-dashboard:
@@ -24,9 +38,9 @@ services:
     depends_on:
       - api-gateway
     networks:
-      - deliunal-network
+      - edge-net
 
-  # L1. API Gateway
+  # L1. API Gateway (Reverse Proxy) — único punto de entrada a la red interna
   api-gateway:
     build:
       context: ./apps/api-gateway
@@ -50,6 +64,12 @@ services:
       - CACHE_TTL_MENU=60
       - CACHE_TTL_PROMOTIONS=60
       - USE_MOCK_SERVICES=false
+      # Resilience (Retry + Circuit Breaker)
+      - RESILIENCE_ENABLED=true
+      - RETRY_MAX_ATTEMPTS=2
+      - RETRY_BASE_DELAY_MS=100
+      - BREAKER_FAILURE_THRESHOLD=5
+      - BREAKER_RESET_TIMEOUT_MS=10000
     depends_on:
       - auth-service
       - catalog-service
@@ -58,21 +78,21 @@ services:
       - notification-service
       - valkey-cache
     networks:
-      - deliunal-network
+      - edge-net
+      - backend-net
 
   # L2. Auth Service
   auth-service:
     build:
       context: ./services/auth-service
-    ports:
-      - "8001:8000"
     environment:
       - DATABASE_URL=postgresql+asyncpg://postgres:postgres@auth-db:5432/auth_db
       - JWT_SECRET_KEY=super-secret-key-for-development
     depends_on:
       - auth-db
     networks:
-      - deliunal-network
+      - backend-net
+      - data-net
 
   # D1. Auth DB
   auth-db:
@@ -81,20 +101,16 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=auth_db
-    ports:
-      - "5433:5432"
     volumes:
       - auth-data:/var/lib/postgresql/data
       - ./infrastructure/databases/auth-db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     networks:
-      - deliunal-network
+      - data-net
 
   # L3. Catalog Service
   catalog-service:
     build:
       context: ./services/catalog-service
-    ports:
-      - "3000:3000"
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@catalog-db:5432/catalog_db?schema=public
       - REDIS_URL=redis://valkey-cache:6379
@@ -105,7 +121,8 @@ services:
       - valkey-cache
       - event-broker
     networks:
-      - deliunal-network
+      - backend-net
+      - data-net
 
   # D2. Catalog DB
   catalog-db:
@@ -114,19 +131,15 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=catalog_db
-    ports:
-      - "5434:5432"
     volumes:
       - catalog-data:/var/lib/postgresql/data
     networks:
-      - deliunal-network
+      - data-net
 
   # L4. Order Service
   order-service:
     build:
       context: ./services/order-service
-    ports:
-      - "8080:8080"
     environment:
       - SERVER_PORT=8080
       - DB_URL=jdbc:postgresql://order-db:5432/order_db
@@ -147,7 +160,8 @@ services:
       - catalog-service
       - event-broker
     networks:
-      - deliunal-network
+      - backend-net
+      - data-net
 
   # D3. Order DB
   order-db:
@@ -156,19 +170,15 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=order_db
-    ports:
-      - "5435:5432"
     volumes:
       - order-data:/var/lib/postgresql/data
     networks:
-      - deliunal-network
+      - data-net
 
   # L5. Kitchen Service
   kitchen-service:
     build:
       context: ./services/kitchen-service
-    ports:
-      - "8082:8082"
     environment:
       - PORT=8082
       - AMQP_URL=amqp://guest:guest@event-broker:5672
@@ -177,14 +187,12 @@ services:
       event-broker:
         condition: service_healthy
     networks:
-      - deliunal-network
+      - backend-net
 
   # L6. Notification / Tracking Service
   notification-service:
     build:
       context: ./services/notification-service
-    ports:
-      - "8000:8000"
     environment:
       - MONGO_URI=mongodb://tracking_service_user:tracking_password_2026@mongo-db:27017/tracking_context?authSource=tracking_context
       - MONGO_DB_NAME=tracking_context
@@ -192,25 +200,21 @@ services:
     depends_on:
       - mongo-db
     networks:
-      - deliunal-network
+      - backend-net
+      - data-net
 
   # D4. Tracking DB
   mongo-db:
     image: mongo:7
-    ports:
-      - "27018:27017"
     volumes:
       - mongo-data:/data/db
       - ./infrastructure/databases/tracking-db/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     networks:
-      - deliunal-network
+      - data-net
 
   # A1. Event Broker
   event-broker:
     image: rabbitmq:3-management
-    ports:
-      - "5672:5672"
-      - "15672:15672"
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
@@ -221,19 +225,27 @@ services:
       retries: 10
       start_period: 20s
     networks:
-      - deliunal-network
+      - backend-net
 
   # D5. Cache (Valkey)
   valkey-cache:
     image: valkey/valkey:7.2
-    ports:
-      - "6380:6379"
     networks:
-      - deliunal-network
+      - backend-net
 
+# Network Segmentation Pattern:
+#   - edge-net   : capa expuesta al host (borde TLS, frontends, gateway).
+#   - backend-net: gateway + microservicios + broker + cache (sin acceso externo).
+#   - data-net   : microservicios + sus bases de datos (sin acceso externo).
 networks:
-  deliunal-network:
+  edge-net:
     driver: bridge
+  backend-net:
+    driver: bridge
+    internal: true
+  data-net:
+    driver: bridge
+    internal: true
 
 volumes:
   mongo-data:

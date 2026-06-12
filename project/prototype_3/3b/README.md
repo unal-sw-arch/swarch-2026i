@@ -37,7 +37,7 @@
 
 **C&C View:**
 
-![C&C View](./c_and_c_view.png) <!-- exportar desde ../../3b/c_and_c_view.drawio.xml -->
+![C&C View](./C%26C.drawio.png)
 
 **Elementos y relaciones principales:**
 
@@ -73,7 +73,7 @@
 
 **Deployment View:**
 
-![Deployment View](./deployment_view.png) <!-- exportar desde ../../3b/deployment_view.drawio.xml -->
+![Deployment View](./deployment_view.drawio.png)
 
 - **Local (Docker Compose):** topología segmentada en tres redes —
   `edge-net` (borde TLS + frontends + gateway), `backend-net` (gateway +
@@ -89,7 +89,7 @@ Active Redundancy (Hot Spare).
 
 **Layered View:**
 
-![Layered View](./layered_view.png) <!-- exportar desde ../../3b/layered_view.drawio.xml -->
+![Layered View](./layered_view.drawio.png)
 
 - **Presentación:** Customer App, Restaurant Dashboard.
 - **Lógica / Aplicación:** API Gateway + microservicios de negocio.
@@ -99,7 +99,7 @@ Active Redundancy (Hot Spare).
 
 **Decomposition View:**
 
-![Decomposition View](./decomposition_view.png) <!-- desde ../../3b/decomposition_view.jpg -->
+![Decomposition View](./decomposition_view.drawio.png)
 
 Descomposición por *bounded context*: cada microservicio encapsula su dominio,
 su API y su almacén de datos, comunicándose solo por contratos REST/eventos.
@@ -435,5 +435,5 @@ Resultados medidos (cache OFF vs ON) en la sección
 | Reliability — Cluster / Hot Spare | ✅ |
 | Reliability — Retry + Circuit Breaker | ✅ implementado y verificado |
 | Interoperability — Message Broker | ✅ |
-| Diagramas (C&C, deployment, layered, decomposition) | ⚠️ exportar `.drawio.xml` → `.png` aquí |
+| Diagramas (C&C, deployment, layered, decomposition) | ✅ exportados a PNG |
 | Estructura `project/prototype_3/3b/` | ✅ creada |

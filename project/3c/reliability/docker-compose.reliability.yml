@@ -1,0 +1,112 @@
+# =============================================================================
+# Part B — Active Redundancy (Hot Spare) — self-contained demo stack
+#
+# A minimal slice of GameSeeker that exercises the ranking hot-spare WITHOUT the
+# rest of the platform (no Postgres / auth / frontend secrets needed):
+#
+#   price-feeder ──fanout──> ranking-active ─┐
+#                       └──> ranking-spare  ─┴─> shared Redis
+#                                  ▲
+#                       ranking-coordinator (health-checks both, routes reads,
+#                                            promotes spare on active failure)
+#
+# Usage:
+#   docker compose -f reliability/docker-compose.reliability.yml up --build -d
+#   bash reliability/failover-demo.sh
+# =============================================================================
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rel-rabbitmq
+    ports:
+      - "15672:15672"   # management UI (evidence: two bound ranking queues)
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    networks: [rel-net]
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  redis:
+    image: redis:7-alpine
+    container_name: rel-redis
+    networks: [rel-net]
+
+  ranking-active:
+    build:
+      context: ../ranking-service
+      dockerfile: Dockerfile
+    image: gameseeker/ranking-service:lab6
+    container_name: ranking-active
+    environment:
+      SERVER_PORT: 6001
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: guest
+      RABBITMQ_PASSWORD: guest
+      RANKING_EXCHANGE: ranking_prices_exchange
+      RANKING_INSTANCE_ID: active
+      RANKING_INSTANCE_QUEUE: ranking_prices_active
+    depends_on:
+      rabbitmq: { condition: service_healthy }
+    networks: [rel-net]
+
+  ranking-spare:
+    image: gameseeker/ranking-service:lab6   # same image as active
+    container_name: ranking-spare
+    environment:
+      SERVER_PORT: 6001
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: guest
+      RABBITMQ_PASSWORD: guest
+      RANKING_EXCHANGE: ranking_prices_exchange
+      RANKING_INSTANCE_ID: spare
+      RANKING_INSTANCE_QUEUE: ranking_prices_spare
+    depends_on:
+      rabbitmq: { condition: service_healthy }
+      ranking-active: { condition: service_started }
+    networks: [rel-net]
+
+  ranking-coordinator:
+    build:
+      context: ./ranking-coordinator
+      dockerfile: Dockerfile
+    container_name: ranking-coordinator
+    ports:
+      - "6010:6001"   # host access for curl evidence
+    environment:
+      RANKING_ACTIVE_URL: http://ranking-active:6001
+      RANKING_SPARE_URL: http://ranking-spare:6001
+      HEALTH_INTERVAL_SECONDS: "0.25"
+      FAIL_THRESHOLD: "2"
+      FAILBACK: "true"
+    depends_on:
+      - ranking-active
+      - ranking-spare
+    networks: [rel-net]
+
+  price-feeder:
+    build:
+      context: ./price-feeder
+      dockerfile: Dockerfile
+    container_name: rel-price-feeder
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RANKING_EXCHANGE: ranking_prices_exchange
+      FEED_INTERVAL_SECONDS: "1.0"
+    depends_on:
+      rabbitmq: { condition: service_healthy }
+    networks: [rel-net]
+
+networks:
+  rel-net:
+    driver: bridge

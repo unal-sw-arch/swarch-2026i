@@ -1,0 +1,85 @@
+services:
+
+  # ── Load Balancer ──────────────────────────────────────────────────────────
+  # Single entry point that distributes traffic across all scrapper instances.
+  # Exposed on port 5010 to match the original scrapper-service external port.
+  scrapper-lb:
+    build:
+      context: .
+      dockerfile: Dockerfile.balancer
+    ports:
+      - "5010:8080"          # external 5010 → internal balancer port 8080
+    environment:
+      - LB_ALGORITHM=round_robin   # options: round_robin | least_connections | weighted
+    depends_on:
+      - scrapper-service-1
+      - scrapper-service-2
+      - scrapper-service-3
+    networks:
+      - app-network
+
+  # ── Scrapper instances ─────────────────────────────────────────────────────
+  # Three identical replicas of the scrapper-service running behind the balancer.
+  # None of them expose a port directly — all traffic goes through scrapper-lb.
+
+  scrapper-service-1:
+    build:
+      context: ../../scrapper-service   # path to the existing scrapper-service folder
+      dockerfile: Dockerfile
+    environment:
+      - FLASK_ENV=production
+      - PYTHONUNBUFFERED=1
+      - SCRAPPER_LOOP_INTERVAL_MINUTES=2
+      - USER_SERVICE_URL=http://user-service:4000
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASSWORD=guest
+      - INSTANCE_NAME=scrapper-service-1   # identifies this instance in logs
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  scrapper-service-2:
+    build:
+      context: ../../scrapper-service
+      dockerfile: Dockerfile
+    environment:
+      - FLASK_ENV=production
+      - PYTHONUNBUFFERED=1
+      - SCRAPPER_LOOP_INTERVAL_MINUTES=2
+      - USER_SERVICE_URL=http://user-service:4000
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASSWORD=guest
+      - INSTANCE_NAME=scrapper-service-2
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  scrapper-service-3:
+    build:
+      context: ../../scrapper-service
+      dockerfile: Dockerfile
+    environment:
+      - FLASK_ENV=production
+      - PYTHONUNBUFFERED=1
+      - SCRAPPER_LOOP_INTERVAL_MINUTES=2
+      - USER_SERVICE_URL=http://user-service:4000
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASSWORD=guest
+      - INSTANCE_NAME=scrapper-service-3
+    networks:
+      - app-network
+    restart: unless-stopped
+
+# Shared network so the balancer can reach each scrapper instance by hostname
+networks:
+  app-network:
+    driver: bridge

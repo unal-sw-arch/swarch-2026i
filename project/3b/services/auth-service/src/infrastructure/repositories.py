@@ -40,6 +40,25 @@ class SQLUserRepository(IUserRepository):
         await self.db.refresh(orm_user)
         return self._to_domain(orm_user)
 
+    async def create_restaurant(self, name: str, email: str, password_hash: str, restaurant_id: int) -> User:
+        orm_user = UserORM(
+            name=name,
+            email=email,
+            password_hash=password_hash,
+            role=UserRole.RESTAURANT
+        )
+        self.db.add(orm_user)
+        await self.db.flush()
+
+        restaurant_user = RestaurantUserORM(
+            user_id=orm_user.id,
+            restaurant_id=restaurant_id
+        )
+        self.db.add(restaurant_user)
+        await self.db.commit()
+        await self.db.refresh(orm_user)
+        return self._to_domain(orm_user)
+
     async def get_restaurant_id(self, user_id: int) -> Optional[int]:
         result = await self.db.execute(
             select(RestaurantUserORM.restaurant_id).filter(RestaurantUserORM.user_id == user_id)

@@ -4,6 +4,7 @@ import { BaseAxiosHttpClient, type ForwardableHttpRequest } from './base-http.cl
 
 export class OrdersClient {
   private readonly http = new BaseAxiosHttpClient({
+    name: 'orders',
     baseURL: services.orders.baseUrl,
     timeoutMs: services.orders.timeoutMs,
   });

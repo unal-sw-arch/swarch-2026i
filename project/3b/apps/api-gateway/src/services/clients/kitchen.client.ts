@@ -4,6 +4,7 @@ import { BaseAxiosHttpClient, type ForwardableHttpRequest } from './base-http.cl
 
 export class KitchenClient {
   private readonly http = new BaseAxiosHttpClient({
+    name: 'kitchen',
     baseURL: services.kitchen.baseUrl,
     timeoutMs: services.kitchen.timeoutMs,
   });

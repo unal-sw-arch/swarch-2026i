@@ -18,6 +18,12 @@ class RegisterCustomerRequest(BaseModel):
     email: EmailStr
     password: str
 
+class RegisterRestaurantRequest(BaseModel):
+    name: str
+    email: EmailStr
+    password: str
+    restaurantId: int
+
 class RegisterResponse(BaseModel):
     id: int
     role: str
@@ -60,6 +66,13 @@ async def register_customer(req: RegisterCustomerRequest, db: AsyncSession = Dep
     repository = SQLUserRepository(db)
     use_case = AuthUseCase(repository)
     user = await use_case.register_customer(req.name, req.email, req.password)
+    return user
+
+@router.post("/register/restaurant", status_code=201, response_model=RegisterResponse)
+async def register_restaurant(req: RegisterRestaurantRequest, db: AsyncSession = Depends(get_db)):
+    repository = SQLUserRepository(db)
+    use_case = AuthUseCase(repository)
+    user = await use_case.register_restaurant(req.name, req.email, req.password, req.restaurantId)
     return user
 
 @router.post("/login/customer", response_model=LoginCustomerResponse)

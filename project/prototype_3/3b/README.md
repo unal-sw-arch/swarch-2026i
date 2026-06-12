@@ -1,10 +1,5 @@
 # Prototype 3 — Quality Attributes (Security, Performance & Reliability)
 
-> **Estado de este documento:** BORRADOR. Las secciones marcadas con 🟡
-> *(pendiente de implementar)* describen patrones acordados por el equipo cuyo
-> código/configuración aún se va a añadir. Las marcadas con ✅ ya están
-> implementadas en el repositorio.
-
 ---
 
 ## Team
@@ -176,7 +171,7 @@ su API y su almacén de datos, comunicándose solo por contratos REST/eventos.
 
 ### ⚡ Performance and Scalability
 
-#### Escenario P1 — Cache de lecturas en el gateway 🟡 *(código existe, falta activar/medir)*
+#### Escenario P1 — Cache de lecturas en el gateway ✅
 
 | Campo | Valor |
 |---|---|
@@ -189,10 +184,12 @@ su API y su almacén de datos, comunicándose solo por contratos REST/eventos.
 
 - **Patrón aplicado:** **Caching** (Valkey/Redis).
 - **Tácticas:** *Maintain multiple copies of data*, *Reduce computational overhead*.
-- **Pendiente:** poner `CACHE_ENABLED=true` en `docker-compose.yml` (hoy está en
-  `false`) y medir con k6.
+- **Implementación:** cache cableado en el proxy del gateway
+  ([catalog.proxy.ts](../../../apps/api-gateway/src/modules/catalog/catalog.proxy.ts));
+  se activa con `CACHE_ENABLED=true`. Resultados medidos con k6 más abajo
+  (latencia p95 −52% con cache ON).
 
-#### Escenario P2 — Balanceo de carga horizontal (Load Balancer) ✅/🟡
+#### Escenario P2 — Balanceo de carga horizontal (Load Balancer) ✅
 
 | Campo | Valor |
 |---|---|
@@ -205,6 +202,28 @@ su API y su almacén de datos, comunicándose solo por contratos REST/eventos.
 
 - **Patrón aplicado:** **Load Balancer Pattern** (Service de K8s sobre 2+ Pods).
 - **Tácticas:** *Introduce concurrency*, *Maintain multiple copies of computations*.
+
+#### Escenario P3 — Limitación de tasa (Throttling / Rate Limiting) ✅
+
+| Campo | Valor |
+|---|---|
+| **Fuente** | Cliente abusivo o pico anómalo de tráfico |
+| **Estímulo** | Un cliente envía más peticiones de las permitidas en una ventana de tiempo |
+| **Artefacto** | API Gateway + Valkey |
+| **Ambiente** | Carga alta / posible abuso |
+| **Respuesta** | El gateway cuenta las peticiones por IP en una ventana fija; al superar el límite responde **429** con `Retry-After`, protegiendo a los servicios upstream de saturación |
+| **Medida** | Hasta `THROTTLE_LIMIT` (100) req/ventana (60s) se sirven con 200; el excedente recibe 429 inmediato |
+
+- **Patrón aplicado:** **Throttling / Rate Limiting**.
+- **Tácticas:** *Manage event rate*, *Limit access*, *Bound resource consumption*
+  (protege disponibilidad ante picos y abuso → también mitiga DoS).
+- **Implementación:** [throttle.middleware.ts](../../../apps/api-gateway/src/middlewares/throttle.middleware.ts)
+  — contador por IP en Redis/Valkey, headers `X-RateLimit-*`, *fail-open* si
+  Redis no está disponible. Configurable por env (`THROTTLE_LIMIT`,
+  `THROTTLE_WINDOW_SECONDS`).
+- **Demostración (verificada):** con `THROTTLE_LIMIT=100`, se enviaron 115
+  peticiones a `/restaurants`: **100 → HTTP 200** y **15 → HTTP 429** con
+  cabeceras `X-RateLimit-Remaining: 0` y `Retry-After`.
 
 #### Performance testing (k6) ✅
 
@@ -237,6 +256,20 @@ patrón se observa en la **latencia**, que es la métrica relevante para este
 escenario de lecturas. Bajo una carga sin *think time* (más agresiva), la
 diferencia de throughput también se ampliaría porque el servicio upstream deja
 de ser el cuello de botella.
+
+#### Performance testing (JMeter) ✅
+
+- **Herramienta:** Apache JMeter.
+- **Escenario bajo prueba:** P3 (throttling) — plan
+  [load-test/throttle-test.jmx](./load-test/throttle-test.jmx) con grupos de
+  hilos crecientes (1, 50, 200) contra `GET /restaurants` para forzar el límite.
+- **Resultado verificado:** con `THROTTLE_LIMIT=100`, las primeras 100 peticiones
+  por ventana responden **200** y el excedente recibe **429** con `Retry-After`,
+  confirmando que el rate limiting protege a los servicios upstream.
+- **Ejecución (CLI):**
+  ```powershell
+  jmeter -n -t load-test/throttle-test.jmx -JHOST=localhost -JPORT=4000 -l results.jtl
+  ```
 
 ---
 
@@ -352,11 +385,16 @@ Invoke-WebRequest http://localhost:30080/health
 Ver la guía completa (self-healing y escalado) en
 [infrastructure/kubernetes/README.md](../../../infrastructure/kubernetes/README.md).
 
-### Performance test (k6) 🟡
+### Performance test (k6) ✅
 
 ```powershell
-docker run --rm -i grafana/k6 run - < load-test/catalog.js
+# Desde project/prototype_3/3b/load-test (PowerShell):
+Get-Content catalog.js -Raw | docker run --rm -i grafana/k6 run -e BASE_URL=http://host.docker.internal:4000 -
 ```
+
+Resultados medidos (cache OFF vs ON) en la sección
+[Performance testing (k6)](#performance-testing-k6-) y en
+[load-test/README.md](./load-test/README.md).
 
 ---
 
@@ -367,11 +405,12 @@ docker run --rm -i grafana/k6 run - < load-test/catalog.js
 | Seguridad — Reverse Proxy | ✅ |
 | Seguridad — Network Segmentation | ✅ implementado |
 | Seguridad — Secure Channel (TLS) | ✅ implementado |
-| Performance — Cache | ✅ código (toggle `CACHE_ENABLED`) |
+| Performance — Cache | ✅ implementado y medido (p95 −52%) |
 | Performance — Load Balancer | ✅ (K8s Service) |
-| Performance testing (k6) | ✅ script · 🟡 ejecutar y pegar resultados |
+| Performance — Throttling / Rate Limiting | ✅ implementado y verificado (429) |
+| Performance testing (k6 + JMeter) | ✅ ejecutado, resultados incluidos |
 | Reliability — Cluster / Hot Spare | ✅ |
-| Reliability — Retry + Circuit Breaker | ✅ implementado |
+| Reliability — Retry + Circuit Breaker | ✅ implementado y verificado |
 | Interoperability — Message Broker | ✅ |
-| Diagramas (C&C, deployment, layered, decomposition) | ⚠️ exportar a PNG aquí |
+| Diagramas (C&C, deployment, layered, decomposition) | ⚠️ exportar `.drawio.xml` → `.png` aquí |
 | Estructura `project/prototype_3/3b/` | ✅ creada |

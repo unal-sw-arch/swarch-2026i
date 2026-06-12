@@ -70,3 +70,26 @@ docker run --rm -i --network host grafana/k6 run -e BASE_URL=http://localhost:30
 |----------|--------------------|----------|
 | 2        |                    |          |
 | 4        |                    |          |
+
+## Escenario P3 — Throttling / Rate Limiting (JMeter)
+
+Demostrar que el gateway limita la tasa por IP: hasta `THROTTLE_LIMIT` (100)
+peticiones por ventana (60s) responden 200 y el excedente recibe **429**.
+
+Plan: [throttle-test.jmx](./throttle-test.jmx) — grupos de hilos de 1, 50 y 200
+contra `GET /restaurants`.
+
+```powershell
+# Requiere Apache JMeter instalado.
+jmeter -n -t throttle-test.jmx -JHOST=localhost -JPORT=4000 -l throttle-results.jtl
+```
+
+Verificación rápida sin JMeter (PowerShell): 115 peticiones seguidas →
+~100 con 200 y ~15 con 429.
+
+```powershell
+1..115 | ForEach-Object { curl.exe -s -o NUL -w "%{http_code}`n" http://localhost:4000/restaurants } | Group-Object | Select-Object Name, Count
+```
+
+**Resultado verificado:** 100× HTTP 200 + 15× HTTP 429 (headers `X-RateLimit-*`,
+`Retry-After`).

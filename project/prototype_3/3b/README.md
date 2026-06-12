@@ -167,6 +167,28 @@ su API y su almacén de datos, comunicándose solo por contratos REST/eventos.
   con certificado autofirmado para entorno local
   ([generate-cert.ps1](../../../infrastructure/edge/generate-cert.ps1)).
 
+#### Escenario S4 — Inspección de peticiones maliciosas (WAF) ✅
+
+| Campo | Valor |
+|---|---|
+| **Fuente** | Atacante externo |
+| **Estímulo** | Petición con payload malicioso (SQL Injection, XSS, Path Traversal) o cuerpo sobredimensionado |
+| **Artefacto** | Web Application Firewall en el API Gateway |
+| **Ambiente** | Operación normal / bajo ataque |
+| **Respuesta** | El WAF inspecciona path, query y body contra reglas; si detecta un patrón malicioso responde **403** antes de llegar a los servicios |
+| **Medida** | SQLi/XSS/Path-Traversal bloqueados con 403; tráfico legítimo pasa con 200 |
+
+- **Patrón aplicado:** **Web Application Firewall (WAF)** (variante de
+  *Application-level Filtering*).
+- **Tácticas:** *Validate input*, *Detect attacks*, *Limit exposure*.
+- **Implementación:** [waf.middleware.ts](../../../apps/api-gateway/src/security/waf.middleware.ts)
+  + reglas en [waf.rules.ts](../../../apps/api-gateway/src/security/waf.rules.ts)
+  (con tests en [waf.rules.spec.ts](../../../apps/api-gateway/test/waf.rules.spec.ts)).
+  Configurable por env (`WAF_ENABLED`, `WAF_MODE`, `WAF_MAX_BODY_BYTES`).
+- **Demostración (verificada):** `GET /restaurants?q=1' OR '1'='1` → **403**;
+  `?q=<script>alert(1)</script>` → **403**; `?f=../../etc/passwd` → **403**;
+  petición normal → **200**.
+
 ---
 
 ### ⚡ Performance and Scalability
@@ -405,6 +427,7 @@ Resultados medidos (cache OFF vs ON) en la sección
 | Seguridad — Reverse Proxy | ✅ |
 | Seguridad — Network Segmentation | ✅ implementado |
 | Seguridad — Secure Channel (TLS) | ✅ implementado |
+| Seguridad — WAF (SQLi/XSS/Path-Traversal) | ✅ implementado y verificado (403) |
 | Performance — Cache | ✅ implementado y medido (p95 −52%) |
 | Performance — Load Balancer | ✅ (K8s Service) |
 | Performance — Throttling / Rate Limiting | ✅ implementado y verificado (429) |

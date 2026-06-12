@@ -1,0 +1,80 @@
+@startwbs
+<style>
+wbsDiagram {
+  BackgroundColor #FFFFFF
+  LineColor #CCCCCC
+  LineThickness 1.5
+
+  node {
+    BackgroundColor #FFFFFF
+    LineColor #CCCCCC
+    RoundCorner 10
+    FontName Arial
+    FontSize 12
+    Padding 8
+    Margin 5
+  }
+
+  rootNode {
+    BackgroundColor #E8841A
+    FontColor #FFFFFF
+    FontStyle bold
+    FontSize 15
+    LineColor #C06800
+    RoundCorner 12
+    Padding 12
+  }
+
+  :depth(1) {
+    BackgroundColor #FFF3E0
+    LineColor #E8A030
+    FontStyle bold
+    FontSize 12
+    RoundCorner 10
+  }
+
+  :depth(2) {
+    BackgroundColor #FFFFFF
+    LineColor #BBBBBB
+    FontSize 11
+    RoundCorner 8
+  }
+
+  :depth(3) {
+    BackgroundColor #F0FFF0
+    LineColor #88CC88
+    FontSize 10
+    RoundCorner 6
+  }
+}
+</style>
+
+* <b>AICart</b>\nPlataforma de E-Commerce con IA
+
+** Presentación\n<b>Dominio</b>
+*** <b>frontend</b>\nNext.js 14 · App Router · SSR\nMiddleware de autenticación
+
+** Identidad\n<b>Dominio</b>
+*** <b>auth-service</b>\nFastAPI · Python 3.12\nJWT · bcrypt · sesiones Redis
+*** <b>auth-service-cold</b>\nFastAPI · réplica spare
+
+** Perfil de Usuario\n<b>Dominio</b>
+*** <b>user-service</b>\nFastAPI · Python 3.11\nPerfiles · Direcciones
+
+** Catálogo e Inventario\n<b>Dominio</b>
+*** <b>product-service</b>\nFastAPI · Python 3.12\nProductos · Stock · Reviews · Galería
+
+** Comercio / Órdenes\n<b>Dominio</b>
+*** <b>order-service</b>\nFastAPI · Python 3.12\nÓrdenes · Saga · Timeout worker
+
+** Asistente IA\n<b>Dominio</b>
+*** <b>ai-service</b>\nFastAPI · Python 3.12\nGroq Llama 3.1 · Rate limiting
+
+** Infraestructura\n<b>Transversal</b>
+*** <b>API Gateway</b>\nNGINX 1.27 · TLS · CORS\nRate limiting · Routing
+*** <b>spare-coordinator</b>\nWatchdog Python\nPolling /health · POST /activate
+*** <b>RabbitMQ 3</b>\nExchange events (fanout)\nExchange commerce.saga (topic)
+*** <b>PostgreSQL 16 × 4</b>\nauth · user · product · order\nDB-per-service
+*** <b>Redis 7</b>\nSesiones · Caché · Rate-limit\nHistorial conversacional
+
+@endwbs

@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-postgres
+  template:
+    metadata:
+      labels:
+        app: auth-postgres
+    spec:
+      containers:
+        - name: auth-postgres
+          image: postgres:16-alpine
+          env:
+            - name: POSTGRES_USER
+              value: "auth_user"
+            - name: POSTGRES_PASSWORD
+              value: "auth_password"
+            - name: POSTGRES_DB
+              value: "auth_db"
+          ports:
+            - containerPort: 5432
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-postgres
+spec:
+  selector:
+    app: auth-postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-redis
+  template:
+    metadata:
+      labels:
+        app: auth-redis
+    spec:
+      containers:
+        - name: auth-redis
+          image: redis:7-alpine
+          ports:
+            - containerPort: 6379
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-redis
+spec:
+  selector:
+    app: auth-redis
+  ports:
+    - port: 6379
+      targetPort: 6379

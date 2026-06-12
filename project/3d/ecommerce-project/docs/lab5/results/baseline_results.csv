@@ -1,0 +1,2728 @@
+1780364098039,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098045,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098046,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098046,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098046,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098047,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098048,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098048,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098049,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098050,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098173,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098174,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098175,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098176,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098176,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098177,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098178,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098178,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098178,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098179,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098373,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098374,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098374,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098375,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098375,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098375,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098375,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098376,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098376,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098376,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098572,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098573,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098573,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098574,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098574,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098575,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098576,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098576,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098577,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098577,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098772,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098773,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098773,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098773,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098773,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098774,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098774,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098774,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098774,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364098774,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112227,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112228,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112229,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112229,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112229,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112230,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112230,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112230,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112231,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112231,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112428,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112429,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112430,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112430,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112431,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112431,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112431,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112432,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112432,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112432,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112626,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112627,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112627,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112627,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112627,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112627,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112627,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112628,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112628,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112628,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112827,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112828,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112828,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112828,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112829,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112829,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112829,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112829,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112830,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364112830,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364113027,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364113028,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364113028,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364113028,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364113028,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364113028,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364113028,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364113029,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364113029,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364113029,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556089,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556094,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556095,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556095,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556096,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556096,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556096,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556097,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556097,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556098,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556225,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556226,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556228,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556230,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556232,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556233,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556235,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556237,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556239,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556240,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556425,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556426,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556426,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556427,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556427,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556428,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556429,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556429,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556430,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556431,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556625,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556626,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556626,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556627,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556627,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556627,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556627,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556627,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556628,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556628,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556823,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556824,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556825,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556825,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556826,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556826,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556826,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556826,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556826,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364556827,0,POST /ai/chat,Non HTTP response code: java.net.URISyntaxException,Non HTTP response message: Illegal character in path at index 24: https://localhost:8443/${AI_PATH},1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.net.URISyntaxException]]]
+
+****** comparison: [[[200                                                ]]]
+
+/",1185,https://localhost:8443/${AI_PATH},0,LAPTOP-S92D7LR0
+1780364912545,394,POST /ai/chat,307,Temporary Redirect,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[307]]]
+
+****** comparison: [[[200]]]
+
+/",692,https://localhost:8443/ai/chat,387,LAPTOP-S92D7LR0
+1780364912742,197,POST /ai/chat,307,Temporary Redirect,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[307]]]
+
+****** comparison: [[[200]]]
+
+/",692,https://localhost:8443/ai/chat,190,LAPTOP-S92D7LR0
+1780364912941,11,POST /ai/chat,307,Temporary Redirect,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[307]]]
+
+****** comparison: [[[200]]]
+
+/",692,https://localhost:8443/ai/chat,11,LAPTOP-S92D7LR0
+1780364912941,11,POST /ai/chat,307,Temporary Redirect,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[307]]]
+
+****** comparison: [[[200]]]
+
+/",692,https://localhost:8443/ai/chat,11,LAPTOP-S92D7LR0
+1780364912953,14,POST /ai/chat,307,Temporary Redirect,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[307]]]
+
+****** comparison: [[[200]]]
+
+/",692,https://localhost:8443/ai/chat,14,LAPTOP-S92D7LR0
+1780364912953,14,POST /ai/chat,307,Temporary Redirect,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[307]]]
+
+****** comparison: [[[200]]]
+
+/",692,https://localhost:8443/ai/chat,14,LAPTOP-S92D7LR0
+1780364912968,5,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,4,LAPTOP-S92D7LR0
+1780364912944,29,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,28,LAPTOP-S92D7LR0
+1780364912968,5,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,4,LAPTOP-S92D7LR0
+1780364912975,5,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,5,LAPTOP-S92D7LR0
+1780364912975,5,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,5,LAPTOP-S92D7LR0
+1780364912975,5,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,5,LAPTOP-S92D7LR0
+1780364912981,4,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,4,LAPTOP-S92D7LR0
+1780364912981,4,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,4,LAPTOP-S92D7LR0
+1780364912981,4,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,4,LAPTOP-S92D7LR0
+1780364912986,5,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,5,LAPTOP-S92D7LR0
+1780364912986,5,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,5,LAPTOP-S92D7LR0
+1780364912986,5,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,5,LAPTOP-S92D7LR0
+1780364912993,5,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,5,LAPTOP-S92D7LR0
+1780364912993,5,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,5,LAPTOP-S92D7LR0
+1780364912993,5,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,5,LAPTOP-S92D7LR0
+1780364912999,5,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,5,LAPTOP-S92D7LR0
+1780364912999,5,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,5,LAPTOP-S92D7LR0
+1780364912999,5,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,5,LAPTOP-S92D7LR0
+1780364913005,6,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,6,LAPTOP-S92D7LR0
+1780364913005,6,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,6,LAPTOP-S92D7LR0
+1780364913005,6,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,6,LAPTOP-S92D7LR0
+1780364913012,6,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,5,LAPTOP-S92D7LR0
+1780364913019,5,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,5,LAPTOP-S92D7LR0
+1780364913025,4,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,4,LAPTOP-S92D7LR0
+1780364913143,13,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,13,LAPTOP-S92D7LR0
+1780364913157,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780364913159,3,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,3,LAPTOP-S92D7LR0
+1780364913162,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780364913165,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780364913167,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,1,LAPTOP-S92D7LR0
+1780364913169,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,1,LAPTOP-S92D7LR0
+1780364913170,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780364913172,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,1,LAPTOP-S92D7LR0
+1780364913174,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,1,LAPTOP-S92D7LR0
+1780364913342,10,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,10,LAPTOP-S92D7LR0
+1780364913352,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,1,LAPTOP-S92D7LR0
+1780364913354,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780364913356,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,1,LAPTOP-S92D7LR0
+1780364913357,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780364913359,3,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780364913362,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780364913364,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780364913366,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780364913368,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780364921331,36,POST /ai/chat,307,Temporary Redirect,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[307]]]
+
+****** comparison: [[[200]]]
+
+/",692,https://localhost:8443/ai/chat,36,LAPTOP-S92D7LR0
+1780364921368,8,POST /ai/chat,307,Temporary Redirect,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[307]]]
+
+****** comparison: [[[200]]]
+
+/",692,https://localhost:8443/ai/chat,8,LAPTOP-S92D7LR0
+1780364921377,9,POST /ai/chat,307,Temporary Redirect,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[307]]]
+
+****** comparison: [[[200]]]
+
+/",692,https://localhost:8443/ai/chat,9,LAPTOP-S92D7LR0
+1780364921387,8,POST /ai/chat,307,Temporary Redirect,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[307]]]
+
+****** comparison: [[[200]]]
+
+/",692,https://localhost:8443/ai/chat,8,LAPTOP-S92D7LR0
+1780364921396,8,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",815,https://localhost:8443/ai/chat,8,LAPTOP-S92D7LR0
+1780364921411,4,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",815,https://localhost:8443/ai/chat,4,LAPTOP-S92D7LR0
+1780364921416,5,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,5,LAPTOP-S92D7LR0
+1780364921422,4,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,4,LAPTOP-S92D7LR0
+1780364921426,5,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,5,LAPTOP-S92D7LR0
+1780364921432,5,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,5,LAPTOP-S92D7LR0
+1780364921531,12,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,12,LAPTOP-S92D7LR0
+1780364921544,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,1,LAPTOP-S92D7LR0
+1780364921546,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,1,LAPTOP-S92D7LR0
+1780364921548,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780364921550,3,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,3,LAPTOP-S92D7LR0
+1780364921554,4,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,4,LAPTOP-S92D7LR0
+1780364921558,3,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,3,LAPTOP-S92D7LR0
+1780364921562,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780364921564,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780364921567,4,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,4,LAPTOP-S92D7LR0
+1780364921730,10,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,10,LAPTOP-S92D7LR0
+1780364921740,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780364921742,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,1,LAPTOP-S92D7LR0
+1780364921744,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,1,LAPTOP-S92D7LR0
+1780364921745,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,1,LAPTOP-S92D7LR0
+1780364921747,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,1,LAPTOP-S92D7LR0
+1780364921748,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780364921751,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,1,LAPTOP-S92D7LR0
+1780364921753,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780364921755,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780364921930,12,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",815,https://localhost:8443/ai/chat,12,LAPTOP-S92D7LR0
+1780364921944,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,1,LAPTOP-S92D7LR0
+1780364921946,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,1,LAPTOP-S92D7LR0
+1780364921947,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,1,LAPTOP-S92D7LR0
+1780364921949,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780364921951,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780364921953,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,1,LAPTOP-S92D7LR0
+1780364921955,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,1,LAPTOP-S92D7LR0
+1780364921957,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780364921960,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780364922130,10,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,10,LAPTOP-S92D7LR0
+1780364922140,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,1,LAPTOP-S92D7LR0
+1780364922142,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,1,LAPTOP-S92D7LR0
+1780364922143,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780364922145,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780364922147,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,1,LAPTOP-S92D7LR0
+1780364922149,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,1,LAPTOP-S92D7LR0
+1780364922150,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,1,LAPTOP-S92D7LR0
+1780364922151,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780364922153,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,1,LAPTOP-S92D7LR0
+1780365262778,54,POST /ai/chat,Non HTTP response code: java.lang.RuntimeException,Non HTTP response message: Can't load TrustStore: ,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[Non HTTP response code: java.lang.RuntimeException]]]
+
+****** comparison: [[[200                                               ]]]
+
+/",3006,https://localhost:8443/ai/chat,0,LAPTOP-S92D7LR0
+1780365262838,144,POST /ai/chat,307,Temporary Redirect,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[307]]]
+
+****** comparison: [[[200]]]
+
+/",692,https://localhost:8443/ai/chat,141,LAPTOP-S92D7LR0
+1780365262924,58,POST /ai/chat,307,Temporary Redirect,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[307]]]
+
+****** comparison: [[[200]]]
+
+/",692,https://localhost:8443/ai/chat,55,LAPTOP-S92D7LR0
+1780365262983,6,POST /ai/chat,307,Temporary Redirect,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[307]]]
+
+****** comparison: [[[200]]]
+
+/",692,https://localhost:8443/ai/chat,6,LAPTOP-S92D7LR0
+1780365262983,6,POST /ai/chat,307,Temporary Redirect,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[307]]]
+
+****** comparison: [[[200]]]
+
+/",692,https://localhost:8443/ai/chat,6,LAPTOP-S92D7LR0
+1780365262990,5,POST /ai/chat,307,Temporary Redirect,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[307]]]
+
+****** comparison: [[[200]]]
+
+/",692,https://localhost:8443/ai/chat,5,LAPTOP-S92D7LR0
+1780365262990,5,POST /ai/chat,307,Temporary Redirect,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[307]]]
+
+****** comparison: [[[200]]]
+
+/",692,https://localhost:8443/ai/chat,5,LAPTOP-S92D7LR0
+1780365262996,4,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,4,LAPTOP-S92D7LR0
+1780365262996,4,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,4,LAPTOP-S92D7LR0
+1780365263001,3,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,3,LAPTOP-S92D7LR0
+1780365263001,3,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,3,LAPTOP-S92D7LR0
+1780365263005,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780365263005,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780365263008,3,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,3,LAPTOP-S92D7LR0
+1780365263008,3,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,3,LAPTOP-S92D7LR0
+1780365263012,3,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,3,LAPTOP-S92D7LR0
+1780365263012,3,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,3,LAPTOP-S92D7LR0
+1780365263015,3,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,3,LAPTOP-S92D7LR0
+1780365263015,3,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,3,LAPTOP-S92D7LR0
+1780365263019,3,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,3,LAPTOP-S92D7LR0
+1780365263123,15,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,15,LAPTOP-S92D7LR0
+1780365263139,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780365263142,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780365263144,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780365263146,3,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,3,LAPTOP-S92D7LR0
+1780365263149,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780365263151,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780365263154,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780365263157,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780365263159,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780365263323,16,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,16,LAPTOP-S92D7LR0
+1780365263340,3,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,3,LAPTOP-S92D7LR0
+1780365263343,3,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,3,LAPTOP-S92D7LR0
+1780365263346,4,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,4,LAPTOP-S92D7LR0
+1780365263351,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780365263353,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780365263355,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780365263358,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780365263360,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780365263362,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780365263523,13,POST /ai/chat,307,Temporary Redirect,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[307]]]
+
+****** comparison: [[[200]]]
+
+/",692,https://localhost:8443/ai/chat,13,LAPTOP-S92D7LR0
+1780365263536,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780365263539,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,1,LAPTOP-S92D7LR0
+1780365263540,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780365263542,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780365263544,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780365263546,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780365263548,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,1,LAPTOP-S92D7LR0
+1780365263549,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780365263551,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat,2,LAPTOP-S92D7LR0
+1780365398055,1026,POST /ai/chat,200,OK,1 - Baseline Normal Traffic 1-2,true,,843,https://localhost:8443/ai/chat/,1026,LAPTOP-S92D7LR0
+1780365398256,910,POST /ai/chat,200,OK,1 - Baseline Normal Traffic 1-3,true,,1008,https://localhost:8443/ai/chat/,910,LAPTOP-S92D7LR0
+1780365397855,1459,POST /ai/chat,200,OK,1 - Baseline Normal Traffic 1-1,true,,1424,https://localhost:8443/ai/chat/,1459,LAPTOP-S92D7LR0
+1780365398655,875,POST /ai/chat,200,OK,1 - Baseline Normal Traffic 1-5,true,,862,https://localhost:8443/ai/chat/,875,LAPTOP-S92D7LR0
+1780365398455,1190,POST /ai/chat,200,OK,1 - Baseline Normal Traffic 1-4,true,,1386,https://localhost:8443/ai/chat/,1190,LAPTOP-S92D7LR0
+1780365399646,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,1,LAPTOP-S92D7LR0
+1780365399647,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,2,LAPTOP-S92D7LR0
+1780365399649,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,1,LAPTOP-S92D7LR0
+1780365399650,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,2,LAPTOP-S92D7LR0
+1780365399652,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,2,LAPTOP-S92D7LR0
+1780365399654,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,2,LAPTOP-S92D7LR0
+1780365399656,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,1,LAPTOP-S92D7LR0
+1780365399658,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,1,LAPTOP-S92D7LR0
+1780365399659,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,2,LAPTOP-S92D7LR0
+1780365399082,12878,POST /ai/chat,200,OK,1 - Baseline Normal Traffic 1-2,true,,794,https://localhost:8443/ai/chat/,12878,LAPTOP-S92D7LR0
+1780365399314,13080,POST /ai/chat,200,OK,1 - Baseline Normal Traffic 1-1,true,,882,https://localhost:8443/ai/chat/,13080,LAPTOP-S92D7LR0
+1780365412394,6,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",815,https://localhost:8443/ai/chat/,6,LAPTOP-S92D7LR0
+1780365412400,6,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",815,https://localhost:8443/ai/chat/,5,LAPTOP-S92D7LR0
+1780365412406,5,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",815,https://localhost:8443/ai/chat/,5,LAPTOP-S92D7LR0
+1780365412412,4,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",815,https://localhost:8443/ai/chat/,4,LAPTOP-S92D7LR0
+1780365412417,6,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",815,https://localhost:8443/ai/chat/,6,LAPTOP-S92D7LR0
+1780365412424,3,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,3,LAPTOP-S92D7LR0
+1780365412428,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,2,LAPTOP-S92D7LR0
+1780365412431,3,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,3,LAPTOP-S92D7LR0
+1780365399167,13850,POST /ai/chat,200,OK,1 - Baseline Normal Traffic 1-3,true,,739,https://localhost:8443/ai/chat/,13850,LAPTOP-S92D7LR0
+1780365413018,4,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",815,https://localhost:8443/ai/chat/,4,LAPTOP-S92D7LR0
+1780365413023,3,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",815,https://localhost:8443/ai/chat/,3,LAPTOP-S92D7LR0
+1780365413027,3,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,3,LAPTOP-S92D7LR0
+1780365413031,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,1,LAPTOP-S92D7LR0
+1780365413033,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,2,LAPTOP-S92D7LR0
+1780365413036,3,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,3,LAPTOP-S92D7LR0
+1780365413039,3,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,3,LAPTOP-S92D7LR0
+1780365413043,4,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,3,LAPTOP-S92D7LR0
+1780365399530,19013,POST /ai/chat,200,OK,1 - Baseline Normal Traffic 1-5,true,,739,https://localhost:8443/ai/chat/,19013,LAPTOP-S92D7LR0
+1780365418544,3,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",815,https://localhost:8443/ai/chat/,3,LAPTOP-S92D7LR0
+1780365418548,4,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",815,https://localhost:8443/ai/chat/,4,LAPTOP-S92D7LR0
+1780365418553,4,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",815,https://localhost:8443/ai/chat/,4,LAPTOP-S92D7LR0
+1780365418558,4,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",815,https://localhost:8443/ai/chat/,4,LAPTOP-S92D7LR0
+1780365418562,5,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",815,https://localhost:8443/ai/chat/,5,LAPTOP-S92D7LR0
+1780365418568,4,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",815,https://localhost:8443/ai/chat/,4,LAPTOP-S92D7LR0
+1780365418573,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,2,LAPTOP-S92D7LR0
+1780365418576,3,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,3,LAPTOP-S92D7LR0
+1780365411961,8292,POST /ai/chat,200,OK,1 - Baseline Normal Traffic 1-2,true,,1364,https://localhost:8443/ai/chat/,8292,LAPTOP-S92D7LR0
+1780365420253,4,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",815,https://localhost:8443/ai/chat/,4,LAPTOP-S92D7LR0
+1780365420258,3,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",815,https://localhost:8443/ai/chat/,3,LAPTOP-S92D7LR0
+1780365420262,4,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",815,https://localhost:8443/ai/chat/,4,LAPTOP-S92D7LR0
+1780365420267,3,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,2,LAPTOP-S92D7LR0
+1780365420271,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,2,LAPTOP-S92D7LR0
+1780365420273,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,2,LAPTOP-S92D7LR0
+1780365420276,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,2,LAPTOP-S92D7LR0
+1780365506930,18,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,18,LAPTOP-S92D7LR0
+1780365506949,3,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,3,LAPTOP-S92D7LR0
+1780365506953,3,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,3,LAPTOP-S92D7LR0
+1780365506956,5,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,5,LAPTOP-S92D7LR0
+1780365506962,4,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,4,LAPTOP-S92D7LR0
+1780365506966,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,2,LAPTOP-S92D7LR0
+1780365506969,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,1,LAPTOP-S92D7LR0
+1780365506971,3,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,3,LAPTOP-S92D7LR0
+1780365506975,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,1,LAPTOP-S92D7LR0
+1780365506977,3,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,3,LAPTOP-S92D7LR0
+1780365507132,9,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,9,LAPTOP-S92D7LR0
+1780365507141,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,2,LAPTOP-S92D7LR0
+1780365507143,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,2,LAPTOP-S92D7LR0
+1780365507146,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,2,LAPTOP-S92D7LR0
+1780365507148,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,1,LAPTOP-S92D7LR0
+1780365507150,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,1,LAPTOP-S92D7LR0
+1780365507152,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,2,LAPTOP-S92D7LR0
+1780365507155,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,1,LAPTOP-S92D7LR0
+1780365507156,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,1,LAPTOP-S92D7LR0
+1780365507158,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,2,LAPTOP-S92D7LR0
+1780365507529,8,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,8,LAPTOP-S92D7LR0
+1780365507538,3,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,3,LAPTOP-S92D7LR0
+1780365507541,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,2,LAPTOP-S92D7LR0
+1780365507544,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,1,LAPTOP-S92D7LR0
+1780365507546,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,2,LAPTOP-S92D7LR0
+1780365507548,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,2,LAPTOP-S92D7LR0
+1780365507551,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,1,LAPTOP-S92D7LR0
+1780365507553,3,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,3,LAPTOP-S92D7LR0
+1780365507556,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,1,LAPTOP-S92D7LR0
+1780365507558,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,1,LAPTOP-S92D7LR0
+1780365507329,809,POST /ai/chat,200,OK,1 - Baseline Normal Traffic 1-4,true,,1425,https://localhost:8443/ai/chat/,809,LAPTOP-S92D7LR0
+1780365508139,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,2,LAPTOP-S92D7LR0
+1780365508141,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,1,LAPTOP-S92D7LR0
+1780365508143,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,1,LAPTOP-S92D7LR0
+1780365508144,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,2,LAPTOP-S92D7LR0
+1780365508147,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,1,LAPTOP-S92D7LR0
+1780365508149,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,1,LAPTOP-S92D7LR0
+1780365508150,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,1,LAPTOP-S92D7LR0
+1780365508152,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,1,LAPTOP-S92D7LR0
+1780365508154,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,1,LAPTOP-S92D7LR0
+1780365506732,1509,POST /ai/chat,200,OK,1 - Baseline Normal Traffic 1-1,true,,1456,https://localhost:8443/ai/chat/,1509,LAPTOP-S92D7LR0
+1780365508241,3,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,3,LAPTOP-S92D7LR0
+1780365508245,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,2,LAPTOP-S92D7LR0
+1780365508248,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,2,LAPTOP-S92D7LR0
+1780365508251,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,2,LAPTOP-S92D7LR0
+1780365508253,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,2,LAPTOP-S92D7LR0
+1780365508256,3,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,3,LAPTOP-S92D7LR0
+1780365508260,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,2,LAPTOP-S92D7LR0
+1780365508262,2,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,2,LAPTOP-S92D7LR0
+1780365508265,1,POST /ai/chat,429,Too Many Requests,1 - Baseline Normal Traffic 1-1,false,"Test failed: code expected to equal /
+
+****** received  : [[[429]]]
+
+****** comparison: [[[200]]]
+
+/",766,https://localhost:8443/ai/chat/,1,LAPTOP-S92D7LR0

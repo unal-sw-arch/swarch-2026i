@@ -150,7 +150,7 @@ venv.bak/
 .github/agents/todo.md
 .github/agents/discovery.md
 .github/agents/ecommerce-mentor.agent.md
-
+.github/
 # Spyder project settings
 .spyderproject
 .spyproject
@@ -228,12 +228,14 @@ pnpm-debug.log*
 
 # Env files (nunca commitear secretos)
 .env
-.env.local
-.env.production
-.env.staging
+.env.*
 *.env
-.env.docker
-.env.docker.local
+**/.env
+**/.env.*
+
+# Keep template env files versioned
+!.env.example
+!**/.env.example
 
 # Docker
 *.log
@@ -254,6 +256,37 @@ exports/
 temp/
 logs/
 
+# Claude Code - local only, never commit
+.claude/
+**/.claude/
+CLAUDE.md
+**/CLAUDE.md
+CLAUDE.local.md
+**/CLAUDE.local.md
+.claude.json
+.mcp.json
+**/.mcp.json
+
+# AI-generated documentation - local only, never commit
+.ai-docs/
+
 # Database local
 *.db
 *.sqlite3
+# Agent configurations and credentials
+.agents/
+
+# Encryption keys and certificates
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Secrets and private data
+secrets/
+private/
+credentials/
+
+# Local environment overrides
+.env.local
+.env.*.local

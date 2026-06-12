@@ -368,10 +368,10 @@ x-served-by: spare
 
 ## 5. Pull Request
 
-> Implementation branch: **`reliability`** → opened as a Pull Request toward the
-> Prototype 3 branch of the project repository.
+> Implementation branch: **`reliability`** → merged into `main` and delivered as a
+> Pull Request toward the **`prototype_3`** branch of the course repository.
 >
-> **PR URL:** _<add the PR link here once opened>_
+> **PR URL:** https://github.com/unal-sw-arch/swarch-2026i/pull/31
 
 ## 6. Reproducing everything locally
 

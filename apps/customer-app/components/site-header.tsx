@@ -80,10 +80,15 @@ export function SiteHeader({ session }: { session: CustomerSession | null }) {
               </button>
             </>
           ) : (
-            <Link className="button" href="/login">
-              <UserRound size={16} />
-              Sign in
-            </Link>
+            <>
+              <Link className="button-secondary" href="/register">
+                Create account
+              </Link>
+              <Link className="button" href="/login">
+                <UserRound size={16} />
+                Sign in
+              </Link>
+            </>
           )}
         </div>
       </div>

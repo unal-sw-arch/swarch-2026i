@@ -45,6 +45,10 @@ const envSchema = z
     CACHE_TTL_MENU: z.coerce.number().int().positive().default(60),
     CACHE_TTL_PROMOTIONS: z.coerce.number().int().positive().default(60),
     USE_MOCK_SERVICES: booleanFromEnv.default(false),
+    // WAF (Web Application Firewall) — input inspection at the edge.
+    WAF_ENABLED: booleanFromEnv.default(true),
+    WAF_MODE: z.enum(['detect', 'block']).default('block'),
+    WAF_MAX_BODY_BYTES: z.coerce.number().int().positive().default(1048576),
     // Throttling / Rate Limiting (per-IP, Redis-backed).
     THROTTLE_ENABLED: booleanFromEnv.default(true),
     THROTTLE_LIMIT: z.coerce.number().int().positive().default(100),

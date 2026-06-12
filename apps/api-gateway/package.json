@@ -8,7 +8,8 @@
     "dev": "tsx watch src/main.ts",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/main.js",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "test:waf": "tsx test/waf.rules.spec.ts"
   },
   "engines": {
     "node": ">=18.18"

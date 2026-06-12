@@ -5,6 +5,7 @@ import type {
   AuthLoginCustomerBody,
   AuthLoginRestaurantBody,
   AuthRegisterCustomerBody,
+  AuthRegisterRestaurantBody,
 } from './auth.types';
 
 export class AuthController {
@@ -13,6 +14,14 @@ export class AuthController {
   public registerCustomer = asyncHandler(async (req: Request, res: Response) => {
     const result = await this.proxy.registerCustomer({
       body: req.body as AuthRegisterCustomerBody,
+      context: req.context,
+    });
+    res.status(result.status).json(result.data);
+  });
+
+  public registerRestaurant = asyncHandler(async (req: Request, res: Response) => {
+    const result = await this.proxy.registerRestaurant({
+      body: req.body as AuthRegisterRestaurantBody,
       context: req.context,
     });
     res.status(result.status).json(result.data);

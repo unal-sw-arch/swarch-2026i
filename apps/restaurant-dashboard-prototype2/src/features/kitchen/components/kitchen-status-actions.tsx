@@ -16,13 +16,15 @@ export function KitchenStatusActions({ orderId, status }: KitchenStatusActionsPr
   const nextStatus: Record<KitchenOrderStatus, KitchenOrderStatus | null> = {
     [ORDER_STATUS.CREATED]: ORDER_STATUS.IN_PREPARATION,
     [ORDER_STATUS.IN_PREPARATION]: ORDER_STATUS.READY,
-    [ORDER_STATUS.READY]: null,
+    [ORDER_STATUS.READY]: ORDER_STATUS.DELIVERED,
+    [ORDER_STATUS.DELIVERED]: null,
   };
 
   const labels: Record<KitchenOrderStatus, string> = {
     [ORDER_STATUS.CREATED]: "Iniciar preparación",
     [ORDER_STATUS.IN_PREPARATION]: "Marcar como listo",
-    [ORDER_STATUS.READY]: "Listo",
+    [ORDER_STATUS.READY]: "Marcar como entregado",
+    [ORDER_STATUS.DELIVERED]: "Entregado",
   };
 
   const handleStatusUpdate = () => {
@@ -40,8 +42,8 @@ export function KitchenStatusActions({ orderId, status }: KitchenStatusActionsPr
     );
   };
 
-  // Si el estado es READY, solo mostrar badge sin acción
-  if (status === ORDER_STATUS.READY) {
+  // Si el estado es DELIVERED, solo mostrar badge sin acción
+  if (status === ORDER_STATUS.DELIVERED) {
     return (
       <div className="flex items-center gap-2">
         <span className="inline-block rounded bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-800">

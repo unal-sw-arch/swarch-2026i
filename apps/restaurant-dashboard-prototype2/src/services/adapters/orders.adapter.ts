@@ -62,11 +62,11 @@ function toStatus(value: unknown): OrderStatus {
   }
 }
 
-function toIsoDate(value: unknown): ISODateString {
-  if (typeof value !== "string" || value.length === 0) {
+function toIsoDate(value: unknown): ISODateString | undefined {
+  if (value == null || value === "") return undefined;
+  if (typeof value !== "string") {
     throw new Error("Invalid createdAt in orders response.");
   }
-
   return value;
 }
 
@@ -82,7 +82,7 @@ function adaptOrder(order: unknown): RestaurantOrderSummary {
   return {
     id: toNumber(source.id, "id"),
     customerId: toNumber(customerId, "customerId"),
-    restaurantId: toNumber(restaurantId, "restaurantId"),
+    restaurantId: restaurantId != null ? toNumber(restaurantId, "restaurantId") : undefined,
     status: toStatus(source.status),
     totalAmount: toNumber(totalAmount, "totalAmount"),
     createdAt: toIsoDate(createdAt),

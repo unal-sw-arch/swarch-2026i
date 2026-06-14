@@ -162,6 +162,7 @@ services:
       - RABBITMQ_PORT=5672
       - RABBITMQ_USERNAME=guest
       - RABBITMQ_PASSWORD=guest
+      - RABBITMQ_EXCHANGE=deliunal.events
       - LOG_LEVEL=INFO
     depends_on:
       - order-db

@@ -4,10 +4,10 @@ import type { ID, ISODateString } from "@/shared/types/common.types";
 export type RestaurantOrderSummary = {
   id: ID;
   customerId: ID;
-  restaurantId: ID;
+  restaurantId?: ID;
   status: OrderStatus;
   totalAmount: number;
-  createdAt: ISODateString;
+  createdAt?: ISODateString;
 };
 
 export type OrderItemDetail = {

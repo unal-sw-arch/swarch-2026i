@@ -3,10 +3,10 @@ const prisma = new PrismaClient();
 
 async function main() {
   const restaurant = await prisma.restaurant.upsert({
-    where: { id: 10 },
+    where: { id: 1 },
     update: {},
     create: {
-      id: 10,
+      id: 1,
       name: 'Sabor Andino',
       isOpen: true,
       menus: {

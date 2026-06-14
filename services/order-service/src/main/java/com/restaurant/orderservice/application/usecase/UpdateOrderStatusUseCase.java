@@ -5,7 +5,6 @@ import com.restaurant.orderservice.domain.model.OrderStatus;
 import com.restaurant.orderservice.domain.repository.OrderRepository;
 import com.restaurant.orderservice.infrastructure.client.TrackingServiceClient;
 import com.restaurant.orderservice.infrastructure.client.dto.ActivityEventDto;
-import com.restaurant.orderservice.infrastructure.messaging.OrderEventPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,7 +17,6 @@ public class UpdateOrderStatusUseCase {
 
     private final OrderRepository     orderRepository;
     private final TrackingServiceClient trackingServiceClient;
-    private final OrderEventPublisher orderEventPublisher;
 
     /**
      * Updates the persisted status of an order.
@@ -60,10 +58,6 @@ public class UpdateOrderStatusUseCase {
         order.setStatus(status);
         orderRepository.save(order);
 
-        // Publish the canonical ORDER_STATUS_CHANGED event so downstream consumers
-        // (customer app, notification service) stay in sync.
-        orderEventPublisher.publishOrderStatusChanged(order);
-
         ActivityEventDto event = ActivityEventDto.builder()
             .eventType("ORDER_STATUS_CHANGED")
             .entityType("ORDER")
@@ -72,7 +66,10 @@ public class UpdateOrderStatusUseCase {
             .orderId(order.getId().toString())
             .timestamp(java.time.Instant.now().toString())
             .sourceService("order-service")
-            .payload(java.util.Map.of("status", newStatus.toUpperCase()))
+            .payload(java.util.Map.of(
+                "status", newStatus.toUpperCase(),
+                "customerId", String.valueOf(order.getCustomerId())
+            ))
             .build();
         trackingServiceClient.publishActivityEvent(event);
 

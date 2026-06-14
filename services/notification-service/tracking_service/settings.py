@@ -143,3 +143,15 @@ MONGO_COLLECTION_NAME = os.getenv("MONGO_COLLECTION_NAME", "activity_events")
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# ============================================================
+# Email SMTP Configuration (Interoperability Pattern)
+# ============================================================
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST = os.getenv('SMTP_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.getenv('SMTP_PORT', 587))
+EMAIL_USE_TLS = os.getenv('SMTP_USE_TLS', 'True') == 'True'
+EMAIL_HOST_USER = os.getenv('SMTP_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('SMTP_PASSWORD', '')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'deliunal.noreply@gmail.com')

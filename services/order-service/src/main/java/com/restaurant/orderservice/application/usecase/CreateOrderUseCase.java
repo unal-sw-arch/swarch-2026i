@@ -94,7 +94,10 @@ public class CreateOrderUseCase {
             .orderId(saved.getId().toString())
             .timestamp(java.time.Instant.now().toString())
             .sourceService("order-service")
-            .payload(Map.of("status", saved.getStatus().name()))
+            .payload(Map.of(
+                "status", saved.getStatus().name(),
+                "customerId", String.valueOf(saved.getCustomerId())
+            ))
             .build();
         trackingServiceClient.publishActivityEvent(event);
 

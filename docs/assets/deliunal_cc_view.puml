@@ -1,0 +1,192 @@
+@startuml C&C_View_DELIUNAL
+skinparam componentStyle uml2
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+skinparam node {
+    BackgroundColor white
+    BorderColor black
+}
+skinparam component {
+    BackgroundColor white
+    BorderColor black
+}
+skinparam interface {
+    BackgroundColor white
+    BorderColor black
+}
+
+title Component-and-Connector (C&C) Structure - DELIUNAL Prototype 3
+
+' --- External Entities ---
+component "Browser Client" as MobileClient {
+    portout "userPort" as mc_out
+}
+component "Browser Client" as BrowserClient {
+    portout "userPort" as bc_out
+}
+component "Google SMTP Server" <<External System>> as SMTP_External {
+    portin "587" as ext_smtp_in
+}
+
+' --- Frontends ---
+component "Customer App\n[Next.js]" as CustomerApp {
+    portin "3001" as ca_in
+    portout "gatewayPort" as ca_out
+}
+component "Restaurant Dashboard\n[React/Vite]" as RestaurantDashboard {
+    portin "5173" as rd_in
+    portout "gatewayPort" as rd_out
+}
+
+' --- API Gateway ---
+component "API Gateway\n(Express/WAF/Throttling)\n<<Gateway>>" as APIGateway {
+    portin "4000" as gw_in
+    portout "authPort" as gw_out_auth
+    portout "catalogPort" as gw_out_cat
+    portout "orderPort" as gw_out_ord
+    portout "kitchenPort" as gw_out_kit
+}
+
+' --- Microservices ---
+component "Auth Service\n(Python/FastAPI)\n<<Service>>" as AuthService {
+    portin "8000" as auth_in
+    portout "dbPort" as auth_db_out
+}
+
+component "Catalog Service\n(Node.js/Prisma)\n<<Service>>" as CatalogService {
+    portin "3000" as cat_in
+    portout "dbPort" as cat_db_out
+    portout "cachePort" as cat_cache_out
+}
+
+component "Order Service\n(Java/Spring Boot)\n<<Service>>" as OrderService {
+    portin "8080" as ord_in
+    portout "dbPort" as ord_db_out
+    portout "brokerPort" as ord_broker_out
+    portout "trackingPort" as ord_track_out
+}
+
+component "Kitchen Service\n(Go/Fiber)\n<<Service>>" as KitchenService {
+    portin "8082" as kit_in
+    portout "dbPort" as kit_db_out
+    portout "brokerPort" as kit_broker_out
+}
+
+component "Notification Service\n(Python/Django)\n<<Service>>" as NotificationService {
+    portin "8000" as notif_in
+    portout "authPort" as notif_auth_out
+    portout "smtpPort" as notif_smtp_out
+}
+
+' --- Data Stores & Brokers ---
+database "Catalog DB\n<<PostgreSQL>>" as CatalogDB {
+    portin "5432" as catdb_in
+}
+database "Order DB\n<<PostgreSQL>>" as OrderDB {
+    portin "5432" as orddb_in
+}
+database "Kitchen DB\n<<MongoDB>>" as KitchenDB {
+    portin "27017" as kitdb_in
+}
+database "Auth DB\n<<PostgreSQL>>" as AuthDB {
+    portin "5432" as authdb_in
+}
+
+queue "Event Broker\n<<RabbitMQ>>" as RabbitMQ {
+    portin "5672" as rmq_in
+}
+
+database "Valkey Cache\n<<Redis/Valkey>>" as ValkeyCache {
+    portin "6379" as valkey_in
+}
+
+' --- Interfaces (Lollipops) ---
+interface "<<HTTP>>" as I_Mobile
+interface "<<HTTP>>" as I_Browser
+
+' Splitting Gateway Interfaces to avoid 'Y' combinations
+interface "<<HTTP>>" as I_GW_CA
+interface "<<HTTP>>" as I_GW_RD
+
+' Splitting Auth Interfaces to avoid 'Y' combinations
+interface "<<HTTP>>" as I_Auth_GW
+interface "<<HTTP>>" as I_Auth_Notif
+
+interface "<<HTTP>>" as I_Catalog
+interface "<<HTTP>>" as I_Order
+interface "<<HTTP>>" as I_Kitchen
+interface "<<HTTP>>" as I_Notification
+
+' Interfaces for DBs
+interface "<<TCP/IP>>" as I_CatDB
+interface "<<TCP/IP>>" as I_OrdDB
+interface "<<TCP/IP>>" as I_KitDB
+interface "<<TCP/IP>>" as I_AuthDB
+interface "<<RESP>>" as I_Valkey
+
+' Interfaces for RabbitMQ
+interface "<<AMQP>>" as I_RMQ_Ord
+interface "<<AMQP>>" as I_RMQ_Kit
+
+' --- Connections (External -> Frontends) ---
+mc_out --( I_Mobile
+I_Mobile -- ca_in
+
+bc_out --( I_Browser
+I_Browser -- rd_in
+
+' --- Connections (Frontends -> Gateway) ---
+ca_out --( I_GW_CA
+I_GW_CA -- gw_in
+
+rd_out --( I_GW_RD
+I_GW_RD -- gw_in
+
+' --- Connections (Gateway -> Services) ---
+gw_out_auth --( I_Auth_GW
+I_Auth_GW -- auth_in
+
+gw_out_cat --( I_Catalog
+I_Catalog -- cat_in
+
+gw_out_ord --( I_Order
+I_Order -- ord_in
+
+gw_out_kit --( I_Kitchen
+I_Kitchen -- kit_in
+
+' --- Internal Service-to-Service (API Composition) ---
+notif_auth_out --( I_Auth_Notif
+I_Auth_Notif -- auth_in
+
+ord_track_out --( I_Notification
+I_Notification -- notif_in
+
+' --- Databases & Cache (Lollipop Notation) ---
+cat_db_out --( I_CatDB
+I_CatDB -- catdb_in
+
+ord_db_out --( I_OrdDB
+I_OrdDB -- orddb_in
+
+kit_db_out --( I_KitDB
+I_KitDB -- kitdb_in
+
+auth_db_out --( I_AuthDB
+I_AuthDB -- authdb_in
+
+cat_cache_out --( I_Valkey
+I_Valkey -- valkey_in
+
+' --- Event Broker (AMQP) ---
+ord_broker_out --( I_RMQ_Ord
+I_RMQ_Ord -- rmq_in
+
+kit_broker_out --( I_RMQ_Kit
+I_RMQ_Kit -- rmq_in
+
+' --- External Systems ---
+interface "<<SMTP>>" as I_Ext_SMTP
+notif_smtp_out --( I_Ext_SMTP
+I_Ext_SMTP -- ext_smtp_in
+@enduml

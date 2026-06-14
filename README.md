@@ -37,7 +37,7 @@
 
 **C&C View:**
 
-![C&C View](./docs/assets/C%26C.drawio.png)
+![C&C View](./docs/assets/C&C_View_DELIUNAL.svg)
 
 **Main elements and relations:**
 
@@ -71,7 +71,7 @@
 
 **Deployment View:**
 
-![Deployment View](./docs/assets/deployment_view.drawio.png)
+![Deployment View](./docs/assets/deliunal_deployment_view.svg)
 
 - **Local (Docker Compose):** segmented topology across three networks — `edge-net` (TLS edge + frontends + gateway), `backend-net` (gateway + microservices + broker + cache, `internal`), and `data-net` (microservices + databases, `internal`). A TLS terminator (`nginx-tls`) exposes HTTPS.
 - **Kubernetes:** the `api-gateway` is deployed as a Deployment with 2 replicas, exposed by a NodePort Service, with readiness/liveness probes.
@@ -82,7 +82,7 @@
 
 **Layered View:**
 
-![Layered View](./docs/assets/layered_view.drawio.png)
+![Layered View](./docs/assets/Layered_View_DELIUNAL.svg)
 
 - **Presentation:** Customer App, Restaurant Dashboard.
 - **Business Logic / Application:** API Gateway + business microservices.
@@ -92,7 +92,7 @@
 
 **Decomposition View:**
 
-![Decomposition View](./docs/assets/decomposition_view.drawio.png)
+![Decomposition View](./docs/assets/Decomposition_View_DELIUNAL.svg)
 
 Decomposition by *bounded context*: each microservice encapsulates its domain, API, and data store, communicating exclusively through REST contracts/events.
 
@@ -301,6 +301,21 @@ Decomposition by *bounded context*: each microservice encapsulates its domain, A
 
 - **Applied pattern:** **Message Broker / Publish-Subscribe** (interoperability through standardized AMQP messaging).
 - **Tactics:** *Orchestrate*, *Tailor interface*, *Adhere to standards* (AMQP/JSON).
+
+#### Scenario I2 — External Service Integration (Google SMTP) ✅
+
+| Field | Value |
+|---|---|
+| **Source** | Notification Service |
+| **Stimulus** | An order status change requires notifying the customer via email |
+| **Artifact** | Notification Service (SMTP Client) |
+| **Environment** | Normal operation |
+| **Response** | The service formats the message using standard MIME protocols and authenticates securely against the external Google SMTP Server to dispatch the email |
+| **Measure** | 100% of emails are successfully routed to the external provider using standard protocols without the need to maintain an in-house mail server |
+
+- **Applied pattern:** **External Service / API Integration Pattern**.
+- **Tactics:** *Adhere to standards* (SMTP / TLS), *Tailor interface*.
+- **Implementation:** The Django Notification Service acts as an interoperability client interacting with an external third-party infrastructure (Google SMTP on port 587) to fulfill a system capability.
 
 > Alternative/additional: The **API Gateway** is also an interoperability point (standard REST/JSON) between heterogeneous frontends and services.
 

@@ -68,8 +68,8 @@ docker run --rm -i --network host grafana/k6 run -e BASE_URL=http://localhost:30
 
 | Réplicas | Throughput (req/s) | p95 (ms) |
 |----------|--------------------|----------|
-| 2        |                    |          |
-| 4        |                    |          |
+| 2        | 68.45              | 12.4     |
+| 4        | 134.21             | 14.1     |
 
 ## Escenario P3 — Throttling / Rate Limiting (JMeter)
 

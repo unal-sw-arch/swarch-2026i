@@ -22,7 +22,7 @@
 **Boutique de Regalos Villapinzón**
 
 ### Logo
-<img width="1206" height="1156" alt="Logo" src="https://github.com/user-attachments/assets/b40c8629-5128-4dfd-8458-c0d83faefcfc" />
+<img width="1206" height="1156" alt="Logo" src="assets/Logo.jpeg" />
 
 
 
@@ -41,7 +41,7 @@ The system is built following a **microservices architecture**, where each busin
  #### C&C View
 
 The following diagram illustrates the runtime components of the system and their connectors:
-<img width="794" height="1133" alt="C C View" src="https://github.com/user-attachments/assets/22c71829-aa1b-434f-a067-5627d0bce28a" />
+<img width="794" height="1133" alt="C C View" src="assets/C&C View.drawio (2).png" />
 
 
 
@@ -105,7 +105,7 @@ Why it was chosen: Data layers mirror the logic component topology exclusively. 
 ### 3.2 Deployment Structure
 
 #### Deployment View
-<img width="661" height="664" alt="Deployment View (1)" src="https://github.com/user-attachments/assets/9b1b8f24-9d16-4747-836d-a99fa476eef3" />
+<img width="661" height="664" alt="Deployment View (1)" src="assets/Diagrama despliegue.jpeg" />
 
 #### Description of architectural elements and relations.
 | Node (Environmental Element) | Infrastructure Type | Allocated Software Elements | Provided Properties |
@@ -132,7 +132,7 @@ Although deployed onto managed cloud structures, the underlying system guarantee
 ### 3.3 Layered Structure
 
 #### Layered View
-<img width="491" height="944" alt="Layered view" src="https://github.com/user-attachments/assets/f07eb0fc-09d7-43d6-a72c-216894c81e19" />
+<img width="491" height="944" alt="Layered view" src="assets/Diagrama de Capas.jpeg" />
 #### Description of architectural elements and relations.
 | Layer Name |	Contained Modules / Components	| Responsibility |	Inter-Layer Relation |
 |----|---|---|--|
@@ -155,7 +155,7 @@ Within the Business Logic Layer, the modules are grouped by business subdomain (
 ### 3.4 Decomposition Structure
 
 #### Decomposition View
-<img width="601" height="491" alt="Decomposition View" src="https://github.com/user-attachments/assets/9c11ebe0-6181-4488-b57c-4ca9bddc586c" />
+<img width="601" height="491" alt="Decomposition View" src="assets/Diagrama Descomposicion.jpeg" />
 
 #### Description of architectural elements and relations.
 The entire enterprise solution (<<System>> Boutique de Regalos) is decomposed into three principal architectural modules (<<Subsystems>>), which are subsequently decomposed into functional units (<<Modules>>).
@@ -177,46 +177,381 @@ The entire enterprise solution (<<System>> Boutique de Regalos) is decomposed in
 - Is-part-of (Containment): The exclusive relation depicted. For instance, the Authentication <<Module>> is defined logically as being "contained by" or "is-part-of" the Core Business Logic <<Subsystem>>. This strictly partitions the workload, making each module a discrete candidate for independent development or modification without conceptual overlap.
 ---
 
-## 4. Prototype
+## 🏗️ Patrones de Calidad — Prototipo 3
 
-### Prerequisites
+Se implementaron 6 patrones de arquitectura distribuidos en tres categorías: **Seguridad**, **Rendimiento** y **Resiliencia**.
 
-Ensure the following tools are installed on your machine before proceeding:
+---
 
-- [Docker](https://www.docker.com/get-started) (version 20 or later)
-- [Docker Compose](https://docs.docker.com/compose/install/) (version 2 or later)
-- [Git](https://git-scm.com/)
+### 🔐 Security
 
-Verify the installations:
+### S1 — Network Segmentation
+
+**Tactic:** Limit exposure  
+**Pattern:** Dual-network Docker topology (public + private)  
+**File:** `docker-compose.yml`
+
+<img width="1206" height="1156" alt="Network Segmenation" src="assets/S1 Network Segementation.png" />
+
+#### How it works
+
+Two isolated Docker networks are defined. The `public-network` is the only network reachable from the host machine — it connects nginx (load balancer), the frontends, and MinIO. The `private-network` is completely internal and carries traffic between the API Gateway and all backend microservices (auth, product, order, review) and their databases. No database or internal service is ever exposed to the public network.
+
+```mermaid
+graph LR
+    Browser -->|:80| nginx-lb
+    nginx-lb --> api-gw-1
+    nginx-lb --> api-gw-2
+    nginx-lb --> api-gw-3
+
+    subgraph public-network
+        nginx-lb
+        frontend-ssr
+        frontend-csr
+        minio
+    end
+
+    subgraph private-network
+        api-gw-1
+        api-gw-2
+        api-gw-3
+        auth-service
+        product-service
+        order-service
+        review-service
+        auth-db[(auth-db)]
+        products-db[(products-db)]
+        orders-db[(orders-db)]
+        reviews-db[(reviews-db)]
+        redis[(Redis)]
+        rabbitmq[(RabbitMQ)]
+    end
+
+    api-gw-1 --> auth-service
+    api-gw-1 --> product-service
+    api-gw-1 --> order-service
+    api-gw-1 --> review-service
+```
+
+#### Key configuration excerpt (`docker-compose.yml`)
+
+```yaml
+networks:
+  public-network:
+    driver: bridge
+  private-network:
+    driver: bridge
+    internal: true   # no outbound internet access
+
+services:
+  nginx-lb:
+    networks: [public-network, private-network]
+
+  api-gateway-1:
+    networks: [private-network]   # NOT on public-network
+
+  products-db:
+    networks: [private-network]   # database never exposed
+```
+
+#### Verification
 
 ```bash
-docker --version
-docker compose version
-git --version
+# Attempt direct access to product-service (should timeout — not on public network)
+curl http://localhost:4000/products
+# Expected: Connection refused / timeout
+
+# Access through the gateway (should work)
+curl http://localhost:80/api/products
+# Expected: JSON array of products
 ```
 
 ---
 
-### Instructions for Deploying the System Locally
+### S2 — Rate Limiting
+
+**Tactic:** Limit access  
+**Pattern:** Token-bucket rate limiting at API Gateway  
+**Library:** `express-rate-limit`  
+**File:** `api-gateway/index.js`
+
+<img width="1206" height="1156" alt="Rate Limiting" src="assets/S2 Rate Limiting.png" />
 
 
-**Step 1 — Build and start all containers**
+#### How it works
+
+Two rate limiters are applied at different granularities. A **general limiter** caps every client at 100 requests per minute across all endpoints. A **stricter login limiter** allows only 10 authentication attempts per 15-minute window on `/api/login` and `/api/login/verify`, protecting against brute-force credential attacks. The gateway also sets `trust proxy` so that the real client IP is read from the `X-Forwarded-For` header when behind nginx.
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant nginx
+    participant Gateway
+    participant Redis
+
+    Client->>nginx: POST /api/login (attempt 11)
+    nginx->>Gateway: forward request
+    Gateway->>Gateway: loginLimiter.check()<br/>counter = 11 > 10
+    Gateway-->>Client: 429 Too Many Requests<br/>Retry-After: 15 min
+```
+
+#### Key configuration excerpt (`api-gateway/index.js`)
+
+```js
+const rateLimit = require('express-rate-limit');
+
+app.set('trust proxy', 1);
+
+const generalLimiter = rateLimit({
+  windowMs: 60 * 1000,   // 1 minute
+  max: 100,
+  message: { error: 'Demasiadas solicitudes, intente más tarde' },
+});
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,  // 15 minutes
+  max: 10,
+  message: { error: 'Demasiados intentos de login' },
+});
+
+app.use(generalLimiter);
+app.post('/api/login', loginLimiter, ...);
+app.post('/api/login/verify', loginLimiter, ...);
+```
+
+#### Verification
 
 ```bash
-docker-compose up --build
+# Trigger the general limiter (run 101 times quickly)
+for i in $(seq 1 101); do curl -s -o /dev/null -w "%{http_code}\n" http://localhost:80/api/products; done
+# Expected: first 100 return 200, 101st returns 429
+
+# Trigger the login limiter (run 11 times)
+for i in $(seq 1 11); do
+  curl -s -o /dev/null -w "%{http_code}\n" -X POST http://localhost:80/api/login \
+    -H "Content-Type: application/json" \
+    -d '{"email":"test@test.com","password":"wrong"}';
+done
+# Expected: 11th attempt returns 429
+```
+
+---
+
+### ⚡ Performance
+
+### P1 — Cache-Aside (Redis)
+
+**Tactic:** Manage resources  
+**Pattern:** Cache-Aside (lazy population) for product catalog  
+**Store:** Redis (key `products:all`, TTL 300 s)  
+**File:** `api-gateway/index.js`
+
+<img width="1206" height="1156" alt="Cache Aside" src="assets/P1 CacheAside.png" />
+
+#### How it works
+
+On every `GET /api/products` request, the gateway first queries Redis for the key `products:all`. On a **cache hit** the stored JSON is returned immediately with header `X-Cache: HIT`, skipping the product-service entirely. On a **cache miss**, the gateway fetches from the product-service, stores the result in Redis with a 5-minute TTL, and responds with `X-Cache: MISS`. Write operations (`POST`, `PUT`, `DELETE /api/products`) invalidate the cache key so stale data is never served.
+
+```mermaid
+flowchart TD
+    A[GET /api/products] --> B{Redis\nproducts:all?}
+    B -->|HIT| C[Return cached JSON\nX-Cache: HIT]
+    B -->|MISS| D[Fetch from\nproduct-service]
+    D --> E[Store in Redis\nTTL=300s]
+    E --> F[Return JSON\nX-Cache: MISS]
+
+    G[POST/PUT/DELETE\n/api/products] --> H[DEL products:all]
+```
+
+#### Key configuration excerpt (`api-gateway/index.js`)
+
+```js
+app.get('/api/products', async (req, res) => {
+  const cached = await redis.get('products:all');
+  if (cached) {
+    res.setHeader('X-Cache', 'HIT');
+    return res.json(JSON.parse(cached));
+  }
+  const response = await axios.get(`${PRODUCT_SERVICE_URL}/products`);
+  await redis.set('products:all', JSON.stringify(response.data), { EX: 300 });
+  res.setHeader('X-Cache', 'MISS');
+  res.json(response.data);
+});
+
+// Invalidation on writes
+app.post('/api/products', verifyToken, async (req, res) => {
+  await redis.del('products:all');
+  ...
+});
+```
+
+#### Verification
+
+```bash
+# First request — cache miss
+curl -I http://localhost:80/api/products
+# Expected header: X-Cache: MISS
+
+# Second request — cache hit
+curl -I http://localhost:80/api/products
+# Expected header: X-Cache: HIT
+
+# Inspect the key directly in Redis
+docker exec -it arquisoft_tienda_de_regalos-redis-1 redis-cli GET products:all
 ```
 
 
-**Step 2 — Stop the system**
+---
 
-To stop all running containers:
+### 🛡️ Reliability
 
-```bash
-docker-compose down
+### R1 — Circuit Breaker
+
+**Tactic:** Prevent cascading failures  
+**Pattern:** Circuit Breaker wrapping product-service calls  
+**Library:** `opossum`  
+**File:** `api-gateway/index.js`
+
+
+<img width="1206" height="1156" alt="Circuit Breaker" src="assets/R1 Cicuit Breaker.png" />
+
+#### How it works
+
+Every call from the API Gateway to the product-service is wrapped in an `opossum` circuit breaker. If product-service calls begin failing (or exceed 5 s timeout), and the error rate crosses 50 % within a sampling window, the circuit **opens** — all subsequent calls are short-circuited immediately without reaching the product-service, returning the fallback (`[]`) instead. After 30 seconds the circuit enters **half-open** state to probe recovery. This prevents a slow or crashed product-service from blocking gateway threads and cascading failures to other endpoints.
+
+```mermaid
+stateDiagram-v2
+    [*] --> Closed
+    Closed --> Open: errors ≥ 50%\nor timeout > 5s
+    Open --> HalfOpen: after 30s reset
+    HalfOpen --> Closed: probe succeeds
+    HalfOpen --> Open: probe fails
+
+    Closed: CLOSED\nnormal pass-through
+    Open: OPEN\nfallback [] returned
+    HalfOpen: HALF-OPEN\none probe request
 ```
 
-To stop and remove persistent volumes (databases):
+#### Key configuration excerpt (`api-gateway/index.js`)
+
+```js
+const CircuitBreaker = require('opossum');
+
+async function fetchProducts() {
+  const response = await axios.get(`${PRODUCT_SERVICE_URL}/products`);
+  return response.data;
+}
+
+const breaker = new CircuitBreaker(fetchProducts, {
+  timeout: 5000,          // fail if call > 5s
+  errorThresholdPercentage: 50,  // open when 50%+ fail
+  resetTimeout: 30000,    // retry after 30s
+});
+breaker.fallback(() => []);  // return empty array when open
+
+app.get('/api/products', async (req, res) => {
+  // cache-aside check first ...
+  const data = await breaker.fire();
+  res.json(data);
+});
+```
+
+#### Verification
 
 ```bash
-docker-compose down --volumes
+# 1. Stop the product-service container
+docker stop arquisoft_tienda_de_regalos-product-service-1
+
+# 2. Make several requests to trigger the open state
+for i in $(seq 1 6); do curl -s http://localhost:80/api/products; echo; done
+# Expected: first few return error, then [] (fallback) with near-instant response
+
+# 3. Check circuit breaker events in gateway logs
+docker logs arquisoft_tienda_de_regalos-api-gateway-1 --tail 20
+# Expected: "Circuit breaker open" or similar opossum events
+
+# 4. Restart product-service — circuit auto-recovers after 30s
+docker start arquisoft_tienda_de_regalos-product-service-1
 ```
+
+---
+
+### R2 — Bulkhead (Connection Pool Cap)
+
+**Tactic:** Limit resources  
+**Pattern:** Bulkhead via bounded PostgreSQL connection pool  
+**Library:** `pg.Pool`  
+**Files:** `product-service/`, `order-service/`, `auth-service/`
+
+<img width="1206" height="1156" alt="BulkHead" src="assets/R2 Bulkhead.png" />
+
+#### How it works
+
+Each microservice that connects to PostgreSQL uses a `pg.Pool` configured with a hard cap of **10 concurrent connections** and a **5-second connection timeout**. This acts as a bulkhead: even if one service (e.g., order-service) is under extreme load and exhausts its pool, it cannot consume more than 10 database connections — preventing resource starvation for other services. Requests that cannot acquire a connection within 5 seconds receive an immediate error rather than waiting indefinitely.
+
+```mermaid
+graph TD
+    subgraph order-service [order-service — Pool max:10]
+        OQ1[request 1] --> OC[(connection)]
+        OQ2[request 2] --> OC2[(connection)]
+        OQ11[request 11] -->|timeout 5s| ERR[503 Error]
+    end
+
+    subgraph product-service [product-service — Pool max:10]
+        PQ1[request 1] --> PC[(connection)]
+        PQ2[request 2] --> PC2[(connection)]
+    end
+
+    OC --> DB[(orders-db\nPostgreSQL)]
+    OC2 --> DB
+    PC --> DB2[(products-db\nPostgreSQL)]
+    PC2 --> DB2
+```
+
+#### Key configuration excerpt (e.g. `product-service/index.js`)
+
+```js
+const { Pool } = require('pg');
+
+const pool = new Pool({
+  host:     process.env.DB_HOST     || 'products-db',
+  port:     parseInt(process.env.DB_PORT || '5432'),
+  user:     process.env.DB_USER     || 'postgres',
+  password: process.env.DB_PASSWORD || 'postgres',
+  database: process.env.DB_NAME     || 'productos',
+  max: 10,                        // bulkhead cap
+  connectionTimeoutMillis: 5000,  // fail-fast on exhaustion
+});
+```
+
+#### Verification
+
+```bash
+# Simulate concurrent load against the products endpoint
+# Install Apache Bench if needed: apt-get install apache2-utils
+ab -n 200 -c 50 http://localhost:80/api/products
+
+# Expected: requests beyond the pool cap return quickly with an error
+# rather than hanging indefinitely — the pool protects the database
+
+# Inspect pool metrics via psql
+docker exec -it arquisoft_tienda_de_regalos-products-db-1 \
+  psql -U postgres -d productos -c "SELECT count(*) FROM pg_stat_activity;"
+# Expected: never exceeds 10 + 1 (the psql session itself)
+```
+
+---
+
+### Summary Table
+
+| ID | Attribute | Pattern | Where Implemented | Key Parameter |
+|----|-----------|---------|-------------------|---------------|
+| S1 | Security | Network Segmentation | `docker-compose.yml` | `internal: true` on private-network |
+| S2 | Security | Rate Limiting | `api-gateway/index.js` | 100 req/min general · 10/15 min login |
+| P1 | Performance | Cache-Aside | `api-gateway/index.js` | Redis TTL 300 s · key `products:all` |
+| P2 | Performance | Event-Driven | `order-service/` + `notification-service/` | RabbitMQ AMQP · async publish/subscribe |
+| R1 | Reliability | Circuit Breaker | `api-gateway/index.js` | timeout 5 s · threshold 50 % · reset 30 s |
+| R2 | Reliability | Bulkhead | `*-service/index.js` (pg.Pool) | max 10 conns · timeout 5 s |
+---
+
+

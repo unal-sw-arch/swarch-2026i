@@ -1,14 +1,14 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";                          {/* ← NUEVO */}
 import { showToast } from "../../components/Toast";
 import FormInput from "../../components/FormInput";
 import Button from "../../components/Button";
-// Use the auto bundle which registers required components automatically
 import Chart from "chart.js/auto";
-import { getCookie } from "cookies-next";
 
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+
+const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:80"; {/* ← era :3000 */}
 
 export default function AdminPage() {
   const [productos, setProductos] = useState<any[]>([]);
@@ -17,8 +17,8 @@ export default function AdminPage() {
   const [form, setForm] = useState({ nombre: "", descripcion: "", precio: "", stock: "", imagen1: "", imagen2: "", imagen3: "" });
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<any>(null);
+  const router = useRouter();                                          {/* ← NUEVO */}
 
-  // Upload a selected file to /api/upload and set the returned URL into the form
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>, campo: string) {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
@@ -40,7 +40,12 @@ export default function AdminPage() {
     }
   }
 
-  useEffect(() => {
+  useEffect(() => {                                                    {/* ← MODIFICADO */}
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
     cargarDatos();
   }, []);
 
@@ -62,7 +67,7 @@ export default function AdminPage() {
   }, [items]);
 
   async function cargarDatos() {
-    const token = getCookie("token");
+    const token = localStorage.getItem("token");
     try {
       const [pRes, oRes] = await Promise.all([
         fetch(`${API}/api/products`),
@@ -101,8 +106,7 @@ export default function AdminPage() {
       showToast("Nombre y precio son obligatorios", "warning");
       return;
     }
-    const token = getCookie("token");
-
+    const token = localStorage.getItem("token");
     try {
       const res = await fetch(`${API}/api/products`, {
         method: "POST",
@@ -124,9 +128,7 @@ export default function AdminPage() {
   async function cambiarPrecio(id: number) {
     const nuevo = prompt("Nuevo precio:");
     if (!nuevo) return;
-    
-    const token = getCookie("token");
-
+    const token = localStorage.getItem("token");
     try {
       await fetch(`${API}/api/products/${id}`, {
         method: "PUT",
@@ -140,9 +142,9 @@ export default function AdminPage() {
 
   async function eliminarProducto(id: number) {
     if (!confirm("¿Eliminar producto?")) return;
-    const token = getCookie("token");
+    const token = localStorage.getItem("token");
     try {
-      await fetch(`${API}/api/products/${id}`, { 
+      await fetch(`${API}/api/products/${id}`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -157,7 +159,6 @@ export default function AdminPage() {
     <main className="max-w-5xl mx-auto p-4 sm:p-6 space-y-10">
       <Link href="/" className="inline-block mb-2 text-yellow-500 hover:underline text-sm">← Volver a la tienda</Link>
 
-      {/* Métricas */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div className="bg-white rounded-xl shadow p-6">
           <p className="text-gray-500 text-sm mb-1">Total Ventas</p>
@@ -169,7 +170,6 @@ export default function AdminPage() {
         </div>
       </div>
 
-      {/* Crear Producto */}
       <div>
         <h2 className="text-2xl font-alfa text-yellow-500 mb-4">Crear Producto</h2>
         <div className="bg-white rounded-xl shadow p-4 sm:p-6 space-y-4">
@@ -228,7 +228,6 @@ export default function AdminPage() {
         </div>
       </div>
 
-      {/* Lista productos */}
       <div>
         <h2 className="text-2xl font-alfa text-yellow-500 mb-4">Gestión de Productos</h2>
         <div className="space-y-4">
@@ -254,13 +253,11 @@ export default function AdminPage() {
         </div>
       </div>
 
-      {/* Gráfica */}
       <div className="bg-white rounded-xl shadow p-6">
         <h2 className="text-xl font-alfa text-yellow-500 mb-4">Productos Vendidos</h2>
         <canvas ref={chartRef}></canvas>
       </div>
 
-      {/* Tabla órdenes */}
       <div className="bg-white rounded-xl shadow p-6">
         <h2 className="text-xl font-alfa text-yellow-500 mb-4">Órdenes</h2>
         <div className="overflow-x-auto">

@@ -1,6 +1,34 @@
+import { Client } from 'minio';
 import { NextResponse } from 'next/server';
 
 export const runtime = 'nodejs';
+
+const minioClient = new Client({
+  endPoint:  process.env.MINIO_ENDPOINT  || 'minio',
+  port:      parseInt(process.env.MINIO_PORT || '9000'),
+  useSSL:    false,
+  accessKey: process.env.MINIO_ACCESS_KEY || 'admin',
+  secretKey: process.env.MINIO_SECRET_KEY || 'admin123',
+});
+
+const BUCKET = 'products';
+
+async function ensureBucket() {
+  const exists = await minioClient.bucketExists(BUCKET);
+  if (!exists) {
+    await minioClient.makeBucket(BUCKET);
+    // Política de lectura pública para que las imágenes sean accesibles desde el browser
+    await minioClient.setBucketPolicy(BUCKET, JSON.stringify({
+      Version: '2012-10-17',
+      Statement: [{
+        Effect:    'Allow',
+        Principal: { AWS: ['*'] },
+        Action:    ['s3:GetObject'],
+        Resource:  [`arn:aws:s3:::${BUCKET}/*`],
+      }],
+    }));
+  }
+}
 
 export async function POST(req: Request) {
   try {
@@ -8,39 +36,20 @@ export async function POST(req: Request) {
     const file = formData.get('file') as File | null;
     if (!file) return NextResponse.json({ error: 'no file' }, { status: 400 });
 
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    const buffer   = Buffer.from(await file.arrayBuffer());
+    const safeName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '-')}`;
+    const mimeType = file.type || 'application/octet-stream';
 
-    // Cloudinary en producción (Vercel), filesystem en local (Docker)
-    if (process.env.CLOUDINARY_CLOUD_NAME) {
-      const { v2: cloudinary } = await import('cloudinary');
-      cloudinary.config({
-        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-        api_key:    process.env.CLOUDINARY_API_KEY,
-        api_secret: process.env.CLOUDINARY_API_SECRET,
-      });
-      const result = await new Promise<any>((resolve, reject) => {
-        cloudinary.uploader.upload_stream(
-          { folder: 'boutique-regalos', resource_type: 'image' },
-          (error, result) => (error ? reject(error) : resolve(result))
-        ).end(buffer);
-      });
-      return NextResponse.json({ url: result.secure_url });
-    }
+    await ensureBucket();
+    await minioClient.putObject(BUCKET, safeName, buffer, buffer.length, {
+      'Content-Type': mimeType,
+    });
 
-    // Fallback local: guardar en public/uploads
-    const fs = await import('fs');
-    const path = await import('path');
-    const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
-    await fs.promises.mkdir(uploadsDir, { recursive: true });
-    const safeName = `${Date.now()}-${(file as any).name?.replace(/[^a-zA-Z0-9._-]/g, '-') || 'imagen'}`;
-    await fs.promises.writeFile(path.join(uploadsDir, safeName), buffer);
-    return NextResponse.json({ url: `/uploads/${safeName}` });
+    const publicUrl = `${process.env.MINIO_PUBLIC_URL || 'http://localhost:9000'}/${BUCKET}/${safeName}`;
+    return NextResponse.json({ url: publicUrl });
 
   } catch (err: any) {
-    return NextResponse.json(
-      { error: 'upload error', message: err?.message || String(err) },
-      { status: 500 }
-    );
+    console.error('[MinIO upload error]', err);
+    return NextResponse.json({ error: 'upload error', message: err?.message }, { status: 500 });
   }
 }

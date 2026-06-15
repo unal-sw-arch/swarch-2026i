@@ -3,10 +3,10 @@ const isBrowser = typeof window !== "undefined";
 
 // Browser: always uses the public URL (baked at build time via NEXT_PUBLIC_API_URL)
 // Server on Docker: uses API_URL env var pointing to the internal container name
-// Server on Vercel: falls back to NEXT_PUBLIC_API_URL (the public gateway URL)
+// Server on Vercel: falls back to NEXT_PUBLIC_API_URL (the public load balancer URL)
 const API_URL = isBrowser
-  ? (process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000")
-  : (process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "http://api-gateway:3000");
+  ? (process.env.NEXT_PUBLIC_API_URL || "http://localhost:80")
+  : (process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:80");
 /**
  * Helper para manejar fetch con headers dinámicos y errores controlados.
  */

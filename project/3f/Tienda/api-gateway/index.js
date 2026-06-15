@@ -8,7 +8,14 @@ const { connect: connectRabbit, publishVerificationRequested } = require("./rabb
 const { client: redis, connect: connectRedis } = require("./redis");
 
 const app = express();
+app.set('trust proxy', 1); 
 
+
+// Log de requests para verificar round-robin
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+  next();
+});
 // CORS — regex acepta cualquier preview URL de Vercel
 app.use(cors({
   origin: function (origin, callback) {

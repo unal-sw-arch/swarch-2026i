@@ -7,8 +7,8 @@ import { getCookie } from "cookies-next"; // Importante: para validar sesión
 import { addToCart } from "../../../lib/api"; // Nueva función
 
 const API = typeof window !== "undefined"
-  ? (process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000")
-  : (process.env.API_URL || "http://api-gateway:3000");
+  ? (process.env.NEXT_PUBLIC_API_URL || "http://localhost:80")
+  : (process.env.API_URL || "http://localhost:80");
 
 export default function ProductoClient({ producto, reseñasIniciales }: { producto: any; reseñasIniciales: any[] }) {
   const [reseñas, setReseñas] = useState(reseñasIniciales);
@@ -57,7 +57,7 @@ export default function ProductoClient({ producto, reseñasIniciales }: { produc
       return;
     }
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:80";
       
       // 1. Enviar la reseña
       const postRes = await fetch(`${API_URL}/api/reviews`, {

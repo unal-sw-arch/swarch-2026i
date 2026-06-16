@@ -77,22 +77,25 @@ function extractMenuItems(payload: unknown): unknown[] {
 
 export function adaptRestaurantMenuResponse(payload: unknown): MenuProduct[] {
   const items = extractMenuItems(payload);
+  
+  const root = payload as Record<string, unknown>;
+  const fallbackRestaurantId = root?.restaurantId ?? root?.restaurant_id;
 
   return items.map((item) => {
     assertObject(item, "menu item");
     const source = item as ApiMenuItem;
 
-    if (typeof source.name !== "string" || typeof source.description !== "string") {
+    if (typeof source.name !== "string" || (source.description != null && typeof source.description !== "string")) {
       throw new Error("Menu response contains invalid text fields.");
     }
 
     return {
       id: toNumber(source.id, "id"),
       name: source.name,
-      description: source.description,
+      description: source.description || "",
       price: toNumber(source.price, "price"),
       isAvailable: toBoolean(source.isAvailable ?? source.is_available, "isAvailable"),
-      restaurantId: toNumber(source.restaurantId ?? source.restaurant_id, "restaurantId"),
+      restaurantId: toNumber(source.restaurantId ?? source.restaurant_id ?? fallbackRestaurantId, "restaurantId"),
     };
   });
 }

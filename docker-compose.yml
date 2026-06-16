@@ -162,6 +162,7 @@ services:
       - RABBITMQ_PORT=5672
       - RABBITMQ_USERNAME=guest
       - RABBITMQ_PASSWORD=guest
+      - RABBITMQ_EXCHANGE=deliunal.events
       - LOG_LEVEL=INFO
     depends_on:
       - order-db
@@ -205,9 +206,20 @@ services:
       - MONGO_URI=mongodb://tracking_service_user:tracking_password_2026@mongo-db:27017/tracking_context?authSource=tracking_context
       - MONGO_DB_NAME=tracking_context
       - MONGO_COLLECTION_NAME=activity_events
+      - EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+      - SMTP_HOST=smtp.gmail.com
+      - SMTP_PORT=587
+      - SMTP_USE_TLS=True
+      - SMTP_USER=notificacionesdeliunal@gmail.com
+      - SMTP_PASSWORD=cogaiyemehwyzldx
+      - DEFAULT_FROM_EMAIL=notificacionesdeliunal@gmail.com
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     depends_on:
       - mongo-db
     networks:
+      - integration-net
       - backend-net
       - data-net
 
@@ -226,6 +238,7 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
+      - RABBITMQ_ERLANG_COOKIE=deliunalsecretcookie
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "ping"]
       interval: 10s
@@ -254,6 +267,8 @@ networks:
   data-net:
     driver: bridge
     internal: true
+  integration-net:
+    driver: bridge
 
 volumes:
   mongo-data:

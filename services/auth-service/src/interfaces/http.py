@@ -92,3 +92,9 @@ async def get_me(user_id: int = Depends(get_current_user), db: AsyncSession = De
     repository = SQLUserRepository(db)
     use_case = AuthUseCase(repository)
     return await use_case.get_me(user_id)
+
+@router.get("/users/{user_id}", response_model=MeResponse)
+async def get_user_by_id(user_id: int, db: AsyncSession = Depends(get_db)):
+    repository = SQLUserRepository(db)
+    use_case = AuthUseCase(repository)
+    return await use_case.get_me(user_id)

@@ -5,9 +5,10 @@ export class TimelineProxy {
   constructor(private readonly client: TimelineClient = new TimelineClient()) {}
 
   public async orderTimeline(input: GetOrderTimelineInput): Promise<ProxyResponse> {
+    // notification-service exposes timeline at /activities/order/<id>
     const response = await this.client.forward({
       method: 'GET',
-      path: `/orders/${input.orderId}/timeline`,
+      path: `/activities/order/${input.orderId}`,
       context: input.context,
     });
 

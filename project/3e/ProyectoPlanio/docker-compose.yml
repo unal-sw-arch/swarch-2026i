@@ -12,6 +12,10 @@ services:
       - PERSONALIZATION_SERVICE_URL=http://personalization_service:8003
       - CHAT_SERVICE_URL=http://chat_service:8005
       - ANALYTICS_SERVICE_URL=http://analytics_service:8004 
+      - ACTIVITY_SPARE_URL=http://activity_service_spare:8001
+      - LB_THRESHOLD_RPS=10
+      - COMPOSE_DIR=/app
+
     depends_on:
       - activity_service
       - chat_service
@@ -41,7 +45,27 @@ services:
       - DATABASE_URL=postgresql://planio_user:planio_pass@postgres:5432/activity_db
       - FIREBASE_PROJECT_ID=planio-social-todo
       - NOTIFICATION_SERVICE_URL=http://planio_notification:8002
-      - ANALYTICS_SERVICE_URL=http://analytics_service:8004 
+      - ANALYTICS_SERVICE_URL=http://analytics_service:8004
+      - INSTANCE_ID=primary
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - planio_network
+    restart: on-failure
+
+  activity_service_spare:
+    build: ./backend/activity_service
+    container_name: planio_activity_spare
+    ports:
+      - "8006:8001"
+    environment:
+      - PORT=8001
+      - DATABASE_URL=postgresql://planio_user:planio_pass@postgres:5432/activity_db
+      - FIREBASE_PROJECT_ID=planio-social-todo
+      - NOTIFICATION_SERVICE_URL=http://planio_notification:8002
+      - ANALYTICS_SERVICE_URL=http://analytics_service:8004
+      - INSTANCE_ID=spare
     depends_on:
       postgres:
         condition: service_healthy
@@ -104,6 +128,7 @@ services:
       - mongo
     networks:
       - planio_network
+    restart: on-failure
 
   postgres:
     image: postgres:15

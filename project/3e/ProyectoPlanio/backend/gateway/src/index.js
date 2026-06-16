@@ -7,6 +7,7 @@ const admin   = require('firebase-admin');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
 const authMiddleware = require('./middleware/auth.middleware');
+const { callAnalytics } = require('./services/analyticsCircuitBreaker');
 
 const app    = express();
 const server = http.createServer(app);
@@ -111,11 +112,18 @@ app.use(
 
 app.use('/chat', authMiddleware, makeChatProxy(SERVICES.chat));
 
-app.use(
-  '/analytics',
-  authMiddleware,
-  makeProxy(SERVICES.analytics, { '^/analytics': '' })
-);
+app.use('/analytics', authMiddleware, async (req, res) => {
+  const result = await callAnalytics({
+    method  : req.method,
+    path    : req.path,
+    body    : req.body,
+    headers : {
+      'x-user-uid'   : req.user?.uid   || '',
+      'x-user-email' : req.user?.email || '',
+    },
+  });
+  res.status(result.statusCode).send(result.body);
+});
 
 // ─── WebSocket upgrade ────────────────────────────────────────────────────────
 server.on('upgrade', async (req, socket, head) => {

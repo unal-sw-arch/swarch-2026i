@@ -1,66 +1,427 @@
 services:
-  postgres:
-    image: postgres:15-alpine
-    container_name: ecommerce_postgres
+  # ─── DATABASES ────────────────────────────────────────────────────────────
+  auth-postgres:
+    image: postgres:16-alpine
+    container_name: ecommerce_auth_postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    ports:
-      - "5432:5432"
+      POSTGRES_USER: ${AUTH_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${AUTH_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${AUTH_POSTGRES_DB}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - auth_postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U ${AUTH_POSTGRES_USER} -d ${AUTH_POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - subnet_b  # Only internal network — NOT exposed publicly
+
+  user-postgres:
+    image: postgres:16-alpine
+    container_name: ecommerce_user_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${USER_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${USER_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${USER_POSTGRES_DB}
+    volumes:
+      - user_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${USER_POSTGRES_USER} -d ${USER_POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - subnet_b
+
+  product-postgres:
+    image: postgres:16-alpine
+    container_name: ecommerce_product_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${PRODUCT_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${PRODUCT_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${PRODUCT_POSTGRES_DB}
+    volumes:
+      - product_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PRODUCT_POSTGRES_USER} -d ${PRODUCT_POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - subnet_b
+
+  order-postgres:
+    image: postgres:16-alpine
+    container_name: ecommerce_order_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${ORDER_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${ORDER_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${ORDER_POSTGRES_DB}
+    volumes:
+      - order_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${ORDER_POSTGRES_USER} -d ${ORDER_POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - subnet_b
+
+  ai-postgres:
+    image: pgvector/pgvector:pg16
+    container_name: ecommerce_ai_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${AI_POSTGRES_USER:-ai_user}
+      POSTGRES_PASSWORD: ${AI_POSTGRES_PASSWORD:-ai_password}
+      POSTGRES_DB: ${AI_POSTGRES_DB:-ai_db}
+    volumes:
+      - ai_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${AI_POSTGRES_USER:-ai_user} -d ${AI_POSTGRES_DB:-ai_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - subnet_b
+
+  # ─── INFRASTRUCTURE ────────────────────────────────────────────────────────
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: ecommerce_rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE:-ecommerce_local_cookie}
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-guest}
+    volumes:
+      - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 10s
+      retries: 20
+      start_period: 60s
+    networks:
+      - subnet_b
 
   redis:
     image: redis:7-alpine
     container_name: ecommerce_redis
     restart: unless-stopped
-    command: ["redis-server", "--appendonly", "yes"]
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - subnet_b
 
-  backend:
+  # ─── BACKEND SERVICES ──────────────────────────────────────────────────────
+  auth-service:
     build:
       context: ./backend
-      dockerfile: Dockerfile
-    container_name: ecommerce_backend
+      dockerfile: auth_service/Dockerfile
+    container_name: ecommerce_auth_service
     restart: unless-stopped
-    env_file:
-      - .env
     depends_on:
-      postgres:
+      auth-postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+      redis:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: ${AUTH_DATABASE_URL}
+      APP_NAME: ${AUTH_APP_NAME:-Auth Service}
+      DEBUG: ${AUTH_DEBUG:-false}
+      JWT_SECRET: ${AUTH_JWT_SECRET}
+      JWT_ALGORITHM: ${AUTH_JWT_ALGORITHM:-HS256}
+      JWT_EXPIRE_MINUTES: ${AUTH_JWT_EXPIRE_MINUTES:-60}
+      RABBITMQ_HOST: ${RABBITMQ_HOST:-rabbitmq}
+      USER_PROFILE_QUEUE_NAME: ${USER_PROFILE_QUEUE_NAME:-user_profile_create_queue}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      ROLE: active
+    command: uvicorn auth_service.main:app --host 0.0.0.0 --port 8001
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8001/health', timeout=3)\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    networks:
+      subnet_b:
+        ipv4_address: 172.20.1.10  # Fija: NGINX OSS cachea la IP del upstream al arrancar; IP estable evita 502 tras rebuild
+
+  auth-service-cold:
+    build:
+      context: ./backend
+      dockerfile: auth_service/Dockerfile
+    container_name: ecommerce_auth_service_cold
+    restart: unless-stopped
+    depends_on:
+      auth-postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+      redis:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: ${AUTH_DATABASE_URL}
+      APP_NAME: ${AUTH_APP_NAME:-Auth Service Cold Backup}
+      DEBUG: ${AUTH_DEBUG:-false}
+      JWT_SECRET: ${AUTH_JWT_SECRET}
+      JWT_ALGORITHM: ${AUTH_JWT_ALGORITHM:-HS256}
+      JWT_EXPIRE_MINUTES: ${AUTH_JWT_EXPIRE_MINUTES:-60}
+      RABBITMQ_HOST: ${RABBITMQ_HOST:-rabbitmq}
+      USER_PROFILE_QUEUE_NAME: ${USER_PROFILE_QUEUE_NAME:-user_profile_create_queue}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      ROLE: spare
+    command: uvicorn auth_service.main:app --host 0.0.0.0 --port 8002
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8002/health', timeout=3)\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    networks:
+      subnet_b:
+        ipv4_address: 172.20.1.11  # Fija: cold-spare referenciado por upstream auth_backend como backup
+
+  spare-coordinator:
+    build:
+      context: ./coordinator
+      dockerfile: Dockerfile
+    container_name: ecommerce_spare_coordinator
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      auth-service:
+        condition: service_started
+    networks:
+      - subnet_b
+
+
+
+  user-service:
+    build:
+      context: ./backend
+      dockerfile: user_service/Dockerfile
+    container_name: ecommerce_user_service
+    restart: unless-stopped
+    depends_on:
+      user-postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
-    ports:
-      - "8000:8000"
+      rabbitmq:
+        condition: service_started
+    environment:
+      DATABASE_URL: ${USER_DATABASE_URL}
+      RABBITMQ_HOST: ${RABBITMQ_HOST:-rabbitmq}
+      USER_PROFILE_QUEUE_NAME: ${USER_PROFILE_QUEUE_NAME:-user_profile_create_queue}
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=3)\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    networks:
+      - subnet_b
+  product-service:
+    build:
+      context: ./backend
+      dockerfile: product_service/Dockerfile
+    container_name: ecommerce_product_service
+    restart: unless-stopped
+    depends_on:
+      product-postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+    environment:
+      DATABASE_URL: ${PRODUCT_DATABASE_URL:-postgresql+asyncpg://product_user:product_password@product-postgres:5432/product_db}
+      APP_NAME: ${PRODUCT_APP_NAME:-Product Service}
+      DEBUG: ${PRODUCT_DEBUG:-false}
+      JWT_SECRET: ${AUTH_JWT_SECRET}
+      JWT_ALGORITHM: ${AUTH_JWT_ALGORITHM:-HS256}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      USER_SERVICE_BASE_URL: ${USER_SERVICE_BASE_URL:-http://user-service:8000}
+      RABBITMQ_HOST: ${RABBITMQ_HOST:-rabbitmq}
+    command: uvicorn product_service.main:app --host 0.0.0.0 --port 8003
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8003/health', timeout=3)\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    networks:
+      - subnet_b
 
+  order-service:
+    build:
+      context: ./backend
+      dockerfile: order_service/Dockerfile
+    container_name: ecommerce_order_service
+    restart: unless-stopped
+    depends_on:
+      order-postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+      product-service:
+        condition: service_started
+    environment:
+      DATABASE_URL: ${ORDER_DATABASE_URL}
+      PROJECT_NAME: ${ORDER_APP_NAME:-Order Service}
+      VERSION: ${ORDER_APP_VERSION:-1.0.0}
+      SECRET_KEY: ${AUTH_JWT_SECRET}
+      ALGORITHM: ${AUTH_JWT_ALGORITHM:-HS256}
+      RABBITMQ_HOST: ${RABBITMQ_HOST:-rabbitmq}
+      RABBITMQ_EXCHANGE: ${ORDER_EVENTS_EXCHANGE:-events}
+      PRODUCT_SERVICE_URL: ${PRODUCT_SERVICE_URL:-http://product-service:8003}
+      PRODUCT_SERVICE_TIMEOUT_SECONDS: ${PRODUCT_SERVICE_TIMEOUT_SECONDS:-10}
+    command: uvicorn order_service.main:app --host 0.0.0.0 --port 8004
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8004/health', timeout=3)\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    networks:
+      - subnet_b
+
+  ai-service:
+    build:
+      context: ./backend
+      dockerfile: AI_service/Dockerfile
+    container_name: ecommerce_ai_service
+    restart: unless-stopped
+    environment:
+      AI_APP_NAME: ${AI_APP_NAME:-AI Service}
+      AI_APP_VERSION: ${AI_APP_VERSION:-1.0.0}
+      AI_DEBUG: ${AI_DEBUG:-false}
+      AI_API_V1_PREFIX: ${AI_API_V1_PREFIX:-/api/v1}
+      AI_API_KEY: ${AI_API_KEY:-}
+      AI_MODEL: ${AI_MODEL:-llama-3.1-8b-instant}
+      AI_ALLOWED_ORIGINS: ${AI_ALLOWED_ORIGINS:-http://localhost:3000}
+      AI_REQUEST_TIMEOUT_SECONDS: ${AI_REQUEST_TIMEOUT_SECONDS:-30}
+      PRODUCT_SERVICE_URL: ${PRODUCT_SERVICE_URL:-http://product-service:8003}
+      PRODUCT_SERVICE_TIMEOUT_SECONDS: ${PRODUCT_SERVICE_TIMEOUT_SECONDS:-10}
+      USER_SERVICE_URL: ${USER_SERVICE_URL:-http://user-service:8000}
+      ORDER_SERVICE_URL: ${ORDER_SERVICE_URL:-http://order-service:8004}
+      REDIS_URL: ${AI_REDIS_URL:-redis://redis:6379/1}
+      AUTH_JWT_SECRET: ${AUTH_JWT_SECRET:-}
+      JWT_ALGORITHM: ${JWT_ALGORITHM:-HS256}
+      # RAG / pgvector configuration
+      AI_DATABASE_URL: ${AI_DATABASE_URL:-postgresql+asyncpg://ai_user:ai_password@ai-postgres:5432/ai_db}
+      AI_EMBEDDING_MODEL: ${AI_EMBEDDING_MODEL:-sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2}
+      AI_INDEX_REFRESH_SECONDS: ${AI_INDEX_REFRESH_SECONDS:-300}
+      AI_RAG_TOP_K: ${AI_RAG_TOP_K:-8}
+      AI_PROFILE_WEIGHT: ${AI_PROFILE_WEIGHT:-0.25}
+      # Rate limiting configuration
+      AI_RATE_LIMIT_REQUESTS: ${AI_RATE_LIMIT_REQUESTS:-10}
+      AI_RATE_LIMIT_WINDOW_SECONDS: ${AI_RATE_LIMIT_WINDOW_SECONDS:-60}
+    depends_on:
+      product-service:
+        condition: service_started
+      redis:
+        condition: service_healthy
+      ai-postgres:
+        condition: service_healthy
+    command: uvicorn AI_service.main:app --host 0.0.0.0 --port 8005
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8005/health', timeout=3)\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    networks:
+      - subnet_b  # Internal only — NGINX is the only public entry point
+
+  # ─── API GATEWAY (NGINX) ───────────────────────────────────────────────────
+  # Sits in BOTH networks: receives public traffic (subnet_a) and
+  # forwards it to backend services (subnet_b). This is the ONLY
+  # container that bridges the two network segments.
+  api-gateway:
+    image: nginx:1.27-alpine
+    container_name: ecommerce_api_gateway
+    restart: unless-stopped
+    depends_on:
+      auth-service:
+        condition: service_started
+      user-service:
+        condition: service_started
+      product-service:
+        condition: service_started
+      order-service:
+        condition: service_started
+      ai-service:
+        condition: service_started
+    ports:
+      - "${API_GATEWAY_HTTP_PORT:-8000}:8000"   # HTTP
+      - "${API_GATEWAY_HTTPS_PORT:-8443}:8443"  # HTTPS (Secure Channel)
+    volumes:
+      - ./api-gateway/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./api-gateway/shared.conf:/etc/nginx/api-gateway/shared.conf:ro
+      - ./api-gateway/certs:/etc/nginx/certs:ro  # TLS certificates
+    networks:
+      - subnet_a  # Faces the public / frontend
+      - subnet_b  # Reaches backend services
+
+  # ─── FRONTEND ──────────────────────────────────────────────────────────────
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        HTTP_PROXY: ${HTTP_PROXY:-}
+        HTTPS_PROXY: ${HTTPS_PROXY:-}
+        NO_PROXY: ${NO_PROXY:-}
     container_name: ecommerce_frontend
     restart: unless-stopped
-    environment:
-      VITE_API_URL: ${VITE_API_URL}
     depends_on:
-      - backend
+      api-gateway:
+        condition: service_started
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://localhost:8443}
+      API_SERVER_URL: http://api-gateway:8000
     ports:
-      - "3000:3000"
+      - "${FRONTEND_EXTERNAL_PORT:-3000}:3000"
+    networks:
+      - subnet_a  # Public network only — cannot reach backend directly
+
+# ─── NETWORKS (Network Segmentation Pattern) ────────────────────────────────
+# subnet_a: Public-facing zone — only frontend and the NGINX gateway live here.
+#           No backend service or database is reachable from this segment.
+# subnet_b: Private/internal zone — all microservices and databases.
+#           Not accessible from the outside world; only reachable via NGINX.
+networks:
+  subnet_a:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+  subnet_b:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.1.0/24
+          ip_range: 172.20.1.128/25  # .2–.127 reservado a IPs estáticas; pool dinámico: .128–.254
 
 volumes:
-  postgres_data:
-  redis_data:
+  auth_postgres_data:
+  user_postgres_data:
+  product_postgres_data:
+  order_postgres_data:
+  ai_postgres_data:
+  rabbitmq_data:

@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+groq
+httpx
+pydantic
+pydantic-settings
+redis[hiredis]
+python-jose[cryptography]
+sqlalchemy[asyncio]
+asyncpg
+pgvector
+fastembed

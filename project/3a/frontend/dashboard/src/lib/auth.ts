@@ -320,6 +320,39 @@ export function getTokenPayload(): { userId: number; username: string; role: str
   }
 }
 
+// Vincular cuenta de Telegram
+export async function linkTelegram(
+  telegramChatId: string | null
+): Promise<{ success: boolean; message: string }> {
+  const session = getSession();
+  const userId = getCurrentUserId();
+  if (!session || !userId) {
+    return { success: false, message: 'Sesión no válida. Inicia sesión de nuevo.' };
+  }
+
+  try {
+    const res = await fetch(`${AUTH_API_BASE}/auth/users/${userId}/telegram`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.token}`,
+      },
+      body: JSON.stringify({ telegramChatId }),
+    });
+
+    if (!res.ok) {
+      return { success: false, message: 'No se pudo vincular Telegram' };
+    }
+
+    return {
+      success: true,
+      message: telegramChatId ? 'Cuenta de Telegram vinculada correctamente' : 'Telegram desvinculado',
+    };
+  } catch (error) {
+    return { success: false, message: 'Error de conexión con el servidor' };
+  }
+}
+
 // Logout
 export function logout() {
   clearSession();

@@ -35,9 +35,14 @@ export const AdminOrdersPage = () => {
   const [updatingId, setUpdatingId] = useState<number | null>(null);
 
   // 🔄 Cargar órdenes
-  const loadOrders = async () => {
-    if (!restaurantId) return;
-    setLoading(true);
+  const loadOrders = async (showLoading = false) => {
+    if (!restaurantId) {
+      setOrders([]);
+      setLoading(false);
+      return;
+    }
+
+    if (showLoading) setLoading(true);
     try {
       const data = await orderService.getByRestaurant(Number(restaurantId));
       setOrders(data);
@@ -50,10 +55,10 @@ export const AdminOrdersPage = () => {
 
   // ⏱️ Auto refresh
   useEffect(() => {
-    loadOrders();
+    loadOrders(true);
 
     const interval = setInterval(() => {
-      loadOrders();
+      loadOrders(false);
     }, 10000);
 
     return () => clearInterval(interval);
@@ -67,7 +72,7 @@ export const AdminOrdersPage = () => {
     setUpdatingId(order.id);
     try {
       await orderService.updateStatus(order.id, next);
-      await loadOrders();
+      await loadOrders(false);
     } catch (err) {
       console.error(err);
     } finally {
@@ -79,7 +84,7 @@ export const AdminOrdersPage = () => {
     setUpdatingId(order.id);
     try {
       await orderService.updatePriority(order.id, Math.max(0, order.priority + delta));
-      await loadOrders();
+      await loadOrders(false);
     } catch (err) {
       console.error(err);
       alert("Error actualizando prioridad");
@@ -94,7 +99,7 @@ export const AdminOrdersPage = () => {
     setUpdatingId(order.id);
     try {
       await orderService.cancelOrder(order.id, reason.trim());
-      await loadOrders();
+      await loadOrders(false);
     } catch (err) {
       console.error(err);
       alert("Error cancelando la orden");
@@ -126,7 +131,7 @@ export const AdminOrdersPage = () => {
         </div>
 
         <button
-          onClick={loadOrders}
+          onClick={() => loadOrders(false)}
           className="flex items-center gap-2 text-sm bg-blue-600 text-white px-4 py-2 rounded-lg"
         >
           <RefreshCw size={16} />

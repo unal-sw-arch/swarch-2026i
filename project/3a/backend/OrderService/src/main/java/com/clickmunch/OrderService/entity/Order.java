@@ -17,6 +17,7 @@ public class Order {
     private Long customerId;
     private String customerName;
     private Integer tableNumber;
+    private Long tableId;
     private OrderStatus status;
     private String notes;
     private BigDecimal totalAmount;

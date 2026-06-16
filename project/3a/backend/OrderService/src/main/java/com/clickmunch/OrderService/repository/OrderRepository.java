@@ -20,6 +20,9 @@ public interface OrderRepository extends ListCrudRepository<Order, Long> {
     @Query("SELECT * FROM orders WHERE restaurant_id = :restaurantId AND status IN ('PENDING', 'IN_PREPARATION', 'READY') ORDER BY priority DESC, created_at ASC")
     List<Order> findActiveByRestaurantId(@Param("restaurantId") Long restaurantId);
 
+    @Query("SELECT COUNT(*) FROM orders WHERE table_id = :tableId AND status IN ('PENDING', 'IN_PREPARATION', 'READY')")
+    int countActiveByTableId(@Param("tableId") Long tableId);
+
     @Query("SELECT * FROM orders WHERE customer_id = :customerId ORDER BY created_at DESC")
     List<Order> findByCustomerId(@Param("customerId") Long customerId);
 

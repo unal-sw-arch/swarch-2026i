@@ -2,9 +2,9 @@ INSERT INTO restaurants (id, owner_id, name, description, phone, email, location
 VALUES (1026, 1, 'Juan''s Restaurant', 'Restaurante de Juan', '+57-300-111-2222', 'juan@restaurant.com', 1011)
 ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO restaurant_profiles (id, restaurant_id, category, city, avg_price, delivery_time, badge, rating, latitude, longitude)
-VALUES (1026, 1026, 'General', 'Bogota', '$ 3.000', '30 min', '', 0, 4.648283, -74.107807)
-ON CONFLICT (id) DO NOTHING;
+INSERT INTO restaurant_profiles (restaurant_id, category, city, avg_price, delivery_time, badge, rating, latitude, longitude)
+VALUES (1026, 'General', 'Bogota', '$ 3.000', '30 min', '', 0, 4.648283, -74.107807)
+ON CONFLICT (restaurant_id) DO NOTHING;
 
 INSERT INTO restaurant_admins (restaurant_id, user_id)
 VALUES (1026, 1)

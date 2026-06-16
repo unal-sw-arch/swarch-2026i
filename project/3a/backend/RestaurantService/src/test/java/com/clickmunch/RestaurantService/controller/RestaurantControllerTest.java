@@ -31,7 +31,7 @@ class RestaurantControllerTest {
     @Test
     void createRestaurant_returnsOk() throws Exception {
         Mockito.when(restaurantService.createRestaurant(Mockito.any(CreateRestaurantRequest.class)))
-                .thenReturn(new RestaurantResponse(1L, "Resto", null, null, null, null, null, 2L));
+                .thenReturn(new RestaurantResponse(1L, "Resto", null, null, null, null, null, 2L, 16, 12));
 
         mockMvc.perform(post("/api/restaurants")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -42,7 +42,7 @@ class RestaurantControllerTest {
     @Test
     void getRestaurant_returnsOk() throws Exception {
         Mockito.when(restaurantService.getRestaurant(1L))
-                .thenReturn(new RestaurantResponse(1L, "Resto", null, null, null, null, null, 2L));
+                .thenReturn(new RestaurantResponse(1L, "Resto", null, null, null, null, null, 2L, 16, 12));
 
         mockMvc.perform(get("/api/restaurants/1"))
                 .andExpect(status().isOk());

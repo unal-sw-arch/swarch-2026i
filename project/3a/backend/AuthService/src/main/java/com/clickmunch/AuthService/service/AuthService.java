@@ -240,6 +240,7 @@ public class AuthService {
         if (request.profileImageUrl() != null) user.setProfileImageUrl(request.profileImageUrl());
         if (request.address() != null) user.setAddress(request.address());
         if (request.governmentId() != null) user.setGovernmentId(request.governmentId());
+        if (request.telegramChatId() != null) user.setTelegramChatId(request.telegramChatId());
         User saved = userRepository.save(user);
         return toResponse(saved);
     }
@@ -272,7 +273,8 @@ public class AuthService {
                 user.getBio(),
                 user.getProfileImageUrl(),
                 user.getAddress(),
-                user.getGovernmentId()
+                user.getGovernmentId(),
+                user.getTelegramChatId()
         );
     }
 

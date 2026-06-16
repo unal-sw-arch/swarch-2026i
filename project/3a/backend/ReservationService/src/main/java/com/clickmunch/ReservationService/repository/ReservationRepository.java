@@ -23,6 +23,12 @@ public interface ReservationRepository extends ListCrudRepository<Reservation, L
     @Query("SELECT * FROM reservations WHERE restaurant_id = :restaurantId AND reservation_date = :date ORDER BY reservation_time")
     List<Reservation> findByRestaurantIdAndDate(@Param("restaurantId") Long restaurantId, @Param("date") LocalDate date);
 
+    @Query("SELECT * FROM reservations WHERE table_id = :tableId AND reservation_date = :date ORDER BY reservation_time")
+    List<Reservation> findByTableIdAndDate(@Param("tableId") Long tableId, @Param("date") LocalDate date);
+
+    @Query("SELECT * FROM reservations WHERE table_id = :tableId ORDER BY reservation_date, reservation_time")
+    List<Reservation> findByTableId(@Param("tableId") Long tableId);
+
     @Query("SELECT * FROM reservations WHERE restaurant_id = :restaurantId AND status = :status ORDER BY reservation_date DESC")
     List<Reservation> findByRestaurantIdAndStatus(@Param("restaurantId") Long restaurantId, @Param("status") String status);
 

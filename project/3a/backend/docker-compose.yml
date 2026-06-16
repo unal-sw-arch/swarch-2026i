@@ -108,6 +108,8 @@ services:
     # The gateway is the ONLY public entry point for the microservices.
     # REST and STOMP/WebSocket traffic both enter here on 8080; backend
     # services are reachable only inside the `appnet` Docker network.
+    # Secure Channel: the edge speaks HTTPS/WSS (TLS terminated here), so
+    # clients connect via https://<host>:8080 and wss://<host>:8080/...
     ports:
       - "8080:8080"
     environment:
@@ -121,6 +123,13 @@ services:
       SERVICES_RATING_URL: http://ratingservice:8088
       SERVICES_NOTIFICATION_URL: http://notificationservice:8087
       JWT_SECRET: ${JWT_SECRET}
+      # Secure Channel (TLS). The keystore is baked into the image at build
+      # time; override the password here (and mount a CA-issued keystore via
+      # SSL_KEYSTORE for production). Set SSL_ENABLED=false to serve plain HTTP.
+      SSL_ENABLED: ${SSL_ENABLED:-true}
+      SSL_KEYSTORE: ${SSL_KEYSTORE:-file:/app/certs/keystore.p12}
+      SSL_KEYSTORE_PASSWORD: ${SSL_KEYSTORE_PASSWORD:-changeit}
+      SSL_KEY_ALIAS: ${SSL_KEY_ALIAS:-apigateway}
     depends_on:
       authservice:
         condition: service_healthy
@@ -205,6 +214,10 @@ services:
     build: ./MenuService
     # container_name: menuservice
     # Internal only: reach via apigateway:/menu/**.
+    # Scaled to 3 replicas behind nginx-menu (see nginx/menu.conf upstream).
+    # Compose names them backend-menuservice-1/2/3 on appnet.
+    deploy:
+      replicas: 3
     expose:
       - "8084"
     environment:
@@ -321,12 +334,15 @@ services:
       SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER}
       SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
       GEO_SERVICE_URL: http://geoservice:8083
+      RESTAURANT_SERVICE_URL: http://restaurantservice:8082
     depends_on:
       order-db:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
       geoservice:
+        condition: service_healthy
+      restaurantservice:
         condition: service_healthy
     networks:
       - appnet
@@ -386,10 +402,14 @@ services:
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER}
       SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      AUTH_SERVICE_URL: http://authservice:8081
     depends_on:
       notification-db:
         condition: service_healthy
       rabbitmq:
+        condition: service_healthy
+      authservice:
         condition: service_healthy
     networks:
       - appnet

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Trash2, Plus, AlertCircle, RefreshCw } from "lucide-react";
+import { Trash2, Plus, AlertCircle, RefreshCw, Save } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { hoursService } from "@/lib/services/hoursService";
 import type { OperatingHours } from "@/lib/types";
@@ -27,8 +27,9 @@ const TIME_SLOTS = Array.from({ length: 15 }, (_, i) => i + START_GRID_HOUR);
 export const HoursPage = () => {
   const { restaurantId } = useAuth();
   const [hours, setHours] = useState<OperatingHours[]>([]);
+  const [originalHours, setOriginalHours] = useState<OperatingHours[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const loadHours = async () => {
     if (!restaurantId) return;
@@ -36,6 +37,7 @@ export const HoursPage = () => {
     try {
       const data = await hoursService.getByRestaurantId(restaurantId);
       setHours(data);
+      setOriginalHours(data);
     } catch (error) {
       console.error("Error al cargar horarios:", error);
     } finally {
@@ -48,6 +50,21 @@ export const HoursPage = () => {
   }, [restaurantId]);
 
   const getDayHours = (dayValue: string) => hours.find(h => h.dayOfWeek === dayValue);
+  const getOriginalDayHours = (dayValue: string) => originalHours.find(h => h.dayOfWeek === dayValue);
+
+  const hasDayChanged = (item: OperatingHours) => {
+    const original = getOriginalDayHours(item.dayOfWeek);
+    if (!original) return true;
+    return original.openTime !== item.openTime || original.closeTime !== item.closeTime;
+  };
+
+  const hasUnsavedChanges = () => {
+    const hasChangedOrNewItems = hours.some(hasDayChanged);
+    const hasDeletedItems = originalHours.some(
+      (original) => !hours.some((item) => item.dayOfWeek === original.dayOfWeek)
+    );
+    return hasChangedOrNewItems || hasDeletedItems;
+  };
 
   const handleToggleDay = (dayValue: string) => {
     if (getDayHours(dayValue)) return;
@@ -83,39 +100,36 @@ export const HoursPage = () => {
     }));
   };
 
-  const handleSave = async (dayValue: string) => {
-    const item = getDayHours(dayValue);
-    if (!item || !restaurantId) return;
-    setIsSubmitting(dayValue);
+  const handleSaveAll = async () => {
+    if (!restaurantId) return;
+    setIsSubmitting(true);
     
     try {
-      const payload = { 
-        ...item, 
-        id: (item.id && item.id > 0) ? item.id : undefined 
-      };
-      await hoursService.saveHours(restaurantId, payload);
+      const activeIds = new Set(hours.map((item) => item.id).filter((id): id is number => Boolean(id && id > 0)));
+      const deletedItems = originalHours.filter((item) => item.id && item.id > 0 && !activeIds.has(item.id));
+
+      await Promise.all(deletedItems.map((item) => hoursService.delete(item.id!)));
+      await Promise.all(
+        hours.map((item) => {
+          const payload = {
+            ...item,
+            id: item.id && item.id > 0 ? item.id : undefined,
+          };
+          return hoursService.saveHours(restaurantId, payload);
+        })
+      );
       await loadHours();
     } catch (error) {
-      alert("Error al guardar el horario.");
+      console.error("Error guardando horarios:", error);
+      alert("Error al guardar los horarios.");
     } finally {
-      setIsSubmitting(null);
+      setIsSubmitting(false);
     }
   };
-  const handleDelete = async (item: OperatingHours) => {
-  // Si no tiene id real (ej: los temporales negativos), solo lo quitamos del estado
-  if (!item.id || item.id < 0) {
-    setHours(prev => prev.filter(h => h.dayOfWeek !== item.dayOfWeek));
-    return;
-  }
 
-  try {
-    await hoursService.delete(item.id);
-    setHours(prev => prev.filter(h => h.id !== item.id));
-  } catch (error) {
-    console.error("Error eliminando horario:", error);
-    alert("No se pudo eliminar el horario");
-  }
-};
+  const handleDelete = async (item: OperatingHours) => {
+    setHours(prev => prev.filter(h => h.dayOfWeek !== item.dayOfWeek));
+  };
 
   const getTimeStyle = (open: string, close: string) => {
     const startH = parseInt(open?.split(':')[0]) || START_GRID_HOUR;
@@ -139,9 +153,19 @@ export const HoursPage = () => {
 
   return (
     <div className="p-4 space-y-6 max-w-[1200px] mx-auto">
-      <div className="border-b pb-4">
-        <h1 className="text-2xl font-bold text-gray-900">Panel de Horarios</h1>
-        <p className="text-sm text-gray-500 italic">Formato 24 horas automático</p>
+      <div className="flex flex-col gap-3 border-b pb-4 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Panel de Horarios</h1>
+          <p className="text-sm text-gray-500 italic">Construye toda la semana y guarda los cambios al final.</p>
+        </div>
+        <Button
+          className="gap-2 bg-blue-600 text-white hover:bg-blue-700"
+          onClick={handleSaveAll}
+          disabled={isSubmitting || !hasUnsavedChanges()}
+        >
+          {isSubmitting ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+          Guardar cambios
+        </Button>
       </div>
 
       <div className="relative overflow-hidden border rounded-xl bg-white shadow-sm">
@@ -177,6 +201,7 @@ export const HoursPage = () => {
           {hours.map((item) => {
             const dayIdx = DAYS.findIndex(d => d.value === item.dayOfWeek);
             if (dayIdx === -1) return null;
+            const dayChanged = hasDayChanged(item);
 
             return (
               <div 
@@ -218,15 +243,9 @@ export const HoursPage = () => {
                     </div>
                   </div>
                 </div>
-
-                <Button 
-                  size="sm" 
-                  className="h-8 text-[10px] w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-sm" 
-                  onClick={() => handleSave(item.dayOfWeek)} 
-                  disabled={isSubmitting === item.dayOfWeek}
-                >
-                  {isSubmitting === item.dayOfWeek ? <RefreshCw className="animate-spin w-3 h-3" /> : 'ACTUALIZAR'}
-                </Button>
+                <p className={`mt-3 text-[10px] font-semibold ${dayChanged ? "text-blue-500" : "text-emerald-600"}`}>
+                  {dayChanged ? "Pendiente de guardar" : "Guardado"}
+                </p>
               </div>
             );
           })}

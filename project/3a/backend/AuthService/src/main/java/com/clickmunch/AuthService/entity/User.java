@@ -41,6 +41,8 @@ public class User {
     private String resetToken;
     private LocalDateTime resetTokenExpiry;
 
+    private String telegramChatId;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

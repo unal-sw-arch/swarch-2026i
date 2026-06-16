@@ -10,6 +10,7 @@ import jakarta.validation.constraints.NotNull;
 public record CreateOrderRequest(
         @NotNull Long restaurantId,
         @NotNull Integer tableNumber,
+        Long tableId,
         Long customerId,
         String customerName,
         BigDecimal totalAmount,

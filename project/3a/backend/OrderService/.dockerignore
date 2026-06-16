@@ -1,0 +1,28 @@
+# Keep the Docker build context lean and the `COPY . .` layer cacheable.
+#
+# Local Gradle runs regenerate build/, bin/ and .gradle/ on every invocation.
+# If those are sent into the build context, the `COPY . .` layer hash changes
+# every build, invalidating Docker's layer cache and forcing a full rebuild —
+# which is what caused the build cache to balloon and fill the disk. Excluding
+# them keeps builds fast and cache reuse high. The multi-stage Dockerfile
+# rebuilds the jar inside the `gradle` image, so these are never needed.
+
+# Gradle build outputs / caches
+build/
+bin/
+.gradle/
+
+# IDE / editor / OS noise
+.idea/
+*.iml
+.vscode/
+.DS_Store
+
+# VCS
+.git/
+.gitignore
+.gitattributes
+
+# Docs (not needed to build the jar)
+HELP.md
+*.md

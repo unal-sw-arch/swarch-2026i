@@ -29,6 +29,19 @@ interface MenuItemApiResponse {
   imageUrl?: string;
 }
 
+export interface RestaurantDetailsApiResponse {
+  id: number | string;
+  name: string;
+  description?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  imageUrl?: string | null;
+  placeType?: string | null;
+  locationId?: number | null;
+  layoutCols?: number | null;
+  layoutRows?: number | null;
+}
+
 const normalizeRestaurant = (item: RestaurantCardApiResponse): Restaurant => ({
   id: String(item.id),
   name: item.name ?? "Restaurante",
@@ -45,6 +58,12 @@ const normalizeRestaurant = (item: RestaurantCardApiResponse): Restaurant => ({
   distanceKm: typeof item.distanceKm === "number" ? item.distanceKm : undefined,
 });
 
+const normalizeRestaurantDetails = (item: RestaurantDetailsApiResponse): RestaurantDetailsApiResponse => ({
+  ...item,
+  layoutCols: item.layoutCols ?? 16,
+  layoutRows: item.layoutRows ?? 12,
+});
+
 const formatPrice = (price: number | string | undefined): string => {
   if (price === undefined || price === null) return "$ 0";
   if (typeof price === "string") return price;
@@ -52,6 +71,29 @@ const formatPrice = (price: number | string | undefined): string => {
 };
 
 export const restaurantService = {
+  async getById(restaurantId: number | string): Promise<RestaurantDetailsApiResponse> {
+    const token = localStorage.getItem("auth_token");
+    const response = await fetch(`${API_GATEWAY_BASE}/restaurant/${restaurantId}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return normalizeRestaurantDetails((await response.json()) as RestaurantDetailsApiResponse);
+  },
+
+  async updateLayout(restaurantId: number | string, layout: { layoutCols: number; layoutRows: number }): Promise<RestaurantDetailsApiResponse> {
+    const token = localStorage.getItem("auth_token");
+    const response = await fetch(`${API_GATEWAY_BASE}/restaurant/${restaurantId}/layout`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(layout),
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return normalizeRestaurantDetails((await response.json()) as RestaurantDetailsApiResponse);
+  },
+
   async getAll(lat?: number, lng?: number): Promise<Restaurant[]> {
     const token = localStorage.getItem("auth_token");
     const params = new URLSearchParams();

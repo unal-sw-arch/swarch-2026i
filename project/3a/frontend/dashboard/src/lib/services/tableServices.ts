@@ -2,6 +2,43 @@ import type { Table, TableApiResponse } from "@/lib/types";
 
 const API_GATEWAY_BASE = import.meta.env.VITE_API_GATEWAY_BASE ?? "";
 
+type CreateTableData = {
+  tableNumber: string;
+  seats: number;
+  layoutX?: number;
+  layoutY?: number;
+  layoutWidth?: number;
+  layoutHeight?: number;
+  layoutShape?: string | null;
+};
+
+type UpdateTableLayoutData = {
+  layoutX: number;
+  layoutY: number;
+  layoutWidth: number;
+  layoutHeight: number;
+  layoutShape: string;
+};
+
+type UpdateTableData = UpdateTableLayoutData & {
+  tableNumber: string;
+  seats: number;
+  status: Table["status"];
+};
+
+const normalizeTable = (item: TableApiResponse): Table => ({
+  id: item.id,
+  restaurantId: item.restaurantId,
+  tableNumber: item.tableNumber,
+  seats: item.seats,
+  status: item.status as Table["status"],
+  layoutX: item.layoutX ?? 0,
+  layoutY: item.layoutY ?? 0,
+  layoutWidth: item.layoutWidth ?? Math.max(1, item.seats),
+  layoutHeight: item.layoutHeight ?? 1,
+  layoutShape: item.layoutShape ?? null,
+});
+
 export const tableService = {
   async getByRestaurantId(restaurantId: number | string): Promise<Table[]> {
     const token = localStorage.getItem("auth_token");
@@ -18,15 +55,7 @@ export const tableService = {
       if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
 
       const data = (await response.json()) as TableApiResponse[];
-      
-      // Mapeamos y forzamos el tipo del status con 'as Table["status"]'
-      return data.map(item => ({
-        id: item.id,
-        restaurantId: item.restaurantId,
-        tableNumber: item.tableNumber,
-        seats: item.seats,
-        status: item.status as Table["status"], // Esto quita el error de la imagen
-      }));
+      return data.map(normalizeTable);
     } catch (error) {
       console.error("🚨 [TableService] Error:", error);
       return [];
@@ -50,17 +79,60 @@ export const tableService = {
       if (!response.ok) throw new Error("Failed to update status");
 
       const item = (await response.json()) as TableApiResponse;
-      
-      return {
-        ...item,
-        status: item.status as Table["status"], // Forzamos el tipo aquí también
-      };
+      return normalizeTable(item);
     } catch (error) {
       console.error("🚨 [TableService] Error updating status:", error);
       return null;
     }
   },
-    async create(restaurantId: number | string, tableData: { tableNumber: string; seats: number }): Promise<Table | null> {
+
+  async updateLayout(tableId: number, layoutData: UpdateTableLayoutData): Promise<Table | null> {
+    const token = localStorage.getItem("auth_token");
+
+    try {
+      const response = await fetch(`${API_GATEWAY_BASE}/restaurant/tables/${tableId}/layout`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(layoutData),
+      });
+
+      if (!response.ok) throw new Error("Failed to update layout");
+
+      const item = (await response.json()) as TableApiResponse;
+      return normalizeTable(item);
+    } catch (error) {
+      console.error("🚨 [TableService] Error updating layout:", error);
+      return null;
+    }
+  },
+
+  async update(tableId: number, tableData: UpdateTableData): Promise<Table | null> {
+    const token = localStorage.getItem("auth_token");
+
+    try {
+      const response = await fetch(`${API_GATEWAY_BASE}/restaurant/tables/${tableId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(tableData),
+      });
+
+      if (!response.ok) throw new Error("Failed to update table");
+
+      const item = (await response.json()) as TableApiResponse;
+      return normalizeTable(item);
+    } catch (error) {
+      console.error("🚨 [TableService] Error updating table:", error);
+      return null;
+    }
+  },
+
+  async create(restaurantId: number | string, tableData: CreateTableData): Promise<Table | null> {
     const token = localStorage.getItem("auth_token");
     try {
         const response = await fetch(`${API_GATEWAY_BASE}/restaurant/${restaurantId}/tables`, {
@@ -74,11 +146,7 @@ export const tableService = {
 
         if (!response.ok) throw new Error("Error al crear la mesa");
         const item = (await response.json()) as TableApiResponse;
-        
-        return {
-        ...item,
-        status: item.status as Table["status"],
-        };
+        return normalizeTable(item);
     } catch (error) {
         console.error("🚨 [TableService] Error creating table:", error);
         return null;

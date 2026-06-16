@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS orders (
     customer_id   BIGINT,
     customer_name VARCHAR(120),
     table_number  INT          NOT NULL,
+    table_id      BIGINT,
     status        VARCHAR(20)  NOT NULL DEFAULT 'PENDING',
     notes         TEXT,
     total_amount  NUMERIC(12, 2) NOT NULL DEFAULT 0,
@@ -21,6 +22,9 @@ CREATE TABLE IF NOT EXISTS orders (
 -- current service model can run without requiring manual volume deletion.
 ALTER TABLE IF EXISTS orders
     ADD COLUMN IF NOT EXISTS table_number INT;
+
+ALTER TABLE IF EXISTS orders
+    ADD COLUMN IF NOT EXISTS table_id BIGINT;
 
 ALTER TABLE IF EXISTS orders
     ADD COLUMN IF NOT EXISTS customer_id BIGINT;
@@ -96,6 +100,7 @@ ALTER TABLE IF EXISTS orders
     ALTER COLUMN status SET DEFAULT 'PENDING';
 
 CREATE INDEX IF NOT EXISTS idx_orders_customer_id ON orders(customer_id);
+CREATE INDEX IF NOT EXISTS idx_orders_table_id ON orders(table_id);
 CREATE INDEX IF NOT EXISTS idx_orders_restaurant_created_at ON orders(restaurant_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_orders_restaurant_priority ON orders(restaurant_id, priority DESC, created_at ASC);
 

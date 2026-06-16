@@ -5,18 +5,28 @@ import path from "path"
 
 
 // https://vite.dev/config/
+//
+// Secure Channel: the API Gateway terminates TLS, so the dev server proxies to
+// it over HTTPS. `secure: false` makes the proxy accept the gateway's
+// self-signed certificate (the browser only ever talks plain HTTP to Vite, so
+// no client-side cert trust is needed in dev). REST and the kitchen STOMP/
+// WebSocket (`ws: true`) both flow through this single secure proxy.
+const GATEWAY_TARGET = process.env.VITE_PROXY_TARGET ?? 'https://localhost:8080'
+const secureProxy = { target: GATEWAY_TARGET, changeOrigin: true, secure: false }
+
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     proxy: {
-      '/auth': 'http://localhost:8080',
-      '/restaurant': 'http://localhost:8080',
-      '/menu': 'http://localhost:8080',
-      '/order': 'http://localhost:8080',
-      '/reservation': 'http://localhost:8080',
-      '/checkout': 'http://localhost:8080',
-      '/rating': 'http://localhost:8080',
-      '/notification': 'http://localhost:8080',
+      '/auth': secureProxy,
+      '/restaurant': secureProxy,
+      '/menu': secureProxy,
+      '/order': secureProxy,
+      '/reservation': secureProxy,
+      '/checkout': secureProxy,
+      '/rating': secureProxy,
+      '/notification': secureProxy,
+      '/ws': { ...secureProxy, ws: true },
     },
   },
   resolve: {

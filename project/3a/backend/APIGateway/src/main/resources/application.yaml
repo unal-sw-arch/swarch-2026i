@@ -13,6 +13,18 @@ jwt:
 
 server:
   port: 8080
+  # Secure Channel: the gateway is the only public edge, so TLS is terminated
+  # here to encrypt all client traffic (REST + STOMP/WebSocket). The keystore
+  # is generated at build time (see scripts/generate-keystore.sh). To use a
+  # CA-issued certificate in production, mount it and override SSL_KEYSTORE /
+  # SSL_KEYSTORE_PASSWORD / SSL_KEY_ALIAS. Set SSL_ENABLED=false to fall back
+  # to plain HTTP (e.g. when running behind a TLS-terminating load balancer).
+  ssl:
+    enabled: ${SSL_ENABLED:true}
+    key-store: ${SSL_KEYSTORE:file:certs/keystore.p12}
+    key-store-password: ${SSL_KEYSTORE_PASSWORD:changeit}
+    key-store-type: ${SSL_KEYSTORE_TYPE:PKCS12}
+    key-alias: ${SSL_KEY_ALIAS:apigateway}
 
 services:
   auth:
@@ -20,7 +32,7 @@ services:
   restaurant:
     url: ${SERVICES_RESTAURANT_URL:http://localhost:8082}
   menu:
-    url: ${SERVICES_MENU_URL:http://localhost:8084}
+    url: ${SERVICES_MENU_URL:http://localhost:80}
   order:
     url: ${SERVICES_ORDER_URL:http://localhost:8085}
   reservation:

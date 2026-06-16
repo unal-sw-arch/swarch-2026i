@@ -19,6 +19,10 @@ public class RabbitMQConfig {
     public static final String ORDER_QUEUE = "notification.order.queue";
     public static final String RESERVATION_QUEUE = "notification.reservation.queue";
 
+    // ─── Telegram Worker queue ───
+    public static final String TELEGRAM_QUEUE = "notification.telegram.queue";
+    public static final String TELEGRAM_ROUTING_KEY = "notification.send";
+
     @Bean
     public TopicExchange eventExchange() {
         return new TopicExchange(EXCHANGE_NAME);
@@ -56,6 +60,16 @@ public class RabbitMQConfig {
     @Bean
     public Binding reservationCancelledBinding(Queue reservationQueue, TopicExchange eventExchange) {
         return BindingBuilder.bind(reservationQueue).to(eventExchange).with("reservation.cancelled");
+    }
+
+    @Bean
+    public Queue telegramQueue() {
+        return new Queue(TELEGRAM_QUEUE, true);
+    }
+
+    @Bean
+    public Binding telegramNotificationBinding(Queue telegramQueue, TopicExchange eventExchange) {
+        return BindingBuilder.bind(telegramQueue).to(eventExchange).with(TELEGRAM_ROUTING_KEY);
     }
 
     // ─── JSON message converter ───

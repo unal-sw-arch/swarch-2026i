@@ -1,0 +1,105 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Cold Spare (Passive Redundancy) — NotificationService
+#
+# A diferencia del Hot Spare de AuthService (replicas: 2, ambas activas),
+# el Cold Spare usa replicas: 1. Solo una instancia está activa. Si falla,
+# Kubernetes crea automáticamente un nuevo pod (el "spare frío" se enciende).
+#
+# Durante el tiempo de arranque (~60-90 s), RabbitMQ retiene todos los
+# mensajes de las colas notification.order.queue y notification.reservation.queue.
+# No hay pérdida de eventos (RPO = 0).
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notificationservice
+  namespace: clickmunch
+  labels:
+    app: notificationservice
+    tier: backend
+    redundancy: cold-spare          # Etiqueta documental: patrón de redundancia pasiva
+spec:
+  replicas: 1                       # COLD SPARE: solo 1 instancia activa, sin spare pre-encendida
+  selector:
+    matchLabels:
+      app: notificationservice
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1             # Se permite 0 pods durante el arranque del spare (acepta downtime)
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: notificationservice
+        tier: backend
+    spec:
+      # NO se usa podAntiAffinity — con 1 sola réplica no tiene sentido
+      containers:
+        - name: notificationservice
+          image: clickmunch/notificationservice:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8087
+              name: http
+          env:
+            # ─── Datasource (notification-db dentro del cluster K8s) ───
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: clickmunch-config
+                  key: NOTIFICATION_DATASOURCE_URL
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: clickmunch-secrets
+                  key: POSTGRES_USER
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: clickmunch-secrets
+                  key: POSTGRES_PASSWORD
+            # ─── RabbitMQ (dentro del cluster K8s) ───
+            # RabbitMQ es crítico para el Cold Spare: retiene mensajes
+            # mientras la instancia spare arranca tras un fallo.
+            - name: SPRING_RABBITMQ_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: clickmunch-config
+                  key: SPRING_RABBITMQ_HOST
+            - name: SPRING_RABBITMQ_PORT
+              value: "5672"
+            - name: SPRING_RABBITMQ_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: clickmunch-secrets
+                  key: RABBITMQ_USER
+            - name: SPRING_RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: clickmunch-secrets
+                  key: RABBITMQ_PASSWORD
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          # ─── Probes: optimizadas para minimizar el RTO del Cold Spare ───
+          # initialDelaySeconds es agresivo para detectar el pod saludable
+          # lo antes posible tras el arranque.
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8087
+            initialDelaySeconds: 60    # Spring Boot necesita ~45-60 s para iniciar
+            periodSeconds: 15
+            failureThreshold: 3        # 3 fallos = 45 s → reiniciar pod
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8087
+            initialDelaySeconds: 45    # Disponible para recibir tráfico tras 45 s
+            periodSeconds: 10
+            failureThreshold: 3        # 3 fallos = 30 s → remover del Service

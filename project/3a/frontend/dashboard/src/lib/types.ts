@@ -81,6 +81,8 @@ export interface Restaurant {
   latitude: number;
   longitude: number;
   distanceKm?: number;
+  layoutCols?: number;
+  layoutRows?: number;
 }
 
 // =======================
@@ -114,6 +116,11 @@ export interface Table {
   tableNumber: string;
   seats: number;
   status: 'AVAILABLE' | 'OCCUPIED' | 'RESERVED' | 'CLEANING';
+  layoutX: number;
+  layoutY: number;
+  layoutWidth: number;
+  layoutHeight: number;
+  layoutShape: string | null;
 }
 
 export interface TableApiResponse {
@@ -122,6 +129,11 @@ export interface TableApiResponse {
   tableNumber: string;
   seats: number;
   status: string;
+  layoutX?: number;
+  layoutY?: number;
+  layoutWidth?: number;
+  layoutHeight?: number;
+  layoutShape?: string | null;
 }
 
 export interface OperatingHours {
@@ -130,6 +142,35 @@ export interface OperatingHours {
   openTime: string;
   closeTime: string;
   isOpen: boolean;
+}
+
+// =======================
+// RESERVAS
+// =======================
+
+export type ReservationStatus =
+  | "Pendiente"
+  | "Confirmada"
+  | "CheckedIn"
+  | "Cancelada"
+  | "Completada"
+  | "NoShow";
+
+export interface Reservation {
+  id: number;
+  customerId: number;
+  customerName: string;
+  restaurantId: number;
+  restaurantName: string;
+  reservationDate: string;
+  reservationTime: string;
+  partySize: number;
+  status: ReservationStatus;
+  notes: string | null;
+  orderId: number | null;
+  tableId: number | null;
+  checkedInAt: string | null;
+  createdAt: string | null;
 }
 
 // =======================
@@ -271,6 +312,7 @@ export interface KitchenOrder {
   id: number;
   restaurantId: number;
   tableNumber: number;
+  tableId: number | null;
   status: KitchenOrderStatus;
   notes: string | null;
   createdAt: string;

@@ -4,3 +4,9 @@
 jwt:
   secret: "test-only-jwt-secret-not-used-in-production-0123456789"
   prefix: "Bearer "
+
+# Keep the context test hermetic: no TLS keystore is generated for unit tests,
+# so disable SSL here (the production image enables it via SSL_ENABLED=true).
+server:
+  ssl:
+    enabled: false

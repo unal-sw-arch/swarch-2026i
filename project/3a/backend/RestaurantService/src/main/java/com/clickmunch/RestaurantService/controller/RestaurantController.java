@@ -22,10 +22,13 @@ import com.clickmunch.RestaurantService.dto.RestaurantAdminRequest;
 import com.clickmunch.RestaurantService.dto.RestaurantAdminResponse;
 import com.clickmunch.RestaurantService.dto.RestaurantCardResponse;
 import com.clickmunch.RestaurantService.dto.RestaurantDetailsResponse;
+import com.clickmunch.RestaurantService.dto.RestaurantLayoutRequest;
 import com.clickmunch.RestaurantService.dto.RestaurantResponse;
 import com.clickmunch.RestaurantService.dto.StaffAssignmentRequest;
 import com.clickmunch.RestaurantService.dto.StaffAssignmentResponse;
 import com.clickmunch.RestaurantService.dto.TableResponse;
+import com.clickmunch.RestaurantService.dto.UpdateTableLayoutRequest;
+import com.clickmunch.RestaurantService.dto.UpdateTableRequest;
 import com.clickmunch.RestaurantService.service.RestaurantService;
 
 import jakarta.validation.Valid;
@@ -88,6 +91,13 @@ public class RestaurantController {
         return ResponseEntity.ok(restaurantService.getRestaurantDetails(id));
     }
 
+    @PutMapping("/{id}/layout")
+    public ResponseEntity<RestaurantResponse> updateRestaurantLayout(
+            @PathVariable Long id,
+            @Valid @RequestBody RestaurantLayoutRequest request) {
+        return ResponseEntity.ok(restaurantService.updateRestaurantLayout(id, request));
+    }
+
     // ─── Restaurant Admin Management ───
 
     @GetMapping("/admin/{userId}")
@@ -141,6 +151,20 @@ public class RestaurantController {
             @PathVariable Long tableId,
             @RequestParam String status) {
         return ResponseEntity.ok(restaurantService.updateTableStatus(tableId, status));
+    }
+
+    @PutMapping("/tables/{tableId}")
+    public ResponseEntity<TableResponse> updateTable(
+            @PathVariable Long tableId,
+            @Valid @RequestBody UpdateTableRequest request) {
+        return ResponseEntity.ok(restaurantService.updateTable(tableId, request));
+    }
+
+    @PutMapping("/tables/{tableId}/layout")
+    public ResponseEntity<TableResponse> updateTableLayout(
+            @PathVariable Long tableId,
+            @Valid @RequestBody UpdateTableLayoutRequest request) {
+        return ResponseEntity.ok(restaurantService.updateTableLayout(tableId, request));
     }
 
     @DeleteMapping("/tables/{tableId}")

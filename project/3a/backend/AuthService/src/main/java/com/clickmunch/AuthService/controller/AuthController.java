@@ -6,6 +6,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 import java.util.List;
 
 @RestController
@@ -91,5 +93,15 @@ public class AuthController {
     @GetMapping("/users/role/{role}")
     public ResponseEntity<List<UserInfoResponse>> getUsersByRole(@PathVariable Role role) {
         return ResponseEntity.ok(authService.getUsersByRole(role));
+    }
+
+    @PatchMapping("/users/{userId}/telegram")
+    public ResponseEntity<UserInfoResponse> linkTelegram(
+            @PathVariable Long userId,
+            @RequestBody Map<String, String> body) {
+        String chatId = body.get("telegramChatId");
+        UserInfoResponse response = authService.updateProfile(userId,
+                new UpdateProfileRequest(null, null, null, null, null, chatId));
+        return ResponseEntity.ok(response);
     }
 }

@@ -7,12 +7,9 @@ import { Platform } from 'react-native';
 // the legacy auth+restaurants flow, which currently points at AuthService:8081.
 const STAGE = process.env.EXPO_PUBLIC_STAGE || 'dev';
 
-export const GATEWAY_URL =
-    STAGE === 'prod'
-        ? process.env.EXPO_PUBLIC_GATEWAY_URL
-        : Platform.OS === 'ios'
-            ? process.env.EXPO_PUBLIC_GATEWAY_URL_IOS
-            : process.env.EXPO_PUBLIC_GATEWAY_URL_ANDROID;
+import { resolveUrl } from './resolve-url';
+
+export const GATEWAY_URL = resolveUrl('gateway');
 
 const gatewayApi = axios.create({
     baseURL: GATEWAY_URL,

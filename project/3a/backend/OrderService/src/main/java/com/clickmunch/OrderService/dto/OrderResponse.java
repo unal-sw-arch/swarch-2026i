@@ -10,6 +10,7 @@ public record OrderResponse(
         Long customerId,
         String customerName,
         Integer tableNumber,
+        Long tableId,
         String status,
         String notes,
         BigDecimal totalAmount,

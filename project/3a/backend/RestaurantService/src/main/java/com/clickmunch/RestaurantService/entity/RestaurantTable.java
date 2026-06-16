@@ -20,4 +20,9 @@ public class RestaurantTable {
     private String tableNumber;
     private Integer seats;
     private String status; // AVAILABLE, OCCUPIED, RESERVED
+    private Integer layoutX;
+    private Integer layoutY;
+    private Integer layoutWidth;
+    private Integer layoutHeight;
+    private String layoutShape;
 }

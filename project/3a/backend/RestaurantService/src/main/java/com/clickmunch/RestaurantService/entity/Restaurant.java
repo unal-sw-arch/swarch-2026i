@@ -19,4 +19,6 @@ public class Restaurant {
     private String imageUrl;
     private Long locationId;
     private String placeType;
+    private Integer layoutCols;
+    private Integer layoutRows;
 }

@@ -21,6 +21,8 @@ interface MonthlyEarnings {
 
 type ChartDatum = { label: string; value: number };
 
+const ACTIVE_ORDER_STATUSES = new Set(['PENDING', 'IN_PREPARATION', 'READY']);
+
 // Estados de las órdenes (dominio de los chefs) con etiqueta legible
 const ORDER_STATUS_LABELS: Record<string, string> = {
   PENDING: 'Pendientes',
@@ -85,10 +87,14 @@ export const DashboardPage = () => {
           .sort((a, b) => b.value - a.value)
       );
 
-      // Chefs: órdenes por estado, solo las de hoy (su dominio operativo)
+      // Chefs: active orders should always appear in the current operational state.
+      // Closed orders are shown only when they changed today.
       const today = now.toDateString();
       const statusCounts = allOrders.reduce<Record<string, number>>((acc, o) => {
-        if (new Date(o.createdAt).toDateString() !== today) return acc;
+        const changedAt = o.updatedAt ?? o.createdAt;
+        const isActive = ACTIVE_ORDER_STATUSES.has(o.status);
+        const changedToday = changedAt ? new Date(changedAt).toDateString() === today : false;
+        if (!isActive && !changedToday) return acc;
         acc[o.status] = (acc[o.status] ?? 0) + 1;
         return acc;
       }, {});

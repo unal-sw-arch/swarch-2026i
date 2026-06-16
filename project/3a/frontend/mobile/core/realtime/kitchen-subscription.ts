@@ -10,21 +10,10 @@ import type { KitchenEvent } from '@/core/orders/interface/order';
 // realtime share the same public edge — backend microservice ports are no
 // longer published to the host. See backend/APIGateway/.../RouteConfig.java.
 
+import { resolveUrl } from '../api/resolve-url';
+
 const resolveWsUrl = (): string => {
-    const stage = process.env.EXPO_PUBLIC_STAGE || 'dev';
-    if (stage === 'prod') {
-        return process.env.EXPO_PUBLIC_ORDER_WS_URL ?? 'ws://localhost:8080/ws/kitchen';
-    }
-    if (Platform.OS === 'ios') {
-        return (
-            process.env.EXPO_PUBLIC_ORDER_WS_URL_IOS ??
-            'ws://localhost:8080/ws/kitchen'
-        );
-    }
-    return (
-        process.env.EXPO_PUBLIC_ORDER_WS_URL_ANDROID ??
-        'ws://10.0.2.2:8080/ws/kitchen'
-    );
+    return resolveUrl('ws');
 };
 
 export interface KitchenSubscriptionHandle {
@@ -47,9 +36,17 @@ export const subscribeKitchen = (
     const client = new Client({
         brokerURL: resolveWsUrl(),
         connectHeaders: token ? { Authorization: `Bearer ${token}` } : {},
+        // ── React Native workarounds ──────────────────────────────────
+        // RN's WebSocket impl strips the NULL byte (\x00) that terminates
+        // every STOMP frame when using text-mode frames. Sending as binary
+        // avoids the issue outright; appendMissingNULL re-adds the byte on
+        // incoming frames in case the server's response is also mangled.
+        forceBinaryWSFrames: true,
+        appendMissingNULLonIncoming: true,
+        // ──────────────────────────────────────────────────────────────
         reconnectDelay: 3_000,
-        heartbeatIncoming: 10_000,
-        heartbeatOutgoing: 10_000,
+        heartbeatIncoming: 4_000,
+        heartbeatOutgoing: 4_000,
         // React Native's `console` already provides the right level-based
         // output, so we keep the default `debug` off.
         debug: () => undefined,

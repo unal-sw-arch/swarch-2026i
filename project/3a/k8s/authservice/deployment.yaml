@@ -35,8 +35,8 @@ spec:
                 topologyKey: kubernetes.io/hostname
       containers:
         - name: authservice
-          image: clickmunch/authservice:latest
-          imagePullPolicy: Never
+          image: us.icr.io/tech-summit/authservice:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8081
               name: http

@@ -8,6 +8,8 @@ CREATE TABLE IF NOT EXISTS restaurants (
        image_url TEXT,
        location_id BIGINT NOT NULL,
        place_type VARCHAR(50) DEFAULT 'RESTAURANT',
+       layout_cols INTEGER NOT NULL DEFAULT 16,
+       layout_rows INTEGER NOT NULL DEFAULT 12,
        created_at TIMESTAMP DEFAULT NOW()
 );
 
@@ -28,8 +30,28 @@ CREATE TABLE IF NOT EXISTS restaurant_tables (
        restaurant_id BIGINT NOT NULL REFERENCES restaurants(id) ON DELETE CASCADE,
        table_number VARCHAR(20) NOT NULL,
        seats INTEGER NOT NULL DEFAULT 2,
-       status VARCHAR(20) NOT NULL DEFAULT 'AVAILABLE'
+       status VARCHAR(20) NOT NULL DEFAULT 'AVAILABLE',
+       layout_x INTEGER NOT NULL DEFAULT 0,
+       layout_y INTEGER NOT NULL DEFAULT 0,
+       layout_width INTEGER NOT NULL DEFAULT 1,
+       layout_height INTEGER NOT NULL DEFAULT 1,
+       layout_shape TEXT
 );
+
+ALTER TABLE IF EXISTS restaurant_tables
+       ADD COLUMN IF NOT EXISTS layout_x INTEGER NOT NULL DEFAULT 0;
+
+ALTER TABLE IF EXISTS restaurant_tables
+       ADD COLUMN IF NOT EXISTS layout_y INTEGER NOT NULL DEFAULT 0;
+
+ALTER TABLE IF EXISTS restaurant_tables
+       ADD COLUMN IF NOT EXISTS layout_width INTEGER NOT NULL DEFAULT 1;
+
+ALTER TABLE IF EXISTS restaurant_tables
+       ADD COLUMN IF NOT EXISTS layout_height INTEGER NOT NULL DEFAULT 1;
+
+ALTER TABLE IF EXISTS restaurant_tables
+       ADD COLUMN IF NOT EXISTS layout_shape TEXT;
 
 CREATE INDEX IF NOT EXISTS idx_restaurant_tables_restaurant_id ON restaurant_tables(restaurant_id);
 CREATE INDEX IF NOT EXISTS idx_restaurant_tables_status ON restaurant_tables(restaurant_id, status);
@@ -96,6 +118,10 @@ VALUES
 ON CONFLICT (restaurant_id) DO NOTHING;
 
 ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS place_type VARCHAR(50) DEFAULT 'RESTAURANT';
+
+ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS layout_cols INTEGER NOT NULL DEFAULT 16;
+
+ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS layout_rows INTEGER NOT NULL DEFAULT 12;
 
 ALTER TABLE restaurant_profiles ADD COLUMN IF NOT EXISTS free_shipping BOOLEAN DEFAULT FALSE;
 

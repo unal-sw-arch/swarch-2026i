@@ -11,8 +11,11 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.clickmunch.OrderService.client.GeoClient;
+import com.clickmunch.OrderService.client.RestaurantClient;
 import com.clickmunch.OrderService.dto.ApiResponse;
 import com.clickmunch.OrderService.dto.CreateOrderRequest;
 import com.clickmunch.OrderService.dto.MonthlyEarningsResponse;
@@ -33,6 +36,8 @@ import com.clickmunch.OrderService.repository.OrderRepository;
 @Service
 public class OrderService {
 
+    private static final Logger log = LoggerFactory.getLogger(OrderService.class);
+
     private static final Map<OrderStatus, Set<OrderStatus>> TRANSITIONS = Map.of(
             OrderStatus.PENDING,        Set.of(OrderStatus.IN_PREPARATION, OrderStatus.CANCELLED),
             OrderStatus.IN_PREPARATION, Set.of(OrderStatus.READY, OrderStatus.CANCELLED),
@@ -48,15 +53,18 @@ public class OrderService {
     private final OrderItemRepository orderItemRepository;
     private final KitchenEventsPublisher events;
         private final GeoClient geoClient;
+    private final RestaurantClient restaurantClient;
 
     public OrderService(OrderRepository orderRepository,
                         OrderItemRepository orderItemRepository,
                 KitchenEventsPublisher events,
-                GeoClient geoClient) {
+                GeoClient geoClient,
+                RestaurantClient restaurantClient) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.events = events;
         this.geoClient = geoClient;
+        this.restaurantClient = restaurantClient;
     }
 
     @Transactional
@@ -66,6 +74,7 @@ public class OrderService {
         order.setCustomerId(request.customerId());
         order.setCustomerName(request.customerName());
         order.setTableNumber(request.tableNumber());
+        order.setTableId(request.tableId());
         order.setStatus(OrderStatus.PENDING);
         order.setNotes(request.notes());
         order.setTotalAmount(request.totalAmount() != null ? request.totalAmount() : BigDecimal.ZERO);
@@ -86,6 +95,7 @@ public class OrderService {
         List<OrderItem> savedItems = orderItemRepository.saveAll(items);
 
         OrderResponse response = toResponse(saved, savedItems);
+        syncTableOccupied(saved);
         events.publishCreated(response);
         return new ApiResponse<>("Order created successfully", response);
     }
@@ -143,6 +153,7 @@ public class OrderService {
 
         List<OrderItem> items = orderItemRepository.findByOrderId(id);
         OrderResponse response = toResponse(updated, items);
+        syncTableReleasedIfNeeded(updated);
         events.publishStatusChanged(response);
         return new ApiResponse<>("Order status updated to " + newStatus, response);
     }
@@ -182,8 +193,40 @@ public class OrderService {
         order.setUpdatedAt(LocalDateTime.now());
         Order updated = orderRepository.save(order);
         OrderResponse response = toResponse(updated, orderItemRepository.findByOrderId(id));
+        syncTableReleasedIfNeeded(updated);
         events.publishStatusChanged(response);
         return new ApiResponse<>("Order cancelled", response);
+    }
+
+    private void syncTableOccupied(Order order) {
+        if (order.getTableId() == null) {
+            return;
+        }
+
+        try {
+            restaurantClient.updateTableStatus(order.getTableId(), "OCCUPIED");
+        } catch (RuntimeException ex) {
+            log.warn("Failed to mark table {} as OCCUPIED for order {}: {}",
+                    order.getTableId(), order.getId(), ex.getMessage());
+        }
+    }
+
+    private void syncTableReleasedIfNeeded(Order order) {
+        if (order.getTableId() == null || !Set.of(OrderStatus.DELIVERED, OrderStatus.CANCELLED).contains(order.getStatus())) {
+            return;
+        }
+
+        int remainingActiveOrders = orderRepository.countActiveByTableId(order.getTableId());
+        if (remainingActiveOrders > 0) {
+            return;
+        }
+
+        try {
+            restaurantClient.updateTableStatus(order.getTableId(), "AVAILABLE");
+        } catch (RuntimeException ex) {
+            log.warn("Failed to mark table {} as AVAILABLE after order {}: {}",
+                    order.getTableId(), order.getId(), ex.getMessage());
+        }
     }
 
     public ApiResponse<OrderEtaResponse> getOrderEta(Long id, Double latitude, Double longitude, String mode) {
@@ -255,6 +298,7 @@ public class OrderService {
             order.getCustomerId(),
             order.getCustomerName(),
                 order.getTableNumber(),
+                order.getTableId(),
                 order.getStatus().name(),
                 order.getNotes(),
             order.getTotalAmount() != null ? order.getTotalAmount() : BigDecimal.ZERO,

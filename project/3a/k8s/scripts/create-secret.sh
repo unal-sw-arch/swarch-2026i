@@ -19,11 +19,13 @@ source "$ENV_FILE"
 set +o allexport
 
 echo "==> Creando/actualizando Secret 'clickmunch-secrets' en namespace clickmunch..."
-kubectl create secret generic clickmunch-secrets \
+oc create secret generic clickmunch-secrets \
   --namespace clickmunch \
   --from-literal=POSTGRES_USER="$POSTGRES_USER" \
   --from-literal=POSTGRES_PASSWORD="$POSTGRES_PASSWORD" \
   --from-literal=JWT_SECRET="$JWT_SECRET" \
-  --dry-run=client -o yaml | kubectl apply -f -
+  --from-literal=RABBITMQ_USER="$RABBITMQ_USER" \
+  --from-literal=RABBITMQ_PASSWORD="$RABBITMQ_PASSWORD" \
+  --dry-run=client -o yaml | oc apply -f -
 
 echo "✓ Secret creado correctamente."

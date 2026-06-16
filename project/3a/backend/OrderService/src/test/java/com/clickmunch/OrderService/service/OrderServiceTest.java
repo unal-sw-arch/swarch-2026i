@@ -1,6 +1,7 @@
 package com.clickmunch.OrderService.service;
 
 import com.clickmunch.OrderService.client.GeoClient;
+import com.clickmunch.OrderService.client.RestaurantClient;
 import com.clickmunch.OrderService.dto.*;
 import com.clickmunch.OrderService.entity.Order;
 import com.clickmunch.OrderService.entity.OrderItem;
@@ -39,6 +40,9 @@ class OrderServiceTest {
     @Mock
     private GeoClient geoClient;
 
+    @Mock
+    private RestaurantClient restaurantClient;
+
     @InjectMocks
     private OrderService orderService;
 
@@ -53,6 +57,7 @@ class OrderServiceTest {
         testOrder.setCustomerId(18L);
         testOrder.setCustomerName("Customer Demo");
         testOrder.setTableNumber(5);
+        testOrder.setTableId(50L);
         testOrder.setStatus(OrderStatus.PENDING);
         testOrder.setNotes("No onions");
         testOrder.setTotalAmount(BigDecimal.valueOf(25.50));
@@ -88,7 +93,7 @@ class OrderServiceTest {
         when(orderItemRepository.saveAll(anyList())).thenReturn(List.of(noLettuce, full));
 
         CreateOrderRequest request = new CreateOrderRequest(
-            10L, 5, 18L, "Customer Demo", BigDecimal.valueOf(25.50), "Table 5",
+            10L, 5, 50L, 18L, "Customer Demo", BigDecimal.valueOf(25.50), "Table 5",
                 List.of(
                         new CreateOrderItemRequest("Burger", "sin lechuga"),
                         new CreateOrderItemRequest("Burger", "con todo")
@@ -266,7 +271,7 @@ class OrderServiceTest {
         when(orderItemRepository.saveAll(anyList())).thenReturn(List.of(testItem));
 
         CreateOrderRequest request = new CreateOrderRequest(
-            10L, 5, 18L, "Customer Demo", BigDecimal.valueOf(12.00), null,
+            10L, 5, 50L, 18L, "Customer Demo", BigDecimal.valueOf(12.00), null,
                 List.of(new CreateOrderItemRequest("Burger", null))
         );
 

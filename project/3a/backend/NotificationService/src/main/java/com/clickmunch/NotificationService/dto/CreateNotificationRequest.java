@@ -9,5 +9,12 @@ public record CreateNotificationRequest(
         @NotBlank String type,
         @NotBlank String title,
         @NotBlank String message,
-        Long orderId
-) {}
+        Long orderId,
+        String telegramChatId  // opcional — si está presente, se envía también a Telegram
+) {
+    // Constructor de compatibilidad para el código existente que no pasa chatId
+    public CreateNotificationRequest(Long userId, Long restaurantId, String type,
+                                     String title, String message, Long orderId) {
+        this(userId, restaurantId, type, title, message, orderId, null);
+    }
+}

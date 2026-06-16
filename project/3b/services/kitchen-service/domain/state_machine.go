@@ -1,6 +1,9 @@
 package domain
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 // allowedTransitions defines the valid state machine for kitchen orders.
 // Biblia técnica — Reglas de Transición Obligatorias:
@@ -41,7 +44,7 @@ func ValidateTransition(from, to KitchenOrderStatus) error {
 
 // ParseStatus converts a raw string into a KitchenOrderStatus, validating the value.
 func ParseStatus(raw string) (KitchenOrderStatus, error) {
-	s := KitchenOrderStatus(raw)
+	s := KitchenOrderStatus(strings.ToUpper(raw))
 	switch s {
 	case StatusCreated, StatusInPreparation, StatusReady, StatusDelivered, StatusCancelled:
 		return s, nil

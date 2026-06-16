@@ -29,11 +29,11 @@ component "Google SMTP Server" <<External System>> as SMTP_External {
 }
 
 ' --- Frontends ---
-component "Customer App\n[Next.js]" as CustomerApp {
+component "Customer App\n(Next.js)\n<<Frontend>>" as CustomerApp {
     portin "3001" as ca_in
     portout "gatewayPort" as ca_out
 }
-component "Restaurant Dashboard\n[React/Vite]" as RestaurantDashboard {
+component "Restaurant Dashboard\n(React/Vite)\n<<Frontend>>" as RestaurantDashboard {
     portin "5173" as rd_in
     portout "gatewayPort" as rd_out
 }
@@ -45,6 +45,8 @@ component "API Gateway\n(Express/WAF/Throttling)\n<<Gateway>>" as APIGateway {
     portout "catalogPort" as gw_out_cat
     portout "orderPort" as gw_out_ord
     portout "kitchenPort" as gw_out_kit
+    portout "notificationPort" as gw_out_notif
+    portout "cachePort" as gw_out_cache
 }
 
 ' --- Microservices ---
@@ -68,7 +70,6 @@ component "Order Service\n(Java/Spring Boot)\n<<Service>>" as OrderService {
 
 component "Kitchen Service\n(Go/Fiber)\n<<Service>>" as KitchenService {
     portin "8082" as kit_in
-    portout "dbPort" as kit_db_out
     portout "brokerPort" as kit_broker_out
 }
 
@@ -76,27 +77,28 @@ component "Notification Service\n(Python/Django)\n<<Service>>" as NotificationSe
     portin "8000" as notif_in
     portout "authPort" as notif_auth_out
     portout "smtpPort" as notif_smtp_out
+    portout "dbPort" as notif_db_out
 }
 
 ' --- Data Stores & Brokers ---
-database "Catalog DB\n<<PostgreSQL>>" as CatalogDB {
+database "Catalog DB\n(PostgreSQL)\n<<Database>>" as CatalogDB {
     portin "5432" as catdb_in
 }
-database "Order DB\n<<PostgreSQL>>" as OrderDB {
+database "Order DB\n(PostgreSQL)\n<<Database>>" as OrderDB {
     portin "5432" as orddb_in
 }
-database "Kitchen DB\n<<MongoDB>>" as KitchenDB {
-    portin "27017" as kitdb_in
+database "Tracking DB\n(MongoDB)\n<<Database>>" as TrackingDB {
+    portin "27017" as trackdb_in
 }
-database "Auth DB\n<<PostgreSQL>>" as AuthDB {
+database "Auth DB\n(PostgreSQL)\n<<Database>>" as AuthDB {
     portin "5432" as authdb_in
 }
 
-queue "Event Broker\n<<RabbitMQ>>" as RabbitMQ {
+queue "Event Broker\n(RabbitMQ)\n<<Message Broker>>" as RabbitMQ {
     portin "5672" as rmq_in
 }
 
-database "Valkey Cache\n<<Redis/Valkey>>" as ValkeyCache {
+database "Valkey Cache\n(Redis/Valkey)\n<<Cache>>" as ValkeyCache {
     portin "6379" as valkey_in
 }
 
@@ -116,11 +118,12 @@ interface "<<HTTP>>" as I_Catalog
 interface "<<HTTP>>" as I_Order
 interface "<<HTTP>>" as I_Kitchen
 interface "<<HTTP>>" as I_Notification
+interface "<<HTTP>>" as I_Notif_GW
 
 ' Interfaces for DBs
 interface "<<TCP/IP>>" as I_CatDB
 interface "<<TCP/IP>>" as I_OrdDB
-interface "<<TCP/IP>>" as I_KitDB
+interface "<<TCP/IP>>" as I_TrackDB
 interface "<<TCP/IP>>" as I_AuthDB
 interface "<<RESP>>" as I_Valkey
 
@@ -155,6 +158,9 @@ I_Order -- ord_in
 gw_out_kit --( I_Kitchen
 I_Kitchen -- kit_in
 
+gw_out_notif --( I_Notif_GW
+I_Notif_GW -- notif_in
+
 ' --- Internal Service-to-Service (API Composition) ---
 notif_auth_out --( I_Auth_Notif
 I_Auth_Notif -- auth_in
@@ -169,13 +175,14 @@ I_CatDB -- catdb_in
 ord_db_out --( I_OrdDB
 I_OrdDB -- orddb_in
 
-kit_db_out --( I_KitDB
-I_KitDB -- kitdb_in
+notif_db_out --( I_TrackDB
+I_TrackDB -- trackdb_in
 
 auth_db_out --( I_AuthDB
 I_AuthDB -- authdb_in
 
 cat_cache_out --( I_Valkey
+gw_out_cache --( I_Valkey
 I_Valkey -- valkey_in
 
 ' --- Event Broker (AMQP) ---

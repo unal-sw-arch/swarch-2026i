@@ -313,7 +313,7 @@ Decomposition by *bounded context*: each microservice encapsulates its domain, A
 | **Response** | The service formats the message using standard MIME protocols and authenticates securely against the external Google SMTP Server to dispatch the email |
 | **Measure** | 100% of emails are successfully routed to the external provider using standard protocols without the need to maintain an in-house mail server |
 
-- **Applied pattern:** **External Service / API Integration Pattern**.
+- **Applied pattern:** **Adapter Pattern** (acts as a Wrapper to decouple the external Google SMTP service from the internal domain).
 - **Tactics:** *Adhere to standards* (SMTP / TLS), *Tailor interface*.
 - **Implementation:** The Django Notification Service acts as an interoperability client interacting with an external third-party infrastructure (Google SMTP on port 587) to fulfill a system capability.
 

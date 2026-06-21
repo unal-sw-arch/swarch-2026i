@@ -1,14 +1,63 @@
 services:
-  game-scraper:
+  scrapper-lb:
+    build:
+      context: ./performance-scalability/load-balancer
+      dockerfile: Dockerfile.balancer
+    container_name: scrapper-lb
+    ports:
+      - "5010:8080"
+    environment:
+      - LB_ALGORITHM=least_connections
+    depends_on:
+      - scrapper-service-1
+      - scrapper-service-2
+      - scrapper-service-3
+    networks:
+      - app-network
+
+  scrapper-service-1:
     build:
       context: ./scrapper-service
       dockerfile: Dockerfile
-    container_name: game-scraper
-    ports:
-      - "5010:5000"
+    environment: &scrapper-env
+      FLASK_ENV: production
+      PYTHONUNBUFFERED: "1"
+      SCRAPPER_LOOP_INTERVAL_MINUTES: "2"
+      USER_SERVICE_URL: http://user-service:4000
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/postgres
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: "5672"
+      RABBITMQ_USER: guest
+      RABBITMQ_PASSWORD: guest
+    depends_on:
+      - rabbitmq
+      - postgres
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  scrapper-service-2:
+    build:
+      context: ./scrapper-service
+      dockerfile: Dockerfile
     environment:
-      - FLASK_ENV=production
-      - PYTHONUNBUFFERED=1
+      <<: *scrapper-env
+    depends_on:
+      - rabbitmq
+      - postgres
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  scrapper-service-3:
+    build:
+      context: ./scrapper-service
+      dockerfile: Dockerfile
+    environment:
+      <<: *scrapper-env
+    depends_on:
+      - rabbitmq
+      - postgres
     networks:
       - app-network
     restart: unless-stopped
@@ -17,10 +66,13 @@ services:
     build:
       context: ./user-service
     container_name: user-service
-    ports:
-      - "4000:4000"
+#    ports:
+#      - "4000:4000"
     env_file:
       - ./user-service/.env
+    environment:
+      BETTER_AUTH_URL: https://localhost:8443/api/auth
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/users_db
     depends_on:
       - postgres
     networks:
@@ -35,8 +87,8 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: users_db
-    ports:
-      - "5433:5432"
+#    ports:
+#      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -45,9 +97,9 @@ services:
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
-    ports:
-      - "5672:5672"
-      - "15672:15672"
+#    ports:
+#      - "5672:5672"
+#      - "15672:15672"
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
@@ -62,26 +114,123 @@ services:
       - app-network
     restart: unless-stopped
 
+  notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    container_name: notification-service
+#    ports:
+#      - "3001:3001"
+    env_file:
+      - ./notification-service/.env
+    environment:
+      PORT: 3001
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: guest
+      RABBITMQ_PASSWORD: guest
+      NOTIFICATION_QUEUE: notification_queue
+    depends_on:
+      - rabbitmq
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  # --- Ranking hot-spare protection group (Reliability Lab 6, Part B) ---------
+  # active + spare both consume every price event from the ranking fanout
+  # exchange and share Redis, so their leaderboards stay identical. The
+  # coordinator routes reads to the active and promotes the spare on failure.
+  ranking-active:
+    build:
+      context: ./ranking-service
+      dockerfile: Dockerfile
+    image: gameseeker/ranking-service:lab6
+    container_name: ranking-active
+    environment:
+      SERVER_PORT: 6001
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: guest
+      RABBITMQ_PASSWORD: guest
+      RANKING_EXCHANGE: ranking_prices_exchange
+      RANKING_INSTANCE_ID: active
+      RANKING_INSTANCE_QUEUE: ranking_prices_active
+    depends_on:
+      - redis
+      - rabbitmq
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  ranking-spare:
+    image: gameseeker/ranking-service:lab6   # same image as active
+    container_name: ranking-spare
+    environment:
+      SERVER_PORT: 6001
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: guest
+      RABBITMQ_PASSWORD: guest
+      RANKING_EXCHANGE: ranking_prices_exchange
+      RANKING_INSTANCE_ID: spare
+      RANKING_INSTANCE_QUEUE: ranking_prices_spare
+    depends_on:
+      - redis
+      - rabbitmq
+      - ranking-active
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  ranking-coordinator:
+    build:
+      context: ./reliability/ranking-coordinator
+      dockerfile: Dockerfile
+    container_name: ranking-coordinator
+#    ports:
+#      - "6010:6001"
+    environment:
+      RANKING_ACTIVE_URL: http://ranking-active:6001
+      RANKING_SPARE_URL: http://ranking-spare:6001
+      HEALTH_INTERVAL_SECONDS: "0.25"
+      FAIL_THRESHOLD: "2"
+      FAILBACK: "true"
+    depends_on:
+      - ranking-active
+      - ranking-spare
+    networks:
+      - app-network
+    restart: unless-stopped
+
   gateway-service:
     build:
       context: ./gateway-service
       dockerfile: Dockerfile
     container_name: gateway-service
-    ports:
-      - "8080:8080"
+#    ports:
+#      - "8080:8080"
     environment:
       PORT: 8080
       USER_SERVICE_URL: http://user-service:4000
-      SCRAPPER_SERVICE_URL: http://game-scraper:5000
+      # Scrapper requests go through the load balancer (performance lab).
+      SCRAPPER_SERVICE_URL: http://scrapper-lb:8080
+      # Ranking reads go through the hot-spare coordinator, not a single node (reliability lab).
+      RANKING_SERVICE_URL: http://ranking-coordinator:6001
       REDIS_URL: redis://redis:6379
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: 5672
       RABBITMQ_USER: guest
       RABBITMQ_PASSWORD: guest
       RABBITMQ_QUEUE: game_prices_queue
+      GATEWAY_AUTH_ORIGIN: https://localhost:8443
+      #RATE_LIMIT_ENABLED: "false"
     depends_on:
       - user-service
-      - game-scraper
+      - scrapper-lb
       - redis
       - rabbitmq
     networks:
@@ -92,15 +241,36 @@ services:
     build:
       context: ./frontend-service
       dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
+      args:
+        - NEXT_PUBLIC_GATEWAY_URL=https://localhost:8443
+#    ports:
+#      - "3000:3000"
     environment:
-      GATEWAY_URL: http://gateway-service:8080
-      NEXT_PUBLIC_GATEWAY_URL: http://localhost:8080
+      - GATEWAY_URL=http://gateway-service:8080
+      - NEXT_PUBLIC_GATEWAY_URL=https://localhost:8443
     depends_on:
       - gateway-service
     networks:
       - app-network
+
+  reverse-proxy:
+    build:
+      context: ./reverse-proxy
+      dockerfile: Dockerfile
+    container_name: reverse-proxy
+    ports:
+      - "8443:8000"
+    environment:
+      - GATEWAY_URL=http://gateway-service:8080
+      - FRONTEND_URL=http://frontend-service:3000
+    depends_on:
+      - gateway-service
+      - frontend-service
+    volumes:
+      - certs-data:/app/certs
+    networks:
+      - app-network
+    restart: unless-stopped
 
 networks:
   app-network:
@@ -108,3 +278,4 @@ networks:
 
 volumes:
   postgres_data:
+  certs-data:

@@ -1,0 +1,46 @@
+spring:
+  application:
+    name: ReservationService
+  jmx:
+    enabled: false
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5437/reservation_db}
+    username: ${SPRING_DATASOURCE_USERNAME:mike}
+    password: ${SPRING_DATASOURCE_PASSWORD:secret}
+    driver-class-name: org.postgresql.Driver
+
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:localhost}
+    port: ${SPRING_RABBITMQ_PORT:5672}
+    username: ${SPRING_RABBITMQ_USERNAME:mike}
+    password: ${SPRING_RABBITMQ_PASSWORD:secret}
+
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+
+  data:
+    jdbc:
+      dialect: postgresql
+
+server:
+  port: 8086
+
+services:
+  restaurant:
+    url: ${RESTAURANT_SERVICE_URL:http://localhost:8082}
+
+logging:
+  level:
+    root: INFO
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+    jmx:
+      exposure:
+        exclude: "*"

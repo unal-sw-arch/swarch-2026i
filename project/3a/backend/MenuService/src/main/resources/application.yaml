@@ -5,7 +5,7 @@ spring:
     enabled: false
 
   mongodb:
-    uri: ${SPRING_MONGODB_URI:mongodb://mike:secret@localhost:27018/menu_db?authSource=admin}
+    uri: ${SPRING_MONGODB_URI}
     database: ${SPRING_MONGODB_DATABASE:menu_db}
 
 server:
@@ -17,5 +17,9 @@ logging:
     org.springframework.data.mongodb: DEBUG
 
 restaurant:
-    service:
+  service:
     url: ${RESTAURANT_SERVICE_URL:http://localhost:8082}
+
+app:
+  seed:
+    enabled: ${APP_SEED_ENABLED:false}

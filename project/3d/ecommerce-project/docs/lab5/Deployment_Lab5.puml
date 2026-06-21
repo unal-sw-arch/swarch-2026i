@@ -1,0 +1,76 @@
+@startuml
+!theme plain
+skinparam shadowing false
+left to right direction
+
+title Deployment View - Docker Compose (Lab 5 - Security, Jun 2026)
+
+node "Developer Machine" {
+  node "Docker Engine" {
+
+    rectangle "subnet_a\n(Public Zone)" #LightBlue {
+      node "frontend container\nNext.js :3000" as Frontend
+      node "api-gateway container\nNginx :8000 (HTTP→301)\n     :8443 (HTTPS/TLS)" as Gateway
+    }
+
+    rectangle "subnet_b\n(Private Zone)" #LightYellow {
+      node "auth-service container\n:8001" as Auth
+      node "user-service container\n:8002->8000" as UserService
+      node "product-service container\n:8003" as Product
+      node "order-service container\n:8004" as Order
+      node "ai-service container\n:8005\n[Rate Limit: 10r/60s Redis]" as AI
+
+      database "auth-postgres\n:5432" as AuthDB
+      database "user-postgres\n:5432" as UserDB
+      database "order-postgres\n:5432" as OrderDB
+      database "product-postgres\n:5432" as ProductDB
+      database "redis\n:6379\n(sessions + rate limit)" as Redis
+      queue "rabbitmq\n:5672 / :15672" as MQ
+    }
+
+    artifact "TLS Certificate\nnginx.crt / nginx.key\n(self-signed, RSA 2048)" as Cert
+  }
+}
+
+Frontend --> Gateway : HTTPS :8443\n(NEXT_PUBLIC_API_URL)
+Gateway --> Auth     : HTTP /auth/\n[Rate: 10r/s burst 20]
+Gateway --> UserService : HTTP /users/, /internal/\n[Rate: 10r/s burst 20]
+Gateway --> Product  : HTTP /products/\n[Rate: 10r/s burst 20]
+Gateway --> Order    : HTTP /orders/\n[Rate: 10r/s burst 10]
+Gateway --> AI       : HTTP /ai/\n[Rate: 2r/s burst 5]
+Gateway ..> Cert     : loads
+
+Auth --> AuthDB
+Auth --> Redis
+Auth --> MQ
+
+UserService --> UserDB
+UserService --> MQ
+
+Product --> ProductDB
+Product --> Redis
+Product --> UserService
+
+Order --> OrderDB
+Order --> Product
+Order --> MQ
+
+AI --> Redis : sliding window\nrate limit keys
+AI --> Product
+AI --> UserService
+AI --> Order
+
+note bottom of Gateway
+  **Reverse Proxy Pattern**
+  Single public entry point.
+  Hides internal topology.
+  SSL termination here.
+end note
+
+note bottom of Redis
+  **Rate Limiting**
+  key: rate_limit:ai:<user|ip>
+  Sliding window counter
+end note
+
+@enduml

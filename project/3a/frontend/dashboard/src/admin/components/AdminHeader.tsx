@@ -1,28 +1,99 @@
-import React, { useMemo, useState } from 'react';
-import { Search, Bell, MessageSquare, Settings } from 'lucide-react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
+import { Search, Bell, MessageSquare, Settings, LogOut, KeyRound } from 'lucide-react';
 import { useNavigate } from 'react-router';
+import { useAuth } from '@/contexts/AuthContext';
+import { getCurrentUserInitials, getCurrentUserRole } from '@/lib/auth';
+import { AccountSettingsModal } from './AccountSettingsModal';
+import { NOTIFICATIONS_SEEN_EVENT, notificationService } from '@/lib/services/notificationService';
 
 export const AdminHeader: React.FC = () => {
   const navigate = useNavigate();
+  const { user, logout, restaurantId } = useAuth();
   const [query, setQuery] = useState("");
   const [focused, setFocused] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [configOpen, setConfigOpen] = useState(false);
+  const [hasNewNotifications, setHasNewNotifications] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const quickLinks = useMemo(
-    () => [
-      { label: "Dashboard", path: "/" },
-      { label: "Productos", path: "/products" },
-      { label: "Usuarios", path: "/users" },
-      { label: "Órdenes", path: "/orders" },
-      { label: "Reservas", path: "/reservations" },
-      { label: "Restaurantes", path: "/restaurants" },
-      { label: "Ratings", path: "/ratings" },
-      { label: "Reportes", path: "/reports" },
-      { label: "Notificaciones", path: "/notifications" },
-      { label: "Ajustes", path: "/settings" },
-      { label: "Ayuda", path: "/help" },
-    ],
-    []
-  );
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const userInitial = useMemo(() => getCurrentUserInitials(), []);
+
+  useEffect(() => {
+    if (!restaurantId) {
+      setHasNewNotifications(false);
+      return;
+    }
+
+    const loadNotifications = async () => {
+      try {
+        const notifications = await notificationService.getByRestaurant(restaurantId);
+        setHasNewNotifications(notificationService.hasUnseen(restaurantId, notifications));
+      } catch (error) {
+        console.error("Error loading notification indicator:", error);
+      }
+    };
+
+    void loadNotifications();
+    const interval = window.setInterval(loadNotifications, 30_000);
+
+    const handleSeen = (event: Event) => {
+      const detail = (event as CustomEvent<{ restaurantId?: string }>).detail;
+      if (detail?.restaurantId === String(restaurantId)) {
+        setHasNewNotifications(false);
+      }
+    };
+    window.addEventListener(NOTIFICATIONS_SEEN_EVENT, handleSeen);
+
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener(NOTIFICATIONS_SEEN_EVENT, handleSeen);
+    };
+  }, [restaurantId]);
+
+  // Cerrar dropdown al hacer click fuera
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const allQuickLinks = [
+    { label: "Dashboard", path: "/", roles: ['ADMIN', 'RESTAURANT_MANAGER'] },
+    { label: "Productos", path: "/products", roles: ['ADMIN', 'RESTAURANT_MANAGER'] },
+    { label: "Usuarios", path: "/users", roles: ['ADMIN'] },
+    { label: "Órdenes", path: "/orders", roles: ['ADMIN', 'RESTAURANT_MANAGER', 'WAITER'] },
+    { label: "Cocina", path: "/kitchen", roles: ['ADMIN', 'RESTAURANT_MANAGER', 'CHEF'] },
+    { label: "Reservas", path: "/reservations", roles: ['ADMIN', 'RESTAURANT_MANAGER', 'WAITER'] },
+    { label: "Mesas", path: "/tables", roles: ['RESTAURANT_MANAGER', 'WAITER'] },
+    { label: "Restaurantes", path: "/restaurants", roles: ['ADMIN'] },
+    { label: "Ratings", path: "/ratings", roles: ['ADMIN', 'RESTAURANT_MANAGER'] },
+    { label: "Reportes", path: "/reports", roles: ['ADMIN', 'RESTAURANT_MANAGER'] },
+    { label: "Notificaciones", path: "/notifications", roles: ['ADMIN', 'RESTAURANT_MANAGER'] },
+    { label: "Ajustes", path: "/settings", roles: ['ADMIN'] },
+    { label: "Ayuda", path: "/help", roles: ['ADMIN'] },
+  ];
+
+  const quickLinks = useMemo(() => {
+    const userRole = getCurrentUserRole();
+    if (!userRole) return [];
+    
+    return allQuickLinks.filter(link => link.roles.includes(userRole));
+  }, []);
 
   const suggestions = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -40,6 +111,14 @@ export const AdminHeader: React.FC = () => {
     if (suggestions.length > 0) {
       handleSelect(suggestions[0].path);
     }
+  };
+
+  const handleNotificationsClick = () => {
+    if (restaurantId) {
+      notificationService.markRestaurantSeen(restaurantId);
+      setHasNewNotifications(false);
+    }
+    navigate('/notifications');
   };
 
   return (
@@ -78,24 +157,83 @@ export const AdminHeader: React.FC = () => {
 
         {/* Actions */}
         <div className="flex items-center space-x-4">
-          <button title="button" className="relative p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+          <button
+            type="button"
+            title="Notificaciones"
+            onClick={handleNotificationsClick}
+            className="relative p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+          >
             <Bell size={20} />
-            <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
+            {hasNewNotifications && (
+              <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
+            )}
           </button>
           
-          <button title="button" className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+          <button
+            type="button"
+            title="Mensajes"
+            onClick={() => navigate('/reservations')}
+            className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+          >
             <MessageSquare size={20} />
           </button>
           
-          <button title="button" className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+          <button
+            type="button"
+            title="Configuración"
+            onClick={() => setConfigOpen(true)}
+            className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+          >
             <Settings size={20} />
           </button>
 
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm cursor-pointer hover:shadow-lg transition-shadow">
-            JD
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm cursor-pointer hover:shadow-lg transition-shadow flex items-center gap-1"
+            >
+              {userInitial}              
+            </button>
+
+            {dropdownOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                <div className="px-4 py-3 border-b border-gray-200">
+                  <p className="text-sm font-medium text-gray-900">{user?.username || 'Usuario'}</p>
+                  <p className="text-xs text-gray-500">{user?.role || 'Rol'}</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setConfigOpen(true);
+                    setDropdownOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                >
+                  <KeyRound size={16} />
+                  Configuración
+                </button>
+                <button
+                  onClick={() => {
+                    logout();
+                    setDropdownOpen(false);
+                    navigate('/auth/login');
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                >
+                  <LogOut size={16} />
+                  Cerrar sesión
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
+
+      <AccountSettingsModal
+        open={configOpen}
+        onClose={() => setConfigOpen(false)}
+        username={user?.username}
+        role={user?.role}
+      />
     </header>
   );
 };

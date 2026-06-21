@@ -94,3 +94,54 @@ export interface UpdateTaskStatusDto {
 export interface CreateHabitDto {
   name: string;
 }
+
+export type ChatReactionKey = 'love' | 'clap' | 'fire' | 'encourage';
+
+export type ChatReactions = Record<ChatReactionKey, number>;
+
+export type ChatReactionUsers = Partial<Record<ChatReactionKey, number[]>>;
+
+export interface ChatMessage {
+  id: number;
+  memberId: string | number | null;
+  memberName: string;
+  text: string;
+  createdAt: string;
+  reactions: ChatReactions;
+  reaction_user_ids?: ChatReactionUsers;
+}
+
+export type RoomChatEvent =
+  | {
+      type: 'CHAT_MESSAGE_CREATED';
+      payload: { message: ChatMessage };
+    }
+  | {
+      type: 'CHAT_MESSAGE_REACTION';
+      payload: {
+        messageId: number;
+        reactionKey: ChatReactionKey;
+        count: number;
+        reactorUserIds?: number[];
+      };
+    };
+
+
+    
+export interface StreakData {
+  userId: number;
+  streak: number;
+}
+
+export interface LeaderboardEntry {
+  position: number;
+  userId: number;
+  userName: string;
+  totalTasks: number;
+}
+
+export interface LeaderboardData {
+  roomId: number;
+  weekStart: string;
+  leaderboard: LeaderboardEntry[];
+}

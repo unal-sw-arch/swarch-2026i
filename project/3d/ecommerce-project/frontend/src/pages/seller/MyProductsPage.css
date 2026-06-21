@@ -1,0 +1,176 @@
+.seller-section {
+  width: min(980px, calc(100% - 32px));
+  margin: 0 auto 32px;
+  display: grid;
+  gap: 14px;
+  text-align: left;
+}
+
+.seller-header h2 {
+  margin: 0 0 4px;
+}
+
+.seller-header p {
+  margin: 0;
+  color: var(--text);
+}
+
+.seller-card {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--social-bg);
+  padding: 16px;
+}
+
+.seller-card h3 {
+  margin: 0 0 10px;
+  color: var(--text-h);
+}
+
+.seller-form {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.seller-form input,
+.seller-form select {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: var(--bg);
+  color: var(--text-h);
+}
+
+.seller-form button {
+  grid-column: 1 / -1;
+  border: 0;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #fff;
+  padding: 10px 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.seller-form button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.seller-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 12px;
+}
+
+.product-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+  padding: 12px;
+  display: grid;
+  gap: 8px;
+}
+
+.listing-image-form {
+  margin-top: 8px;
+  display: grid;
+  gap: 8px;
+}
+
+.listing-image-form input {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: var(--social-bg);
+  color: var(--text-h);
+}
+
+.listing-image-form button {
+  border: 0;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  padding: 9px 12px;
+  cursor: pointer;
+}
+
+.listing-image-form button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.product-card h4 {
+  margin: 0;
+  font-size: 17px;
+  color: var(--text-h);
+}
+
+.product-card p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.product-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.product-price {
+  font-weight: 700;
+  color: var(--text-h);
+}
+
+.stock {
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 20px;
+  padding: 4px 8px;
+}
+
+.in-stock {
+  color: #166534;
+  background: #dcfce7;
+}
+
+.out-stock {
+  color: #991b1b;
+  background: #fee2e2;
+}
+
+.seller-state,
+.seller-error,
+.seller-success {
+  margin: 4px 0;
+  font-size: 14px;
+}
+
+.seller-error {
+  color: #b42318;
+}
+
+.seller-warning {
+  color: #854d0e;
+  background: #fef3c7;
+  border: 1px solid #facc15;
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+
+.seller-success {
+  color: #166534;
+}
+
+@media (max-width: 768px) {
+  .seller-section {
+    width: calc(100% - 24px);
+  }
+
+  .seller-form {
+    grid-template-columns: 1fr;
+  }
+}

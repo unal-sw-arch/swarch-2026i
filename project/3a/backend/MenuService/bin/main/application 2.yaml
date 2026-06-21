@@ -4,20 +4,9 @@ spring:
   jmx:
     enabled: false
 
-  datasource:
-    url: jdbc:postgresql://localhost:5436/menu_db
-    username: mike
-    password: secret
-    driver-class-name: org.postgresql.Driver
-
-  sql:
-    init:
-      mode: always
-      schema-locations: classpath:schema.sql
-
-  data:
-    jdbc:
-      dialect: postgresql
+  mongodb:
+    uri: ${SPRING_MONGODB_URI}
+    database: ${SPRING_MONGODB_DATABASE:menu_db}
 
 server:
   port: 8084
@@ -25,8 +14,12 @@ server:
 logging:
   level:
     root: INFO
-    org.springframework.jdbc.core: DEBUG
+    org.springframework.data.mongodb: DEBUG
 
 restaurant:
-    service:
-        url: http://localhost:8082
+  service:
+    url: ${RESTAURANT_SERVICE_URL:http://localhost:8082}
+
+app:
+  seed:
+    enabled: ${APP_SEED_ENABLED:false}

@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label"
 import { Link, useNavigate } from "react-router"
 import { useState } from "react"
 import { useAuth } from "@/contexts/AuthContext"
+import { getCurrentUserRole } from "@/lib/auth"
 
 export const LoginPage = () => {
   const navigate = useNavigate();
@@ -26,7 +27,16 @@ export const LoginPage = () => {
     setLoading(true);
     try {
       await login(username, password);
-      navigate("/");
+      const role = getCurrentUserRole();
+      if (role === 'CUSTOMER') {
+        navigate('/customer');
+      } else if (role === 'CHEF') {
+        navigate('/kitchen');
+      } else if (role === 'WAITER') {
+        navigate('/orders');
+      } else {
+        navigate('/');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al iniciar sesión");
     } finally {
@@ -83,6 +93,7 @@ export const LoginPage = () => {
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? "Ingresando..." : "Ingresar"}
               </Button>
+              {/**   
               <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
                 <span className="relative z-10 bg-background px-2 text-muted-foreground">O ingresa con</span>
               </div>
@@ -115,6 +126,7 @@ export const LoginPage = () => {
                   <span className="sr-only">Login with Meta</span>
                 </Button>
               </div>
+              */}
               <div className="text-center text-sm">
                 No tienes cuenta?{" "}
                 <Link to="/auth/register" className="underline underline-offset-4">

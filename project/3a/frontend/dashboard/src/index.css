@@ -119,6 +119,17 @@
   }
 }
 
+.leaflet-container .leaflet-popup-pane,
+.leaflet-map-pane .leaflet-popup-pane,
+.leaflet-popup-pane {
+  z-index: 900 !important;
+}
+
+.leaflet-container .leaflet-popup,
+.leaflet-popup {
+  z-index: 901 !important;
+}
+
 @theme {
   --font-monserrat: "Montserrat Alternates", sans-serif;
 }

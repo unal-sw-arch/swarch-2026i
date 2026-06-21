@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  namespace: deliunal
+  labels:
+    app: api-gateway
+    app.kubernetes.io/name: api-gateway
+    app.kubernetes.io/part-of: deliunal-platform
+    app.kubernetes.io/component: gateway
+    architecture-pattern: active-redundancy
+    redundancy-mode: hot-spare
+  annotations:
+    deliunal.unal.edu.co/architecture-pattern: "Active Redundancy"
+    deliunal.unal.edu.co/redundancy-mode: "Hot Spare"
+    deliunal.unal.edu.co/redundancy-description: "Two active API Gateway replicas serve traffic through the Kubernetes Service."
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+        app.kubernetes.io/name: api-gateway
+        app.kubernetes.io/part-of: deliunal-platform
+        app.kubernetes.io/component: gateway
+        architecture-pattern: active-redundancy
+        redundancy-mode: hot-spare
+      annotations:
+        deliunal.unal.edu.co/architecture-pattern: "Active Redundancy"
+        deliunal.unal.edu.co/redundancy-mode: "Hot Spare"
+    spec:
+      containers:
+        - name: api-gateway
+          image: deliunal-api-gateway:k8s
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 4000
+          env:
+            - name: PORT
+              value: "4000"
+            - name: AUTH_SERVICE_URL
+              value: "http://host.docker.internal:8001"
+            - name: CATALOG_SERVICE_URL
+              value: "http://host.docker.internal:3000"
+            - name: ORDER_SERVICE_URL
+              value: "http://host.docker.internal:8080"
+            - name: NOTIFICATION_SERVICE_URL
+              value: "http://host.docker.internal:8000"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 2
+            failureThreshold: 3

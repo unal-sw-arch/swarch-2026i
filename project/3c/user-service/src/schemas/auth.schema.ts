@@ -91,3 +91,5 @@ export const ZodErrorSchema = z
     }),
   })
   .openapi("ZodError");
+
+export const EmptySchema = z.object({}).strict().openapi("EmptyObject");

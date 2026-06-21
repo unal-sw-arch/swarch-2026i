@@ -1,0 +1,26 @@
+{
+  "name": "notification-service",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "lint": "biome check",
+    "lint:fix": "biome check --write",
+    "format": "biome format --write"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.19.14",
+    "amqplib": "^1.0.3",
+    "hono": "^4.12.14",
+    "resend": "^6.12.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.4.12",
+    "@types/amqplib": "^0.10.8",
+    "@types/node": "^20.11.17",
+    "@types/pg": "^8.20.0",
+    "tsx": "^4.7.1",
+    "typescript": "^5.8.3"
+  }
+}

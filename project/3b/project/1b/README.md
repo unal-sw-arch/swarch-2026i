@@ -1,1 +1,0 @@
-# Documento Principal - Grupo 1b

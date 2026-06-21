@@ -1,0 +1,14 @@
+# Override para Load Balancer Pattern (PERF-02)
+# Uso: docker compose -f docker-compose.yml -f docker-compose.lb.yml up -d --scale product-service=2
+#
+# En modo LB, product-service escala a 2 réplicas. El resolver de NGINX
+# (127.0.0.11) reresuelve el hostname periódicamente y distribuye entre
+# ambas réplicas vía DNS round-robin del daemon Docker.
+#
+# Para NGINX OSS con least_conn real se necesitaría NGINX Plus o Traefik.
+# Esta implementación es suficiente para demostrar el patrón horizontalmente.
+
+services:
+  product-service:
+    deploy:
+      replicas: 2

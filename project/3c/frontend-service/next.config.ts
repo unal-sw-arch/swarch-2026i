@@ -7,6 +7,12 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'cdn.akamai.steamstatic.com',
+        pathname: '/**'
+      },
+      {
+      protocol: "https",
+      hostname: "shared.akamai.steamstatic.com",
+      pathname: '/**'
       },
       {
         protocol: 'https',
@@ -15,10 +21,27 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'images.gog-statics.com',
+        pathname: '/**'
       },
       {
         protocol: 'https',
         hostname: 'store-images.s-microsoft.com',
+        pathname: '/**'
+      },
+      {
+      protocol: "https",
+      hostname: "cdn.cloudflare.steamstatic.com",
+      pathname: '/**'
+      },
+      {
+        protocol: "https",
+        hostname: "cdn.akamai.steamstatic.com",
+        pathname: '/**'
+      },
+      {
+        protocol: "https",
+        hostname: "store.steampowered.com",
+        pathname: '/**'
       },
     ],
   },

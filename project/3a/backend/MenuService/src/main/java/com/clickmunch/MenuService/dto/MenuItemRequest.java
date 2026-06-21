@@ -1,11 +1,16 @@
 package com.clickmunch.MenuService.dto;
 
 import java.math.BigDecimal;
+import java.time.LocalTime;
 
 public record MenuItemRequest(
+    String categoryId,
     String name,
     String description,
     BigDecimal price,
-    String imageUrl
+    String imageUrl,
+    LocalTime availableFrom,
+    LocalTime availableTo,
+    Integer preparationMinutes
 ) {
 }

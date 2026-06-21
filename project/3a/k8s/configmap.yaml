@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: clickmunch-config
+  namespace: clickmunch
+data:
+  # Internal K8s service names for services deployed in this cluster
+  SERVICES_AUTH_URL: "http://authservice:8081"
+
+  # For services still running in Docker Compose outside this cluster,
+  # replace <HOST_IP> with the output of: minikube ssh "route -n | grep ^0.0.0.0 | awk '{print \$2}'"
+  # On most setups this is the gateway address visible from inside Minikube (e.g., 192.168.49.1)
+  SERVICES_RESTAURANT_URL: "http://host.docker.internal:8082"
+  SERVICES_MENU_URL:        "http://host.docker.internal:8084"
+  SERVICES_ORDER_URL:       "http://host.docker.internal:8085"
+  SERVICES_ORDER_WS_URL:    "ws://host.docker.internal:8085"
+  SERVICES_RESERVATION_URL: "http://host.docker.internal:8086"
+  SERVICES_CHECKOUT_URL:    "http://host.docker.internal:8089"
+  SERVICES_RATING_URL:      "http://host.docker.internal:8088"
+  # NotificationService now runs inside K8s (Cold Spare pattern)
+  SERVICES_NOTIFICATION_URL: "http://notificationservice:8087"
+
+  # Auth DB connection (K8s internal)
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://auth-db:5432/auth_db"
+  POSTGRES_DB:           "auth_db"
+  POSTGRES_USER:         "devuser"
+
+  # Notification DB connection (K8s internal — Cold Spare)
+  NOTIFICATION_DATASOURCE_URL: "jdbc:postgresql://notification-db:5432/notification_db"
+
+  # RabbitMQ (K8s internal — message buffer for Cold Spare failover)
+  SPRING_RABBITMQ_HOST: "rabbitmq"

@@ -1,0 +1,5 @@
+# Dependencies for the load balancer only.
+# The scrapper-service has its own requirements.txt — keep them separate.
+fastapi==0.111.0          # web framework for the balancer API
+uvicorn[standard]==0.29.0 # ASGI server to run FastAPI
+httpx==0.27.0             # async HTTP client to forward requests to backends

@@ -1,5 +1,5 @@
 const pool = require('../db/connection');
-const { notifyRoom } = require('../services/notifier');
+const { notifyRoom, notifyAnalytics } = require('../services/notifier');
 
 // Obtener todos los hábitos de una sala con el estado de cada miembro para hoy
 const getHabitsByRoom = async (req, res, next) => {
@@ -243,7 +243,13 @@ const completeHabit = async (req, res, next) => {
       completedBy: userId,
     });
 
+    // Avisar al analytics_service
+    const userResult = await pool.query('SELECT name FROM users WHERE id = $1', [userId]);
+    const userName = userResult.rows[0]?.name || 'Unknown';
+    notifyAnalytics(userId, userName, Number(roomId), 'HABIT_COMPLETED');
+
     res.status(200).json({ message: 'Habit completed successfully' });
+    
   } catch (err) {
     await client.query('ROLLBACK');
     next(err);

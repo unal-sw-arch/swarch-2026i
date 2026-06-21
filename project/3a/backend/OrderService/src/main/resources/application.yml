@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: OrderService
+  jmx:
+    enabled: false
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5436/order_db}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+
+  data:
+    jdbc:
+      dialect: postgresql
+
+server:
+  port: 8085
+
+services:
+  restaurant:
+    url: ${RESTAURANT_SERVICE_URL:http://localhost:8082}
+
+logging:
+  level:
+    root: INFO
+    org.springframework.jdbc.core: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+    jmx:
+      exposure:
+        exclude: "*"

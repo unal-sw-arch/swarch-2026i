@@ -1,4 +1,5 @@
 import "dotenv/config";
+import os from "node:os";
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
@@ -9,6 +10,7 @@ import games from "./routes/games.js";
 import auth from "./routes/auth.js";
 import wishlist from "./routes/wishlist.js";
 import events from "./routes/events.js";
+import ranking from "./routes/ranking.js";
 
 const app = new Hono();
 const allowedOrigins = [
@@ -16,6 +18,8 @@ const allowedOrigins = [
   "http://127.0.0.1:3000",
   "http://localhost:3001",
   "http://127.0.0.1:3001",
+  "https://localhost:8443",
+  "https://127.0.0.1:8443",
 ].filter(Boolean);
 
 // ---------------------------------------------------------------------------
@@ -30,7 +34,7 @@ app.use(
       return allowedOrigins.includes(origin) ? origin : "";
     },
     allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowHeaders: ["Content-Type", "Authorization", "Cookie"],
+    allowHeaders: ["Content-Type", "Authorization", "Cookie", "Idempotency-Key"],
     credentials: true,
   }),
 );
@@ -42,7 +46,15 @@ app.use("*", logger());
 // ---------------------------------------------------------------------------
 
 app.get("/health", (c) => {
-  return c.json({ status: "ok", service: "gateway" });
+  // `instance` exposes the hostname of the serving process. Inside Kubernetes
+  // this is the Pod name, which makes load-balancing across replicas directly
+  // observable (each request may be answered by a different Pod) and is used by
+  // the liveness/readiness probes defined in k8s/gateway-deployment.yaml.
+  return c.json({
+    status: "ok",
+    service: "gateway",
+    instance: os.hostname(),
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -53,6 +65,7 @@ app.route("/api/games", games);
 app.route("/api/auth", auth);
 app.route("/api/wishlist", wishlist);
 app.route("/api/events", events);
+app.route("/api/ranking", ranking);
 
 // ---------------------------------------------------------------------------
 // 404 fallthrough

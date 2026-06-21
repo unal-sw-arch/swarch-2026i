@@ -1,0 +1,18 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# PodDisruptionBudget para Cold Spare
+#
+# A diferencia del Hot Spare (minAvailable: 1, que garantiza siempre un pod
+# activo), el Cold Spare usa maxUnavailable: 1, que permite que el único pod
+# sea desalojado durante mantenimiento planeado. Esto es consistente con la
+# tolerancia a downtime temporal inherente al patrón Cold Spare.
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: notificationservice-pdb
+  namespace: clickmunch
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: notificationservice

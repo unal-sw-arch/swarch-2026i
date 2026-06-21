@@ -1,0 +1,100 @@
+# Click & Munch — Layered View
+# Render:  d2 --layout elk Layered_View.d2 Layered_View.png
+
+direction: down
+
+vars: {
+  d2-config: { theme-id: 0; pad: 10 }
+}
+
+classes: {
+  band: { style: { fill: "#ffffff"; stroke: "#e6e6e6"; stroke-width: 1; font-color: "#c0561f"; bold: true } }
+  card: { style: { fill: "#ffffff"; stroke: "#d0d0d0"; stroke-width: 1; border-radius: 8; font-color: "#222222" } }
+  gw:   { style: { fill: "#fff9f3"; stroke: "#e0b48a"; stroke-width: 1; border-radius: 8; font-color: "#7a3414" } }
+  bus:  { style: { fill: "#fdf6e3"; stroke: "#ecd9a6"; stroke-width: 1; border-radius: 8; font-color: "#9a6b1f" } }
+  db:   { style: { fill: "#ecf8ee"; stroke: "#b6dcb9"; stroke-width: 1; border-radius: 8; font-color: "#2f6b34" } }
+  sub:  { style: { fill: "#fafafa"; stroke: "#e2e2e2"; stroke-width: 1; border-radius: 4; font-color: "#555555"; font-size: 14 } }
+  link: { style: { opacity: 0 } }
+}
+
+c0: "CAPA 0 — PRESENTACIÓN" {
+  class: band
+  grid-columns: 2
+  m: "Mobile App\nReact Native · Expo SDK 54 · TS" { class: card }
+  d: "Web Dashboard\nReact 19 · Vite · TypeScript" { class: card }
+}
+
+c1: "CAPA 1 — EDGE · CANAL SEGURO (TLS)" {
+  class: band
+  g: "API Gateway — HTTPS/WSS terminado aquí\nJWT Filter → Path Rewriter → URI Resolver → Proxy\nSpring Cloud Gateway WebFlux · Java 21 · :8080 (único punto público)" { class: gw }
+}
+
+c2: "CAPA 2 — SERVICIOS DE NEGOCIO (HTTP plano dentro de appnet)" {
+  class: band
+  grid-columns: 9
+
+  auth: "AuthService\nJava" { class: card; grid-rows: 3; grid-gap: 12
+    ctrl: "Controller" { class: sub }
+    svc:  "Service" { class: sub }
+    repo: "Repository" { class: sub }
+  }
+  rest: "RestaurantSvc\nJava" { class: card; grid-rows: 3; grid-gap: 12
+    ctrl: "Controller" { class: sub }
+    svc:  "Service" { class: sub }
+    repo: "Repository" { class: sub }
+  }
+  geo: "GeoService\nJava · PostGIS" { class: card; grid-rows: 3; grid-gap: 12
+    ctrl: "Controller" { class: sub }
+    svc:  "Service" { class: sub }
+    repo: "Repository" { class: sub }
+  }
+  menu: "MenuService ×3\nJava · MongoDB · nginx-menu (LB)" { class: card; grid-rows: 3; grid-gap: 12
+    ctrl: "Controller" { class: sub }
+    svc:  "Service" { class: sub }
+    repo: "Repository" { class: sub }
+  }
+  order: "OrderService\nJava" { class: card; grid-rows: 3; grid-gap: 12
+    ctrl: "Controller" { class: sub }
+    svc:  "Service" { class: sub }
+    repo: "Repository" { class: sub }
+  }
+  resv: "ReservationSvc\nJava" { class: card; grid-rows: 3; grid-gap: 12
+    ctrl: "Controller" { class: sub }
+    svc:  "Service" { class: sub }
+    repo: "Repository" { class: sub }
+  }
+  checkout: "CheckoutSvc\nPython · sin BD" { class: card; grid-rows: 3; grid-gap: 12
+    ctrl: "Router" { class: sub }
+    svc:  "Orquestación" { class: sub }
+  }
+  rating: "RatingService\nJava" { class: card; grid-rows: 3; grid-gap: 12
+    ctrl: "Controller" { class: sub }
+    svc:  "Service" { class: sub }
+    repo: "Repository" { class: sub }
+  }
+  notif: "NotificationSvc\nJava · SSE" { class: card; grid-rows: 3; grid-gap: 12
+    ctrl: "Controller" { class: sub }
+    svc:  "Service" { class: sub }
+    repo: "Repository" { class: sub }
+  }
+}
+
+c3: "CAPA 3 — MENSAJERÍA ASÍNCRONA" {
+  class: band
+  r: "RabbitMQ — clickmunch.events (topic)\norder.created · order.status · reservation.confirmed · reservation.cancelled" { class: bus }
+}
+
+c4: "CAPA 4 — BASES DE DATOS" {
+  class: band
+  grid-columns: 3
+  pg:      "PostgreSQL ×6\nauth · rest · order · reserv · rating · notif" { class: db }
+  postgis: "PostGIS 16-3.4\ngeo_db" { class: db }
+  mongo:   "MongoDB 7\nmenu_db" { class: db }
+}
+
+# Invisible edges only to enforce the top-to-bottom layer order;
+# graph layout then centers each band on the vertical axis.
+c0 -> c1: { class: link }
+c1 -> c2: { class: link }
+c2 -> c3: { class: link }
+c3 -> c4: { class: link }

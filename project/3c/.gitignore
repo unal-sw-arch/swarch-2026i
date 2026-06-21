@@ -1,4 +1,12 @@
 # Claude Code local settings
+.vscode/
 .claude/settings.local.json
 .claude/worktrees/
 .obsidian/
+.DS_Store
+*.xcuserstate
+
+# Python
+__pycache__/
+venv/
+.env

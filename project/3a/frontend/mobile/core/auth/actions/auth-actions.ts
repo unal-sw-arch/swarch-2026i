@@ -75,6 +75,8 @@ const returnUserToken = (response: AuthLoginResponse, providedUsername?: string)
     if (!username && providedUsername) username = providedUsername;
 
     const user: User & { token?: string } = {
+        id: token ? decodeJwtPayload(token)?.userId : undefined,
+        name: token ? decodeJwtPayload(token)?.name : undefined,
         username: username || '',
         role: (role || 'USER') as any,
         token: token,
@@ -88,7 +90,7 @@ const returnUserToken = (response: AuthLoginResponse, providedUsername?: string)
 
 export const authLogin = async (username: string, password: string) => {
     try {
-       const { data } = await productsApi.post<AuthLoginResponse>('/api/auth/login', {
+       const { data } = await productsApi.post<AuthLoginResponse>('/auth/login', {
         username,
         password,
        });
@@ -117,7 +119,7 @@ export const authRegister = async (
     role: string = 'CUSTOMER'
 ) => {
     try {
-        const { data } = await productsApi.post<AuthRegisterResponse>('/api/auth/register', {
+        const { data } = await productsApi.post<AuthRegisterResponse>('/auth/register', {
             name,
             email,
             username,
@@ -142,6 +144,53 @@ export const authRegister = async (
         return {
             success: false,
             message: 'Registration failed',
+        };
+    }
+};
+
+export const updateUserProfile = async (
+    userId: number,
+    input: Pick<User, 'phone' | 'bio' | 'profileImageUrl' | 'address' | 'governmentId'>
+): Promise<User | null> => {
+    try {
+        const { data } = await productsApi.put<User>(`/auth/users/${userId}/profile`, input);
+        return data;
+    } catch (error) {
+        console.log('updateUserProfile error:', error);
+        return null;
+    }
+};
+
+export const linkTelegram = async (
+    userId: number,
+    telegramChatId: string | null
+): Promise<{ ok: boolean; message: string }> => {
+    try {
+        await productsApi.patch(`/auth/users/${userId}/telegram`, { telegramChatId });
+        return { ok: true, message: telegramChatId ? 'Telegram vinculado' : 'Telegram desvinculado' };
+    } catch (error: any) {
+        return {
+            ok: false,
+            message: error?.response?.data?.message ?? 'No se pudo vincular Telegram',
+        };
+    }
+};
+
+export const changePassword = async (
+    userId: number,
+    currentPassword: string,
+    newPassword: string,
+): Promise<{ ok: boolean; message: string }> => {
+    try {
+        const { data } = await productsApi.put<{ message: string; data: null }>(
+            `/auth/users/${userId}/password`,
+            { currentPassword, newPassword },
+        );
+        return { ok: true, message: data.message };
+    } catch (error: any) {
+        return {
+            ok: false,
+            message: error?.response?.data?.message ?? 'No se pudo cambiar la contraseña',
         };
     }
 };

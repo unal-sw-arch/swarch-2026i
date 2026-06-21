@@ -1,0 +1,87 @@
+@startuml
+!theme plain
+skinparam componentStyle rectangle
+skinparam shadowing false
+top to bottom direction
+
+title Layered View - Architecture (Apr 2026)
+
+package "ecommerce-project" {
+
+  ' --- Capa de Presentación (Frontend) ---
+  package "Presentation Layer (frontend)" as UI {
+    component "Next.js 14 App\n(App Router + SSR)" as FEApp
+    component "Client Features\n(pages/widgets)" as FEFeatures
+    component "Frontend Shared Libs\n(config + helpers)" as FEShared
+
+    FEApp --> FEFeatures : composition
+    FEFeatures --> FEShared : uses
+  }
+
+  ' --- Capa de Acceso (Gateway) ---
+  package "Access Layer" as Access {
+    component "API Gateway\n(Nginx)" as Gateway
+  }
+
+  ' --- Capa de Servicios de Aplicación (Microservicios) ---
+  package "Application Service Layer" as AppService {
+    ' Simplificación de las capas de Routers y Servicios de la vista anterior
+    component "Auth Service Application" as AppAuth
+    component "User Service Application" as AppUser
+    component "Product Service Application" as AppProduct
+    component "Order Service Application" as AppOrder
+
+    ' Comunicación inter-servicio (HTTP)
+    AppProduct ..> AppUser : seller lookup
+    AppOrder ..> AppProduct : stock info
+  }
+
+  ' --- Capa de Dominio (Modelos de Negocio) ---
+  package "Domain Layer" as Domain {
+    ' Abstracción de los modelos/schemas y la lógica core/eventos
+    component "Auth Domain\n(models + session core)" as DomAuth
+    component "User Domain\n(models + user core)" as DomUser
+    component "Product Domain\n(models + product core)" as DomProduct
+    component "Order Domain\n(models + order core)" as DomOrder
+  }
+
+  ' --- Capa de Infraestructura (Conectores) ---
+  package "Infrastructure Layer" as Infra {
+    database "PostgreSQL Databases" as PgDBs
+    database "Redis Cache/Store" as Redis
+    queue "RabbitMQ Events" as MQ
+  }
+}
+
+' --- Flujos entre Capas ---
+
+' Presentación -> Acceso
+FEApp --> Gateway : REST API (HTTPS)
+
+' Acceso -> Servicios de Aplicación
+Gateway --> AppAuth : /auth/*
+Gateway --> AppUser : /users/*, /internal/*
+Gateway --> AppProduct : /products/*
+Gateway --> AppOrder : /orders/*
+
+' Servicios de Aplicación -> Dominio
+AppAuth --> DomAuth : uses
+AppUser --> DomUser : uses
+AppProduct --> DomProduct : uses
+AppOrder --> DomOrder : uses
+
+' Dominio -> Infraestructura (Persistencia y Mensajería)
+DomAuth --> PgDBs : auth data
+DomAuth --> Redis : sessions
+DomAuth --> MQ : publish
+
+DomUser --> PgDBs : user data
+DomUser --> MQ : consume/publish
+
+DomProduct --> PgDBs : product data (shared tables)
+DomProduct --> Redis : cache
+
+DomOrder --> PgDBs : order data
+DomOrder --> MQ : publish
+
+@enduml

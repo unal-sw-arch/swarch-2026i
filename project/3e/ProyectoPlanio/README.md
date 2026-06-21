@@ -1,3 +1,4 @@
+
 # 🧠 Planio — Prototype 2
 
 ## 👥 Team
@@ -211,11 +212,16 @@ The Planio system is decomposed into eight functional modules. Each module group
 
 ### 🔧 Instructions to run locally
 
-#### Prerequisites
-- Docker Desktop installed and running
-- Git
+#### 📱 Requirements
 
-#### Steps
+- **Docker** 20.10+ or Docker Desktop installed and running
+- **Docker Compose** 1.29+
+- **Git**
+- **Node.js** 18+ (if running frontend locally)
+- **Flutter** 3.11+ (if running mobile locally)
+- **Dart** 3.11+
+
+#### 🌐 Web (React)
 
 1. Clone the repository:
 ```bash
@@ -224,21 +230,22 @@ git clone https://github.com/unal-sw-arch/swarch-2026i.git
 
 2. Switch to the project branch:
 ```bash
-# Create local branch and link to remote:
-git checkout -b prototype2_E_group_workbranch origin/prototype2_E_group_workbranch
+git checkout -b prototype_3_group_E origin/prototype_3_group_E
 ```
 
 3. Navigate to the project folder:
 ```bash
-cd swarch-2026/project/3e/ProyectoPlanio/
+cd swarch-2026i/project/3e/ProyectoPlanio/
 ```
+
 4. Configure frontend environment variables:
 ```bash
 cd front
 cp .env.example .env
 ```
+
 Required credentials:
-```
+```env
 VITE_FIREBASE_API_KEY="AIzaSyDKAwdoR7DF14gfmjxnit_H_Za_P_H4r1s"
 VITE_FIREBASE_AUTH_DOMAIN="planio-social-todo.firebaseapp.com"
 VITE_FIREBASE_PROJECT_ID="planio-social-todo"
@@ -246,13 +253,44 @@ VITE_FIREBASE_STORAGE_BUCKET="planio-social-todo.firebasestorage.app"
 VITE_FIREBASE_MESSAGING_SENDER_ID="344212841097"
 VITE_FIREBASE_APP_ID="3442128410971:344212841097:web:490b34f16a961cc85f5c58"
 ```
+
 5. Start all services:
 ```bash
-cd..     //return /ProyectoPlanio/
+cd ..
 docker compose up --build
 ```
 
-. Access the application at: http://localhost:80/
+6. Open the application in your browser:
+- https://localhost:80/
+
+#### 📱 Mobile (Flutter)
+
+**Option 1: With Docker (Recommended)**
+```bash
+# From ProyectoPlanio folder
+docker-compose up -d
+```
+
+**Option 2: Local Development**
+```bash
+cd mobile
+
+# Install dependencies
+flutter pub get
+flutter pub run build_runner build
+
+# Run on Windows (for quick UI development)
+flutter run -d windows
+
+# Or on Android emulator
+flutter run -d emulator-5554
+```
+
+**Requirements for Mobile:**
+- Flutter 3.11.5+
+- Dart 3.11.5+
+- Android Studio (for Android) or Xcode (for iOS)
+- For production: Firebase configuration (see `mobile/README.md`)
 
 ---
 
@@ -295,4 +333,7 @@ docker compose down -v
 
 ### 📚 Documentation
 
+- **Full deployment guide**: [DEPLOYMENT.md](./DEPLOYMENT.md)
+- **Integration details**: [INTEGRATION_SUMMARY.md](./INTEGRATION_SUMMARY.md)
+- **Mobile app setup**: [mobile/README.md](./mobile/README.md)
 - **API Gateway**: [backend/gateway/README.md](./backend/gateway/README.md)

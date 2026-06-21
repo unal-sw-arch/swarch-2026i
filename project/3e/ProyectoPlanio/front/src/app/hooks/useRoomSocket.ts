@@ -1,9 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { getIdToken } from '../auth/token';
 
-const WS_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8000')
+const WS_URL = (import.meta.env.VITE_API_URL || window.location.origin)
   .replace('https://', 'wss://')
-  .replace('http://', 'ws://');
 
 export function useRoomSocket(
   roomId: number,

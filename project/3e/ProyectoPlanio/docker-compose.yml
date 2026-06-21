@@ -98,10 +98,25 @@ services:
     environment:
       - PORT=8004
       - MONGODB_URI=mongodb://planio_user:planio_pass@mongo:27017/analytics_db?authSource=admin
+      - REDIS_URL=redis://redis:6379
     ports:
       - "8004:8004"
     depends_on:
       - mongo
+      - redis
+    networks:
+      - planio_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: planio_redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
     networks:
       - planio_network
 

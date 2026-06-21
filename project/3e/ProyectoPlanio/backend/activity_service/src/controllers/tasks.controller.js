@@ -1,5 +1,6 @@
 const pool = require('../db/connection');
 const { notifyRoom, notifyUser, notifyAnalytics } = require('../services/notifier');
+const { enqueue } = require('../services/asyncQueue');
 
 // Obtener todas las tareas de una sala
 const getTasksByRoom = async (req, res, next) => {
@@ -340,19 +341,21 @@ const updateTaskStatus = async (req, res, next) => {
 
     await client.query('COMMIT');
 
-    notifyRoom(roomId, {
+    enqueue(() => notifyRoom(roomId, {
       type: 'TASK_STATUS_CHANGED',
       taskId: taskId,
       taskTitle: updatedTask.title,
       status: status,
       changedBy: userId,
-    });
+    }), 'notify-task-status-changed');
 
     // Avisar al analytics_service solo si se marcó como DONE
     if (status === 'DONE') {
-      const userResult = await pool.query('SELECT name FROM users WHERE id = $1', [userId]);
-      const userName = userResult.rows[0]?.name || 'Unknown';
-      notifyAnalytics(userId, userName, Number(roomId), 'TASK_COMPLETED');
+      enqueue(async () => {
+        const userResult = await pool.query('SELECT name FROM users WHERE id = $1', [userId]);
+        const userName = userResult.rows[0]?.name || 'Unknown';
+        await notifyAnalytics(userId, userName, Number(roomId), 'TASK_COMPLETED');
+      }, 'notify-task-completed-analytics');
     }
 
     res.status(200).json(updatedTask);

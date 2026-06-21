@@ -8,6 +8,7 @@ const {
   deleteTask,
 } = require('../controllers/tasks.controller');
 const authMiddleware = require('../middleware/auth.middleware');
+const { taskStatusThrottle } = require('../middleware/performanceThrottle');
 
 // todos los endpoints requieren autenticación
 router.use(authMiddleware);
@@ -22,7 +23,7 @@ router.post('/', createTask);
 router.patch('/:taskId', updateTask);
 
 // PATCH /rooms/:roomId/tasks/:taskId/status — cambiar estado
-router.patch('/:taskId/status', updateTaskStatus);
+router.patch('/:taskId/status', taskStatusThrottle, updateTaskStatus);
 
 // DELETE /rooms/:roomId/tasks/:taskId — eliminar tarea
 router.delete('/:taskId', deleteTask);

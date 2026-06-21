@@ -1,0 +1,13 @@
+{
+  "name": "api-gateway-coordinator",
+  "version": "1.0.0",
+  "description": "Hot Spare coordinator for api-gateway",
+  "main": "coordinator.js",
+  "scripts": {
+    "start": "node coordinator.js"
+  },
+  "dependencies": {
+    "axios": "^1.13.6",
+    "express": "^5.2.1"
+  }
+}

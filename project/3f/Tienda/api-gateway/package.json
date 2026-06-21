@@ -1,0 +1,22 @@
+{
+  "name": "api_gateway",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "amqplib": "^0.10.3",
+    "axios": "^1.13.6",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "express-rate-limit": "^7.5.0", 
+    "jsonwebtoken": "^9.0.2",
+    "opossum": "^8.4.0",  
+    "redis": "^4.6.7"
+  }
+}

@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  namespace: default
+data:
+  POSTGRES_DB: "giftshop"
+  POSTGRES_USER: "admin"
+  POSTGRES_PASSWORD: "admin"
+  POSTGRES_PORT: "5432"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init-script
+  namespace: default
+data:
+  init.sql: |
+    -- Crear tabla de productos si no existe
+    CREATE TABLE IF NOT EXISTS products (
+      id SERIAL PRIMARY KEY,
+      name VARCHAR(255) NOT NULL,
+      description TEXT,
+      price DECIMAL(10, 2) NOT NULL,
+      stock INTEGER DEFAULT 0,
+      image_url VARCHAR(255),
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
+    -- Insertar datos de ejemplo
+    INSERT INTO products (name, description, price, stock, image_url) VALUES
+    ('Agenda Artesanal Van Gogh', 'Agenda de diseño artesanal inspirada en Van Gogh', 45000, 50, '/Imagenes/Agenda Artesanal Van Gogh/'),
+    ('Agenda Capybara Broche', 'Agenda con diseño capybara y broche ajustable', 32000, 60, '/Imagenes/Agenda capybara Broche/'),
+    ('Esfero Van Gogh', 'Bolígrafo de diseño con motivos de Van Gogh', 15000, 100, '/Imagenes/Esfero van Gogh/'),
+    ('Calculadora Degrade', 'Calculadora con efecto degrade moderno', 28000, 40, '/Imagenes/Calculadora Degrade/'),
+    ('Cartuchera Cremallera Gruesa', 'Estuche para útiles escolares con cremallera resistente', 35000, 75, '/Imagenes/Cartuchera Creamllera Gruesa/')
+    ON CONFLICT DO NOTHING;

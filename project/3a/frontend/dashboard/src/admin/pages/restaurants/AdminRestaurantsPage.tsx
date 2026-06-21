@@ -1,29 +1,56 @@
 import { useEffect, useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { LayoutGrid, MapPin, Search } from "lucide-react";
 import { RestaurantList } from "@/admin/components/restaurants/RestaurantList";
+import { RestaurantsMap } from "@/admin/components/restaurants/RestaurantsMap";
+import { RestaurantPreviewDialog } from "@/admin/components/restaurants/RestaurantPreviewDialog";
 import { restaurantService } from "@/lib/services/restaurantService";
 import type { Restaurant } from "@/lib/types";
+
+type GeoStatus = "requesting" | "granted" | "denied";
 
 export const AdminRestaurantsPage = () => {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(true);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<"list" | "map">("list");
   const [search, setSearch] = useState("");
   const [cityFilter, setCityFilter] = useState("all");
+  const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
+  const [geoStatus, setGeoStatus] = useState<GeoStatus>("requesting");
 
   useEffect(() => {
-    const loadRestaurants = async () => {
+    const loadRestaurants = async (lat?: number, lng?: number) => {
       setLoading(true);
+      setApiError(null);
       try {
-        const data = await restaurantService.getAll();
+        const data = await restaurantService.getAll(lat, lng);
         setRestaurants(data);
       } catch (error) {
-        console.error("Error loading restaurants:", error);
+        const msg = error instanceof Error ? error.message : String(error);
+        console.error("Error loading restaurants:", msg);
+        setApiError(msg);
       } finally {
         setLoading(false);
       }
     };
 
-    loadRestaurants();
+    if (!navigator.geolocation) {
+      setGeoStatus("denied");
+      loadRestaurants();
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setGeoStatus("granted");
+        loadRestaurants(position.coords.latitude, position.coords.longitude);
+      },
+      () => {
+        setGeoStatus("denied");
+        loadRestaurants();
+      },
+      { timeout: 10000 },
+    );
   }, []);
 
   const cities = useMemo(() => {
@@ -52,6 +79,33 @@ export const AdminRestaurantsPage = () => {
         <p className="text-gray-600">
           Explora restaurantes disponibles con un formato visual tipo app de delivery.
         </p>
+      </div>
+
+      <div className="inline-flex w-fit rounded-full border border-gray-200 bg-white p-1 shadow-sm">
+        <button
+          type="button"
+          onClick={() => setViewMode("list")}
+          className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+            viewMode === "list"
+              ? "bg-blue-600 text-white"
+              : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+          }`}
+        >
+          <LayoutGrid className="h-4 w-4" />
+          Restaurantes
+        </button>
+        <button
+          type="button"
+          onClick={() => setViewMode("map")}
+          className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+            viewMode === "map"
+              ? "bg-blue-600 text-white"
+              : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+          }`}
+        >
+          <MapPin className="h-4 w-4" />
+          Mapa
+        </button>
       </div>
 
       <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
@@ -84,8 +138,25 @@ export const AdminRestaurantsPage = () => {
 
       <div className="space-y-3">
         <p className="text-sm text-gray-600">
-          {loading ? "Cargando restaurantes..." : `Restaurantes cerca de tu ubicacion (${filteredRestaurants.length})`}
+          {loading
+            ? geoStatus === "requesting"
+              ? "Obteniendo tu ubicación..."
+              : "Cargando restaurantes..."
+            : geoStatus === "granted"
+              ? `Restaurantes cerca de tu ubicación (${filteredRestaurants.length})`
+              : `Restaurantes disponibles (${filteredRestaurants.length})`}
         </p>
+        {geoStatus === "denied" && !loading && (
+          <p className="text-xs text-gray-400">
+            Activa tu ubicación para ver restaurantes ordenados por proximidad
+          </p>
+        )}
+
+        {apiError && (
+          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            Error al cargar restaurantes: <span className="font-mono">{apiError}</span>
+          </div>
+        )}
 
         {loading ? (
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
@@ -104,9 +175,26 @@ export const AdminRestaurantsPage = () => {
             No encontramos restaurantes con esos filtros.
           </div>
         ) : (
-          <RestaurantList restaurants={filteredRestaurants} />
+          <>
+            {viewMode === "list" ? (
+              <RestaurantList
+                restaurants={filteredRestaurants}
+                onRestaurantClick={(restaurant) => setSelectedRestaurant(restaurant)}
+              />
+            ) : (
+              <RestaurantsMap restaurants={filteredRestaurants} />
+            )}
+          </>
         )}
       </div>
+
+      <RestaurantPreviewDialog
+        restaurant={selectedRestaurant}
+        open={!!selectedRestaurant}
+        onOpenChange={(open) => {
+          if (!open) setSelectedRestaurant(null);
+        }}
+      />
     </div>
   );
 };

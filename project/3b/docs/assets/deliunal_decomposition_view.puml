@@ -1,0 +1,70 @@
+@startuml Decomposition_View_DELIUNAL
+skinparam BackgroundColor #FBFDFE
+skinparam defaultFontName "Segoe UI"
+skinparam Shadowing true
+skinparam RoundCorner 15
+hide stereotype
+
+skinparam rectangle {
+    BackgroundColor<<System>> #FFFFFF
+    BorderColor<<System>> #2C3E50
+    BorderThickness<<System>> 2
+    FontColor<<System>> #2C3E50
+    FontSize<<System>> 22
+    FontStyle<<System>> bold
+
+    BackgroundColor<<Module>> #EDF6F9
+    BorderColor<<Module>> #457B9D
+    BorderThickness<<Module>> 1.5
+    FontColor<<Module>> #1D3557
+    FontSize<<Module>> 16
+    FontStyle<<Module>> bold
+
+    BackgroundColor<<Submodule>> #FFFFFF
+    BorderColor<<Submodule>> #A8DADC
+    BorderThickness<<Submodule>> 1.5
+    FontColor<<Submodule>> #34495E
+    FontSize<<Submodule>> 14
+}
+
+title <size:24><b>DELIUNAL - Prototype 3 - Decomposition View</b></size>\n
+
+rectangle "DELIUNAL System" <<System>> {
+
+    rectangle "Customer Interface Module" <<Module>> as Mod_Customer {
+        rectangle "Customer App\nSub-module" <<Submodule>> as C_App
+    }
+    
+    rectangle "Restaurant Operations Module" <<Module>> as Mod_Restaurant {
+        rectangle "Restaurant Dashboard\nSub-module" <<Submodule>> as R_Dash
+        rectangle "Kitchen Operations\nSub-module" <<Submodule>> as K_Ops
+    }
+
+    rectangle "Access & Identity Module" <<Module>> as Mod_Access {
+        rectangle "API Gateway\nSub-module" <<Submodule>> as A_Gateway
+        rectangle "Authentication\nSub-module" <<Submodule>> as A_Auth
+    }
+
+    rectangle "Catalog Management Module" <<Module>> as Mod_Catalog {
+        rectangle "Product & Menu\nSub-module" <<Submodule>> as C_Menu
+    }
+
+    rectangle "Order Management Module" <<Module>> as Mod_Order {
+        rectangle "Order Processing\nSub-module" <<Submodule>> as O_Proc
+    }
+
+    rectangle "Tracking & Notifications Module" <<Module>> as Mod_Notif {
+        rectangle "Email Delivery\nSub-module" <<Submodule>> as N_Email
+        rectangle "System Alerts\nSub-module" <<Submodule>> as N_Alert
+    }
+
+    ' Layout arrangements to create a grid instead of a single long row
+    Mod_Customer -[hidden]down-> Mod_Catalog
+    Mod_Restaurant -[hidden]down-> Mod_Order
+    Mod_Access -[hidden]down-> Mod_Notif
+    
+    Mod_Customer -[hidden]right-> Mod_Restaurant
+    Mod_Restaurant -[hidden]right-> Mod_Access
+}
+
+@enduml

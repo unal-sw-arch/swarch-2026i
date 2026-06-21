@@ -1,7 +1,6 @@
 """Order business logic for create/read/cancel/status operations."""
 
 import logging
-import uuid as _uuid
 from decimal import Decimal
 from typing import Optional
 from uuid import UUID
@@ -10,10 +9,15 @@ from fastapi import HTTPException, status
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from order_service.src.core.config.settings import settings
 from order_service.src.events.publisher import EventPublisher
+from order_service.src.core.config import settings
 from order_service.src.models.order import Order, OrderItem, OrderStatus
 from order_service.src.schemas.orders import OrderCreate
+from order_service.src.services.product_client import (
+    get_products_stock,
+    reserve_stock,
+    release_stock,
+)
 
 publisher = EventPublisher(
     host=settings.RABBITMQ_HOST,
@@ -30,8 +34,6 @@ def _order_to_dict(order: Order) -> dict:
         "total_amount": str(order.total_amount),
         "shipping_address": order.shipping_address,
         "notes": order.notes,
-        "saga_id": str(order.saga_id) if order.saga_id else None,
-        "reservation_id": str(order.reservation_id) if order.reservation_id else None,
         "items": [
             {
                 "id": str(i.id),
@@ -51,37 +53,76 @@ async def create_order(
     db: AsyncSession,
     user_id: UUID,
     payload: OrderCreate,
+    auth_token: str,
 ) -> Order:
-    """Create order in PENDING_STOCK_CONFIRMATION and return immediately.
+    """Validate stock, persist order, reserve inventory and emit ORDER_CREATED event."""
+    product_ids = [item.product_id for item in payload.items]
 
-    Stock validation and reservation happen asynchronously via the Saga pattern.
-    The consumer publishes ORDER_CREATED to trigger product_service.
-    """
-    total = sum(item.unit_price * item.quantity for item in payload.items)
-    saga_id = _uuid.uuid4()
+    try:
+        stock_info = await get_products_stock(product_ids, auth_token)
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Could not reach product service. Please try again later.",
+        )
+
+    for item in payload.items:
+        info = stock_info.get(item.product_id)
+        if not info:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Product {item.product_id} not found.",
+            )
+        if not info.available or info.stock < item.quantity:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Insufficient stock for '{info.name}'. Available: {info.stock}, requested: {item.quantity}.",
+            )
+
+    total = Decimal("0")
+    for item in payload.items:
+        total += stock_info[item.product_id].price * item.quantity
+
+    reservations = [
+        {"product_id": str(item.product_id), "quantity": item.quantity}
+        for item in payload.items
+    ]
+    reserved = await reserve_stock(reservations, auth_token)
+    if not reserved:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Failed to reserve stock. Some items may have sold out.",
+        )
 
     order = Order(
         user_id=user_id,
-        status=OrderStatus.pending_stock_confirmation,
-        total_amount=Decimal(str(total)),
+        status=OrderStatus.pending,
+        total_amount=total,
         shipping_address=payload.shipping_address.model_dump(),
         notes=payload.notes,
-        saga_id=saga_id,
     )
     db.add(order)
     await db.flush()
 
     for item in payload.items:
+        info = stock_info[item.product_id]
         db.add(OrderItem(
             order_id=order.id,
             product_id=item.product_id,
             quantity=item.quantity,
-            price=item.unit_price,
-            product_name=item.product_name,
+            price=info.price,
+            product_name=info.name,
         ))
 
     await db.flush()
     await db.refresh(order)
+
+    published = publisher.publish("ORDER_CREATED", _order_to_dict(order))
+    if not published:
+        logger.warning("ORDER_CREATED event could not be published for order_id=%s", order.id)
+
     return order
 
 
@@ -188,8 +229,9 @@ async def cancel_order(
     db: AsyncSession,
     order_id: UUID,
     user_id: UUID,
+    auth_token: str,
 ) -> Order:
-    """Cancel an order if its status allows it and publish ORDER_CANCELLED saga event."""
+    """Cancel an order if its status allows it and release reserved stock."""
     order = await get_order(db, order_id, user_id)
 
     if not order.can_cancel():
@@ -201,6 +243,17 @@ async def cancel_order(
     order.status = OrderStatus.cancelled
     await db.flush()
     await db.refresh(order)
+
+    reservations = [
+        {"product_id": str(item.product_id), "quantity": item.quantity}
+        for item in order.items
+    ]
+    await release_stock(reservations, auth_token)
+
+    published = publisher.publish("ORDER_CANCELLED", _order_to_dict(order))
+    if not published:
+        logger.warning("ORDER_CANCELLED event could not be published for order_id=%s", order.id)
+
     return order
 
 

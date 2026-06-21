@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from typing import Optional
 import uuid
 
-from order_service.src.core.config.settings import settings
+from order_service.src.core.config import settings
 
 security = HTTPBearer()
 

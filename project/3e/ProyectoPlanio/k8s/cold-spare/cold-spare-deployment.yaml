@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: activity-service-cold-spare
+  labels:
+    app: activity-service
+    role: cold-spare
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: activity-service
+      role: cold-spare
+  template:
+    metadata:
+      labels:
+        app: activity-service
+        role: cold-spare
+    spec:
+      containers:
+        - name: activity-service
+          image: proyectoplanio-activity_service:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8001
+          env:
+            - name: PORT
+              value: "8001"
+            - name: DATABASE_URL
+              value: "postgresql://planio_user:planio_pass@postgres:5432/activity_db"
+            - name: FIREBASE_PROJECT_ID
+              value: "planio-social-todo"
+            - name: NOTIFICATION_SERVICE_URL
+              value: "http://notification-service:8002"
+            - name: ANALYTICS_SERVICE_URL
+              value: "http://analytics-service:8004"
+            - name: INSTANCE_ROLE
+              value: "cold-spare"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 5
+            periodSeconds: 5

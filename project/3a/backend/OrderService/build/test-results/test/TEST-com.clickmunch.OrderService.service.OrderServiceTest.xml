@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.clickmunch.OrderService.service.OrderServiceTest" tests="19" skipped="0" failures="0" errors="0" timestamp="2026-06-10T04:25:45.381Z" hostname="Mikes-MacBook-Pro.local" time="0.101">
+  <properties/>
+  <testcase name="updateStatus_invalidTransition_doesNotPublish()" classname="com.clickmunch.OrderService.service.OrderServiceTest" time="0.074"/>
+  <testcase name="getOrder_withInvalidId_throwsException()" classname="com.clickmunch.OrderService.service.OrderServiceTest" time="0.001"/>
+  <testcase name="updateStatus_validTransition_pendingToInPreparation()" classname="com.clickmunch.OrderService.service.OrderServiceTest" time="0.003"/>
+  <testcase name="getRestaurantOrders_withoutFilter_returnsAll()" classname="com.clickmunch.OrderService.service.OrderServiceTest" time="0.001"/>
+  <testcase name="createOrder_publishesCreatedEvent()" classname="com.clickmunch.OrderService.service.OrderServiceTest" time="0.001"/>
+  <testcase name="updateStatus_validTransition_inPreparationToReady()" classname="com.clickmunch.OrderService.service.OrderServiceTest" time="0.002"/>
+  <testcase name="updateStatus_invalidTransition_pendingToReady_throws()" classname="com.clickmunch.OrderService.service.OrderServiceTest" time="0.001"/>
+  <testcase name="updateStatus_invalidTransition_deliveredToAnything_throws()" classname="com.clickmunch.OrderService.service.OrderServiceTest" time="0.001"/>
+  <testcase name="getKitchenOrders_returnsActiveOrders()" classname="com.clickmunch.OrderService.service.OrderServiceTest" time="0.0"/>
+  <testcase name="getRestaurantOrders_withStatusFilter_returnsFiltered()" classname="com.clickmunch.OrderService.service.OrderServiceTest" time="0.001"/>
+  <testcase name="updateStatus_invalidTransition_cancelledToAnything_throws()" classname="com.clickmunch.OrderService.service.OrderServiceTest" time="0.001"/>
+  <testcase name="updateStatus_publishesStatusChangedEvent()" classname="com.clickmunch.OrderService.service.OrderServiceTest" time="0.001"/>
+  <testcase name="updateStatus_validTransition_readyToDelivered()" classname="com.clickmunch.OrderService.service.OrderServiceTest" time="0.001"/>
+  <testcase name="getKitchenOrders_withNoOrders_returnsEmptyList()" classname="com.clickmunch.OrderService.service.OrderServiceTest" time="0.005"/>
+  <testcase name="getOrder_withValidId_returnsOrder()" classname="com.clickmunch.OrderService.service.OrderServiceTest" time="0.001"/>
+  <testcase name="updateStatus_validTransition_pendingToCancelled()" classname="com.clickmunch.OrderService.service.OrderServiceTest" time="0.001"/>
+  <testcase name="createOrder_insertsOneRowPerUnit_withPerUnitNotes()" classname="com.clickmunch.OrderService.service.OrderServiceTest" time="0.001"/>
+  <testcase name="updateStatus_orderNotFound_throws()" classname="com.clickmunch.OrderService.service.OrderServiceTest" time="0.001"/>
+  <testcase name="updateStatus_invalidStatusString_throws()" classname="com.clickmunch.OrderService.service.OrderServiceTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

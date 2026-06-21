@@ -1,4 +1,4 @@
-"""HTTP client for product-service read-only operations (seller listings)."""
+"""HTTP client for product-service inventory operations."""
 
 from __future__ import annotations
 
@@ -8,9 +8,14 @@ from uuid import UUID
 import httpx
 from fastapi import HTTPException, status
 
-from order_service.src.core.config.settings import settings
+from order_service.src.core.config import settings
+from order_service.src.schemas.orders import ProductStockInfo
 
 logger = logging.getLogger(__name__)
+
+
+class ProductServiceClientError(Exception):
+    """Raised when product-service returns an unexpected response."""
 
 
 def _base_url() -> str:
@@ -47,7 +52,7 @@ async def _request(
 
     try:
         async with httpx.AsyncClient(timeout=settings.PRODUCT_SERVICE_TIMEOUT_SECONDS) as client:
-            kwargs: dict = {
+            kwargs = {
                 "method": method,
                 "url": url,
                 "headers": _auth_headers(auth_token),
@@ -102,3 +107,80 @@ async def get_my_seller_products(auth_token: str) -> dict[UUID, str]:
             products[product_id] = str(product_id)
 
     return products
+
+
+async def get_products_stock(product_ids: list[UUID], auth_token: str) -> dict[UUID, ProductStockInfo]:
+    """Fetch current stock/price metadata for a batch of product IDs."""
+    if not product_ids:
+        return {}
+
+    payload = {"product_ids": [str(pid) for pid in product_ids]}
+    response = await _request("POST", "/internal/products/stock-info", auth_token, payload)
+
+    if response.status_code in (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN):
+        raise HTTPException(status_code=response.status_code, detail=_response_detail(response))
+    if response.status_code >= status.HTTP_500_INTERNAL_SERVER_ERROR:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Product service is temporarily unavailable.",
+        )
+    if response.status_code >= status.HTTP_400_BAD_REQUEST:
+        raise HTTPException(status_code=response.status_code, detail=_response_detail(response))
+
+    body = response.json()
+    items = body.get("items", []) if isinstance(body, dict) else []
+
+    parsed: dict[UUID, ProductStockInfo] = {}
+    for raw in items:
+        item = ProductStockInfo(**raw)
+        parsed[item.product_id] = item
+
+    return parsed
+
+
+async def reserve_stock(reservations: list[dict[str, str | int]], auth_token: str) -> bool:
+    """Attempt to reserve stock in product-service.
+
+    Returns False for normal stock conflict (HTTP 409).
+    """
+    if not reservations:
+        return True
+
+    payload = {"items": reservations}
+    response = await _request("POST", "/internal/products/reserve", auth_token, payload)
+
+    if response.status_code == status.HTTP_409_CONFLICT:
+        return False
+    if response.status_code in (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN):
+        raise HTTPException(status_code=response.status_code, detail=_response_detail(response))
+    if response.status_code >= status.HTTP_500_INTERNAL_SERVER_ERROR:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Product service is temporarily unavailable.",
+        )
+    if response.status_code >= status.HTTP_400_BAD_REQUEST:
+        raise HTTPException(status_code=response.status_code, detail=_response_detail(response))
+
+    body = response.json()
+    if isinstance(body, dict):
+        return bool(body.get("success", True))
+    return True
+
+
+async def release_stock(reservations: list[dict[str, str | int]], auth_token: str) -> None:
+    """Release previously reserved stock in product-service."""
+    if not reservations:
+        return
+
+    payload = {"items": reservations}
+    response = await _request("POST", "/internal/products/release", auth_token, payload)
+
+    if response.status_code in (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN):
+        raise HTTPException(status_code=response.status_code, detail=_response_detail(response))
+    if response.status_code >= status.HTTP_500_INTERNAL_SERVER_ERROR:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Product service is temporarily unavailable.",
+        )
+    if response.status_code >= status.HTTP_400_BAD_REQUEST:
+        raise HTTPException(status_code=response.status_code, detail=_response_detail(response))

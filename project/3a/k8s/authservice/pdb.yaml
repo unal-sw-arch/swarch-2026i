@@ -1,0 +1,13 @@
+# PodDisruptionBudget: garantiza que al menos 1 réplica esté disponible
+# en todo momento, incluso durante mantenimientos planeados (kubectl drain).
+# Esto hace cumplir el contrato del patrón Hot Spare: siempre hay un spare activo.
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: authservice-pdb
+  namespace: clickmunch
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: authservice

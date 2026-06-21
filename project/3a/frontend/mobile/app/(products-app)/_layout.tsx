@@ -33,10 +33,18 @@ const CheckAuthenticationLayout = () => {
         return <Redirect href='/auth/login'/>
     }
 
+    // Role-based redirect: staff roles belong in the waiter-app, not the
+    // customer products catalog.
+    const { user } = useAuthStore.getState();
+    const role = user?.role;
+    if (role === 'WAITER' || role === 'RESTAURANT_MANAGER' || role === 'ADMIN') {
+        return <Redirect href={'/(waiter-app)/(tabs)/active' as any} />;
+    }
+
     return (
         <Stack>
             <Stack.Screen 
-                name='(home)/index'
+                name='(home)'
                 options={{
                     title: 'Productos',
                     headerLeft: () => <LogOutButton/>

@@ -7,3 +7,4 @@ flask==3.0.0
 requests==2.31.0
 beautifulsoup4==4.12.2
 flasgger==0.9.7.1
+psycopg2-binary==2.9.9

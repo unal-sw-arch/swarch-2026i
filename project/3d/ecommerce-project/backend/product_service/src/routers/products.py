@@ -1,6 +1,5 @@
 """Products router for catalog browsing and filtering."""
 
-from decimal import Decimal
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -12,9 +11,6 @@ from product_service.src.core.dependencies.get_current_user import (
     get_current_user,
 )
 from product_service.src.services.product_service import ProductService
-from product_service.src.services.category_service import CategoryService
-from product_service.src.services.image_gallery_service import ImageGalleryService
-from product_service.src.services.review_service import ReviewService
 from product_service.src.schemas.product import (
     CategoryCreate,
     CategoryResponse,
@@ -44,21 +40,21 @@ def _ensure_category_editor(current_user: AuthenticatedUser) -> None:
 @router.get("/", response_model=list[ProductResponse])
 async def get_products(
     category_slug: str | None = Query(None, description="Filtrar por categoría"),
-    min_price: Decimal | None = Query(None, description="Precio mínimo"),
-    max_price: Decimal | None = Query(None, description="Precio máximo"),
+    _: AuthenticatedUser = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Return product catalog, optionally filtered by category slug and price range."""
+    """Return product catalog, optionally filtered by category slug."""
     service = ProductService(db)
-    return await service.get_all_products(category_slug, min_price=min_price, max_price=max_price)
+    return await service.get_all_products(category_slug)
 
 
 @router.get("/categories", response_model=list[CategoryResponse])
 async def get_categories(
+    _: AuthenticatedUser = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """Return all active categories."""
-    service = CategoryService(db)
+    service = ProductService(db)
     return await service.get_all_categories()
 
 
@@ -70,7 +66,7 @@ async def create_category(
 ):
     """Create a category (admin/seller only)."""
     _ensure_category_editor(current_user)
-    service = CategoryService(db)
+    service = ProductService(db)
     return await service.create_category(payload)
 
 
@@ -83,7 +79,7 @@ async def update_category(
 ):
     """Update a category (admin/seller only)."""
     _ensure_category_editor(current_user)
-    service = CategoryService(db)
+    service = ProductService(db)
     return await service.update_category(category_id, payload)
 
 
@@ -95,7 +91,7 @@ async def delete_category(
 ):
     """Soft-delete a category (admin/seller only)."""
     _ensure_category_editor(current_user)
-    service = CategoryService(db)
+    service = ProductService(db)
     await service.deactivate_category(category_id)
 
 
@@ -108,13 +104,28 @@ async def search_products(
         description="Search query (name or description)",
     ),
     category_slug: str | None = Query(None, description="Optional category filter"),
-    min_price: Decimal | None = Query(None, description="Precio mínimo"),
-    max_price: Decimal | None = Query(None, description="Precio máximo"),
+    _: AuthenticatedUser = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Search products by name or description with optional price range filter."""
+    """
+    Search products by name or description (case-insensitive).
+
+    Args:
+        q: Search query string (minimum 1 character).
+        category_slug: Optional category slug to filter results.
+        _: Current authenticated user (required).
+        db: Database session dependency.
+
+    Returns:
+        List of ProductResponse objects matching the search query.
+
+    Example:
+        GET /products/search?q=usb
+        GET /products/search?q=usb&category_slug=electronics
+        Returns all products with "usb" in name or description
+    """
     service = ProductService(db)
-    return await service.search_products(q, category_slug, min_price=min_price, max_price=max_price)
+    return await service.search_products(q, category_slug)
 
 
 @router.post("/", response_model=ProductResponse, status_code=201)
@@ -167,7 +178,7 @@ async def get_my_reviews(
     db: AsyncSession = Depends(get_db),
 ):
     """List reviews authored by current user for profile section."""
-    service = ReviewService(db)
+    service = ProductService(db)
     return await service.get_reviews_by_user(current_user.user_id)
 
 
@@ -177,13 +188,14 @@ async def get_reviews_received(
     db: AsyncSession = Depends(get_db),
 ):
     """List reviews received on current seller listings for profile section."""
-    service = ReviewService(db)
+    service = ProductService(db)
     return await service.get_reviews_about_seller(current_user.user_id)
 
 
 @router.get("/{product_id}", response_model=ProductResponse)
 async def get_product(
     product_id: UUID,
+    _: AuthenticatedUser = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """Return a product by its ID."""
@@ -202,7 +214,7 @@ async def create_product_review(
     db: AsyncSession = Depends(get_db),
 ):
     """Create (or update) authenticated user review for a product."""
-    service = ReviewService(db)
+    service = ProductService(db)
     return await service.create_review(product_id, current_user.user_id, payload)
 
 
@@ -214,17 +226,18 @@ async def add_product_image(
     db: AsyncSession = Depends(get_db),
 ):
     """Attach an image to an owned listing."""
-    service = ImageGalleryService(db)
+    service = ProductService(db)
     return await service.add_product_image(product_id, current_user.user_id, payload)
 
 
 @router.get("/{product_id}/images", response_model=list[ProductImageResponse])
 async def get_product_images(
     product_id: UUID,
+    _: AuthenticatedUser = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """List gallery images for a product."""
-    service = ImageGalleryService(db)
+    service = ProductService(db)
     return await service.get_product_images(product_id)
 
 
@@ -237,7 +250,7 @@ async def update_product_image(
     db: AsyncSession = Depends(get_db),
 ):
     """Update image metadata for owned listing."""
-    service = ImageGalleryService(db)
+    service = ProductService(db)
     return await service.update_product_image(product_id, image_id, current_user.user_id, payload)
 
 
@@ -249,7 +262,7 @@ async def delete_product_image(
     db: AsyncSession = Depends(get_db),
 ):
     """Soft-delete image from owned listing."""
-    service = ImageGalleryService(db)
+    service = ProductService(db)
     await service.deactivate_product_image(product_id, image_id, current_user.user_id)
 
 
@@ -261,7 +274,7 @@ async def reorder_product_images(
     db: AsyncSession = Depends(get_db),
 ):
     """Reorder image positions for owned listing."""
-    service = ImageGalleryService(db)
+    service = ProductService(db)
     return await service.reorder_product_images(product_id, current_user.user_id, payload)
 
 
@@ -273,15 +286,16 @@ async def set_cover_image(
     db: AsyncSession = Depends(get_db),
 ):
     """Set one image as cover (position 0) for owned listing."""
-    service = ImageGalleryService(db)
+    service = ProductService(db)
     return await service.set_cover_image(product_id, image_id, current_user.user_id)
 
 
 @router.get("/{product_id}/reviews", response_model=list[ProductReviewResponse])
 async def get_product_reviews(
     product_id: UUID,
+    _: AuthenticatedUser = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """List active reviews for a product."""
-    service = ReviewService(db)
+    service = ProductService(db)
     return await service.get_product_reviews(product_id)

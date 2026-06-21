@@ -35,8 +35,6 @@ class ProductResponse(BaseModel):
     category_name: str | None = None
     seller_display_name: str | None = None
     cover_image_url: str | None = None
-    average_rating: float | None = None
-    review_count: int = 0
 
     model_config = {"from_attributes": True}
 
@@ -150,3 +148,43 @@ class ProductImageResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class StockItemRequest(BaseModel):
+    """Single product stock operation item."""
+
+    product_id: UUID
+    quantity: int = Field(gt=0, le=1000)
+
+
+class StockInfoRequest(BaseModel):
+    """Batch request for stock lookup."""
+
+    product_ids: list[UUID] = Field(min_length=1)
+
+
+class StockInfoItemResponse(BaseModel):
+    """Stock lookup response item."""
+
+    product_id: UUID
+    name: str
+    price: Decimal
+    stock: int
+    available: bool
+
+
+class StockInfoResponse(BaseModel):
+    """Batch stock lookup response."""
+
+    items: list[StockInfoItemResponse]
+
+
+class StockOperationRequest(BaseModel):
+    """Batch stock operation payload."""
+
+    items: list[StockItemRequest] = Field(min_length=1)
+
+
+class StockOperationResponse(BaseModel):
+    """Standard response for reserve/release operations."""
+
+    success: bool
+    message: str

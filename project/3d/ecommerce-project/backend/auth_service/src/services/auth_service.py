@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth_service.src.events.publisher import EventPublisher
 from auth_service.src.core.redis_client import get_redis_client
-from auth_service.src.core.config.settings import settings
+from auth_service.src.core.settings import settings
 from auth_service.src.core.security import (
     create_access_token,
     hash_password,

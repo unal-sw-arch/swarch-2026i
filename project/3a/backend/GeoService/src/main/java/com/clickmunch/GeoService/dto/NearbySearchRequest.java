@@ -3,6 +3,7 @@ package com.clickmunch.GeoService.dto;
 public record NearbySearchRequest(
     Double latitude,
     Double longitude,
-    Double radiusInKm
+    Double radiusInKm,
+    String type
 ) {
 }

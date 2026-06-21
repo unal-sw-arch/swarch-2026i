@@ -2,9 +2,15 @@ package com.clickmunch.MenuService.entity;
 
 public enum Category {
     ENTRADA,
-    PLATO,
+    PLATO_FUERTE,
     POSTRE,
     BEBIDA,
     ENSALADA,
-    ADICIONAL
+    ADICIONAL,
+    APERITIVO,
+    SOPA,
+    CARNE,
+    PESCADO,
+    VEGETARIANO,
+    VEGANO
 }

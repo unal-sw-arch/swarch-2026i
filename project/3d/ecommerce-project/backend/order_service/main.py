@@ -1,39 +1,18 @@
-import asyncio
 from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from contextlib import asynccontextmanager
 
 from order_service.src.routers import orders
-from order_service.src.core.config.settings import settings
+from order_service.src.core.config import settings
 from order_service.src.core.database import engine, Base
-from order_service.src.models import order as _order_models  # noqa: F401 — registers ORM tables
-from order_service.src.models import processed_event as _pe_models  # noqa: F401
-from order_service.src.models import payment as _payment_models  # noqa: F401
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-
-    from order_service.src.events.consumer import OrderSagaConsumer
-    from order_service.src.services.timeout_worker import run_timeout_worker
-
-    saga_consumer = OrderSagaConsumer()
-    saga_consumer.start()
-
-    timeout_task = asyncio.create_task(run_timeout_worker())
-
     yield
-
-    timeout_task.cancel()
-    try:
-        await timeout_task
-    except asyncio.CancelledError:
-        pass
-
-    saga_consumer.stop()
 
 
 app = FastAPI(

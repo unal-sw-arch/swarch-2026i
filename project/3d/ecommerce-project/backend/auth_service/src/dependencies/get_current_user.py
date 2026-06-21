@@ -10,7 +10,7 @@ from jose import JWTError, jwt
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from auth_service.src.core.config.settings import settings
+from auth_service.src.core.settings import settings
 from auth_service.src.core.redis_client import get_redis_client
 from auth_service.src.dependencies.get_db import get_db
 from auth_service.src.models.user import User

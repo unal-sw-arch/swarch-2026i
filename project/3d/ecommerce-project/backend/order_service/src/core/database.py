@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sess
 from sqlalchemy.orm import DeclarativeBase
 from collections.abc import AsyncGenerator
 
-from order_service.src.core.config.settings import settings
+from order_service.src.core.config import settings
 
 engine = create_async_engine(
     settings.DATABASE_URL,

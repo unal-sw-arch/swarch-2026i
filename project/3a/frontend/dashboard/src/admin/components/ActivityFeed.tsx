@@ -1,54 +1,34 @@
 import React from 'react';
-import { User, ShoppingCart, FileText, Bell } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
-const ActivityFeed: React.FC = () => {
-  const activities = [
-    {
-      icon: User,
-      title: 'New user registered',
-      description: 'Sarah Johnson joined the platform',
-      time: '2 minutes ago',
-      color: 'bg-blue-500'
-    },
-    {
-      icon: ShoppingCart,
-      title: 'New order received',
-      description: 'Order #12847 worth $299.99',
-      time: '5 minutes ago',
-      color: 'bg-green-500'
-    },
-    {
-      icon: FileText,
-      title: 'Report generated',
-      description: 'Monthly sales report is ready',
-      time: '15 minutes ago',
-      color: 'bg-purple-500'
-    },
-    {
-      icon: Bell,
-      title: 'System notification',
-      description: 'Server maintenance scheduled',
-      time: '1 hour ago',
-      color: 'bg-orange-500'
-    }
-  ];
+export interface ActivityItem {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  time: string;
+  color: string;
+}
 
+const ActivityFeed: React.FC<{ activities: ActivityItem[] }> = ({ activities }) => {
   return (
     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
-      <div className="space-y-4">
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">Actividad reciente</h3>
+      <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+        {activities.length === 0 && (
+          <p className="text-sm text-gray-400">Sin actividad reciente</p>
+        )}
         {activities.map((activity, index) => {
           const Icon = activity.icon;
           return (
             <div key={index} className="flex items-start space-x-3">
-              <div className={`p-2 rounded-lg ${activity.color}`}>
+              <div className={`p-2 rounded-lg ${activity.color} shrink-0`}>
                 <Icon size={16} className="text-white" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-900">
                   {activity.title}
                 </p>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 truncate" title={activity.description}>
                   {activity.description}
                 </p>
                 <p className="text-xs text-gray-500 mt-1">
@@ -59,9 +39,6 @@ const ActivityFeed: React.FC = () => {
           );
         })}
       </div>
-      <button className="w-full mt-4 text-sm text-blue-600 hover:text-blue-700 font-medium">
-        View all activities
-      </button>
     </div>
   );
 };

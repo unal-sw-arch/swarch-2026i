@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: authservice
+  namespace: clickmunch
+  labels:
+    app: authservice
+    tier: backend
+    redundancy: hot-spare            # Etiqueta documental: patrón de redundancia activa
+spec:
+  replicas: 2                        # HOT SPARE: ambas réplicas procesan solicitudes en paralelo
+  selector:
+    matchLabels:
+      app: authservice
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0              # Nunca baja del mínimo durante actualizaciones
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: authservice
+        tier: backend
+    spec:
+      # Distribuir pods en nodos distintos para verdadera redundancia física
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: authservice
+                topologyKey: kubernetes.io/hostname
+      containers:
+        - name: authservice
+          image: clickmunch/authservice:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8081
+              name: http
+          env:
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: clickmunch-config
+                  key: SPRING_DATASOURCE_URL
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: clickmunch-secrets
+                  key: POSTGRES_USER
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: clickmunch-secrets
+                  key: POSTGRES_PASSWORD
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: clickmunch-secrets
+                  key: JWT_SECRET
+            - name: APP_SEED_ENABLED
+              value: "true"
+            - name: APP_SEED_PASSWORD
+              value: "Password123!"
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8081
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8081
+            initialDelaySeconds: 45
+            periodSeconds: 10
+            failureThreshold: 3

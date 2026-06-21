@@ -23,7 +23,9 @@ const buttonVariants = cva(
           'bg-transparent text-on-surface hover:bg-surface-container-high',
         link:
           'text-primary-container underline-offset-4 hover:underline bg-transparent',
-        // Glassmorphic outline — used for secondary nav-adjacent actions
+        // Sunset orange — primary CTA
+        sunset:
+          'btn-sunset text-on-surface font-semibold shadow-sunset hover:shadow-sunset-lg active:scale-[0.97]',
         tactical:
           'glass ghost-border text-on-surface hover:bg-surface-container-high active:scale-[0.97]',
       },

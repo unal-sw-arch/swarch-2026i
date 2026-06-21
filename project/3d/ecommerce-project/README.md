@@ -1,241 +1,303 @@
-<p align="center">
-  <img src="docs/AICart.png" alt="AICart — logo oficial" width="400">
-</p>
+# 🛒 E-commerce Inteligente — Grupo D
 
-# 🛒 AICart — Plataforma de E-Commerce con IA
-
+[![Lint](https://github.com/jpastor1649/ecommerce-project/actions/workflows/lint.yml/badge.svg?branch=main)](https://github.com/jpastor1649/ecommerce-project/actions/workflows/lint.yml)
+[![Tests](https://github.com/jpastor1649/ecommerce-project/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/jpastor1649/ecommerce-project/actions/workflows/test.yml)
+[![Docker Build](https://github.com/jpastor1649/ecommerce-project/actions/workflows/docker.yml/badge.svg?branch=main)](https://github.com/jpastor1649/ecommerce-project/actions/workflows/docker.yml)
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/)
-[![Next.js 14](https://img.shields.io/badge/Next.js-14-black.svg)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Next.js%2014-3178C6.svg)](https://nextjs.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110%2B-009688.svg)](https://fastapi.tiangolo.com/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791.svg)](https://www.postgresql.org/)
-[![Redis](https://img.shields.io/badge/Redis-7-DC382D.svg)](https://redis.io/)
-[![RabbitMQ](https://img.shields.io/badge/RabbitMQ-3-FF6600.svg)](https://www.rabbitmq.com/)
-[![Groq](https://img.shields.io/badge/Groq-Llama%203.1-412991.svg)](https://console.groq.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15%2B-336791.svg)](https://www.postgresql.org/)
+[![Redis](https://img.shields.io/badge/Redis-Cloud-DC382D.svg)](https://redis.io/)
+[![Gemini](https://img.shields.io/badge/Google%20Gemini-Flash-4285F4.svg)](https://ai.google.dev/)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED.svg)](https://www.docker.com/)
 [![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-**Plataforma de comercio electrónico basada en microservicios** que permite a compradores explorar un catálogo multi-categoría, gestionar órdenes y recibir recomendaciones personalizadas a través de un asistente conversacional con IA generativa (Groq + Llama 3.1). A los vendedores les permite publicar productos y consultar sus ventas.
-
-El proyecto implementa patrones reales de arquitectura de software: segmentación de red, saga coreográfico, cold-spare failover, TLS/HTTPS, rate limiting de doble capa e idempotencia en eventos distribuidos.
+**Plataforma de comercio electrónico B2C inteligente para el mercado colombiano** que permite a los usuarios explorar un catálogo multi-categoría, gestionar un carrito de compras, completar compras con métodos de pago locales (PSE, Nequi, tarjetas) y recibir recomendaciones personalizadas a través de un asistente conversacional con IA generativa (Google Gemini Flash).
 
 ---
 
 ## ✨ Características Principales
 
 ### 🛍️ E-commerce Core
-- Registro e inicio de sesión con JWT, sesiones Redis y logout con blacklist
-- Catálogo de productos con categorías, galería de imágenes y reviews
-- Flujo de órdenes con confirmación de stock (Saga Pattern sobre RabbitMQ)
-- Panel de vendedor: publicar productos y ver estadísticas de ventas
-- Gestión de perfil y direcciones de envío
+- Registro e inicio de sesión de usuarios con JWT
+- Catálogo de productos multi-categoría con filtros y búsqueda
+- Carrito de compras persistente (Redis)
+- Checkout completo con pasarela Wompi Colombia (PSE · Nequi · Tarjetas)
+- Historial de órdenes y gestión de perfiles
+- Reseñas y calificaciones de productos
 
-### 🤖 IA Generativa (Groq + Llama 3.1)
-- **Asistente conversacional**: chat en lenguaje natural con memoria de historial
-- **Recomendaciones limitadas al inventario real**: el modelo solo puede recomendar productos existentes en la BD
-- **Extracción de presupuesto**: LLM dedicado que infiere el rango de precio del mensaje del usuario
+### 🤖 IA Generativa (Google Gemini Flash)
+- **Asistente conversacional**: chatbot que ayuda al usuario a encontrar productos y resolver dudas en lenguaje natural
+- **Recomendaciones personalizadas**: sugerencias basadas en el historial del usuario y comportamiento de usuarios similares
+- **Búsqueda semántica**: búsqueda vectorial con `pgvector` y embeddings (`text-embedding-004`)
+- **Moderación automática**: revisión de reseñas con LLM — sin entrenamiento propio de modelos
 
-### 🔒 Seguridad y Resiliencia
-- **Segmentación de red**: dos subredes Docker aisladas (pública / privada)
-- **TLS end-to-end**: HTTPS forzado, TLS 1.2/1.3, HSTS
-- **Rate limiting de doble capa**: NGINX (2 r/s por IP) + Redis sliding window (10 req/60 s por usuario)
-- **Cold-spare failover**: réplica spare del auth-service activada automáticamente por watchdog
+### 🔄 CI/CD Pipeline (GitHub Actions)
+- ✅ **lint.yml**: Validación de código (Black, isort, Flake8 / ESLint)
+- ✅ **test.yml**: Tests unitarios + cobertura ≥75%
+- ✅ **docker.yml**: Build y validación de imágenes Docker
 
 ---
 
 ## 🏛️ Arquitectura
 
-### Vista de Componentes y Conectores
+![Arquitectura del Sistema](docs/cc.svg)
 
-![Component & Connector](docs/architecture/C%26C.png)
-
-#### Descripción de elementos y relaciones
+#### Descripción de los elementos y relaciones Arquitectónicas 
 
 El sistema se compone de múltiples elementos arquitectónicos organizados bajo un enfoque de microservicios, donde cada componente tiene una responsabilidad específica.
 
-**Componentes principales:**
+##### Componentes principales
 
-- **Frontend (Next.js 14)** — Interfaz de usuario con SSR. Se comunica exclusivamente con el API Gateway mediante HTTPS. Para el SSR usa la URL interna del gateway (`http://api-gateway:8000`); para el CSR usa la URL pública (`https://localhost:8443`).
+- **Frontend (Web Application)**  
+  Interfaz de usuario que permite la interacción con el sistema. Se comunica exclusivamente con el API Gateway mediante HTTP.
 
-- **API Gateway (NGINX)** — Único punto de entrada al sistema. Enruta por prefijo de path, termina TLS, gestiona CORS, aplica rate limiting y maneja el failover del auth-service con un upstream backup.
+- **API Gateway**  
+  Punto de entrada único al sistema. Se encarga de enrutar las solicitudes del cliente hacia los microservicios correspondientes.
 
-- **Auth Service** — Autenticación y emisión de JWT. Mantiene blacklist de tokens en Redis. Publica el evento `AUTH_USER_REGISTERED` al registrarse un usuario. Tiene réplica cold-spare activada por el `spare-coordinator`.
+- **Auth Service**  
+  Responsable de la autenticación de usuarios. Gestiona credenciales, genera tokens JWT y administra sesiones mediante Redis.
 
-- **User Service** — Gestión de perfiles y direcciones de envío. Crea perfiles al consumir el evento `AUTH_USER_REGISTERED`. Expone endpoint interno `/internal/profiles` para uso cross-service.
+- **User Service**  
+  Encargado de la gestión de perfiles de usuario. Mantiene su propia base de datos y crea perfiles a partir de eventos generados por el servicio de autenticación.
 
-- **Product Service** — Catálogo de productos, categorías, galería de imágenes, reviews y gestión de stock. Participa en el Saga Pattern como reservador de stock. Cachea datos cross-service en Redis (TTL 900 s).
+- **Product Service**  
+  Gestiona el catálogo de productos y las reseñas. Valida tokens JWT para autorizar las operaciones.
 
-- **Order Service** — Ciclo de vida completo de órdenes. Inicia la saga publicando `ORDER_CREATED` y transiciona el estado según la respuesta. Incluye worker de timeout (30 s) para cancelación automática.
+- **Order Service**  
+  Responsable de la gestión de pedidos. Permite la creación y consulta de órdenes, valida la información de productos mediante el Product Service y publica eventos relacionados con el ciclo de vida de las órdenes.
 
-- **AI Service** — Chat conversacional con memoria en Redis. Obtiene contexto del usuario (user-service) y catálogo (product-service) para garantizar que las recomendaciones se limiten al inventario real. Aplica rate limiting de segunda capa vía Redis sliding window.
+- **AI Service**  
+  Consume eventos del sistema para procesar información y generar funcionalidades inteligentes como recomendaciones y personalización.
 
-- **RabbitMQ** — Broker de mensajería para comunicación asincrónica: exchange `events` (fanout) para registro y exchange `commerce.saga` (topic) para la saga de stock, con DLQ.
+- **Message Broker (RabbitMQ)**  
+  Permite la comunicación asincrónica entre servicios mediante eventos.
 
-- **Redis** — Sesiones y blacklist de tokens (auth), caché cross-service (product), historial conversacional y rate-limit sliding window (AI).
+- **Bases de datos (PostgreSQL)**  
+  Cada microservicio mantiene su propia base de datos, garantizando independencia.
 
-**Relaciones entre componentes:**
+- **Redis**  
+  Utilizado por el servicio de autenticación para la gestión de sesiones.
 
-- El frontend se comunica con todos los servicios a través del API Gateway.
-- El API Gateway mantiene upstream primario (`auth-service :8001`) y backup (`auth-service-cold :8002`).
-- El `spare-coordinator` monitorea el health del auth-service y activa el spare ante fallos consecutivos.
-- Auth Service publica `AUTH_USER_REGISTERED` → User Service lo consume para crear el perfil.
-- Order Service publica `ORDER_CREATED` → Product Service reserva stock y responde con `STOCK_RESERVED` / `STOCK_UNAVAILABLE` → Order Service confirma o cancela la orden.
-- Order Service consulta información de productos sincrónicamente vía HTTP `/internal/products/*`.
-- AI Service consulta catálogo y perfil del usuario en tiempo real antes de invocar el LLM.
-- Cada microservicio accede únicamente a su propia base de datos PostgreSQL.
+##### Relaciones entre componentes
+
+- El frontend se comunica con los servicios a través del API Gateway mediante HTTP.
+- El API Gateway enruta las solicitudes hacia los microservicios correspondientes.
+- El Product Service y el Order Service pueden comunicarse sincrónicamente mediante HTTP.
+- El Auth Service publica eventos (ej. `USER_REGISTERED`) que son consumidos por el User Service.
+- El Order Service puede publicar eventos relacionados con pedidos (ej. `ORDER_CREATED`).
+- El AI Service consume eventos generados por distintos servicios para procesar información del sistema.
+- Cada microservicio accede únicamente a su propia base de datos.
+- Redis es utilizado exclusivamente por el Auth Service.
+
+#### Descripción de los Estilos y Patrones Arquitectónicos Utilizados
+
+##### Estilos arquitectónicos
+
+- **Arquitectura de microservicios**  
+  El sistema está compuesto por múltiples servicios independientes con responsabilidades específicas.
+
+- **Arquitectura orientada a eventos (Event-Driven Architecture)**  
+  Se utiliza comunicación basada en eventos para permitir interacción asincrónica entre servicios.
+
+
+##### Patrones arquitectónicos
+
+- **API Gateway Pattern**  
+  Se utiliza un API Gateway como punto de entrada único al sistema.
+
+- **Message Broker Pattern**  
+  Se emplea un broker de mensajería (RabbitMQ) para gestionar eventos entre servicios.
+
+- **Database per Service Pattern**  
+  Cada microservicio posee su propia base de datos.
+
+- **Publish/Subscribe Pattern**  
+  Los servicios publican eventos y otros se suscriben para reaccionar.
+
+---
+### Estructura de Despliegue
+
+#### Vista de Despliegue
+
+#### Descripción de elementos arquitectónicos y relaciones
+
+- **Frontend**  
+  Aplicación web que se ejecuta en un contenedor independiente. Se comunica con el sistema a través del API Gateway mediante HTTP.
+
+- **API Gateway (Nginx)**  
+  Actúa como punto de entrada único al sistema. Recibe las solicitudes del frontend y las redirige a los microservicios correspondientes.
+
+- **Auth Service**  
+  Servicio encargado de la autenticación. Se conecta a:
+  - su base de datos PostgreSQL  
+  - Redis para manejo de sesiones  
+  - RabbitMQ para publicación de eventos  
+
+- **User Service**  
+  Gestiona la información de usuarios. Se conecta a:
+  - su base de datos PostgreSQL  
+  - RabbitMQ para consumo de eventos  
+
+- **Product Service**  
+  Maneja el catálogo de productos y reseñas. Se conecta a:
+  - su base de datos PostgreSQL  
+  - otros servicios mediante HTTP
+
+- **Order Service**  
+  Gestiona la creación y consulta de órdenes. Se conecta a:
+  - su base de datos PostgreSQL  
+  - el Product Service mediante HTTP para validación de productos  
+  - RabbitMQ para publicación de eventos  
+
+- **AI Service**  
+  Consume eventos desde RabbitMQ para procesar información del sistema y generar funcionalidades inteligentes.
+
+- **RabbitMQ**  
+  Broker de mensajería que permite la comunicación asincrónica entre servicios mediante eventos.
+
+- **Redis**  
+  Sistema de almacenamiento en memoria utilizado por el Auth Service para la gestión de sesiones.
+
+- **Bases de datos PostgreSQL**  
+  Cada servicio (Auth, User, Product, Order) cuenta con su propia base de datos independiente, desplegada en contenedores separados.
+
+#### Descripción de patrones arquitectónicos utilizados
+
+- **Arquitectura basada en contenedores**  
+  Todos los componentes del sistema se despliegan como contenedores independientes, lo que facilita el aislamiento, portabilidad y escalabilidad.
+
+- **Microservices Deployment Pattern**  
+  Cada servicio es desplegado de forma independiente, permitiendo actualizaciones y escalado sin afectar a otros componentes.
+
+- **Database per Service**  
+  Cada microservicio tiene su propia base de datos, evitando el acoplamiento a nivel de persistencia.
+
+- **API Gateway Pattern**  
+  Se utiliza un gateway para centralizar el acceso a los servicios y simplificar la comunicación con el cliente.
+
+- **Message Broker Pattern**  
+  RabbitMQ permite la comunicación asincrónica entre servicios mediante eventos.
 
 ---
 
-### Vista de Despliegue
+### Estructura en Capas
 
-![Deployment](docs/architecture/Deployment_Current.png)
+#### Vista en Capas
 
-#### Descripción de elementos y relaciones
+#### Descripción de elementos arquitectónicos y relaciones
 
-- **Frontend** — Contenedor Next.js en `subnet_a`. Expone el puerto 3000 al host.
+El sistema se divide en las siguientes capas:
 
-- **API Gateway (NGINX)** — Único contenedor conectado a ambas redes (`subnet_a` y `subnet_b`). Expone puertos 8000 (HTTP → 301) y 8443 (HTTPS) al host.
+- **Capa de Presentación (Presentation Layer)**  
+  Incluye el frontend web, encargado de la interacción con el usuario. Esta capa envía solicitudes al sistema a través del API Gateway y presenta los resultados.
 
-- **Servicios backend** — Todos en `subnet_b`, sin puertos expuestos al host. Solo accesibles a través del gateway o entre sí dentro de la red privada.
+- **Capa de Entrada (API Gateway Layer)**  
+  Representada por el API Gateway, que actúa como intermediario entre el frontend y los microservicios. Se encarga del enrutamiento de solicitudes, ocultando la complejidad interna del sistema.
 
-- **auth-service-cold y spare-coordinator** — El coordinator tiene acceso al socket de Docker para poder realizar operaciones de control sobre el spare.
+- **Capa de Aplicación / Lógica de Negocio (Application Layer)**  
+  Compuesta por los microservicios:
+  - Auth Service  
+  - User Service  
+  - Product Service  
+  - Order Service  
+  - AI Service  
+  Cada uno implementa lógica de negocio específica y opera de forma independiente.
 
-- **Bases de datos** — Cuatro instancias PostgreSQL 16 independientes, una por servicio (DB-per-service). Solo accesibles desde `subnet_b`.
+- **Capa de Integración (Integration Layer)**  
+  Incluye los mecanismos de comunicación entre servicios:
+  - Comunicación síncrona mediante HTTP (REST)  
+  - Comunicación asíncrona mediante eventos usando RabbitMQ  
+  Esta capa permite la interacción entre servicios sin acoplamiento directo.
 
-- **RabbitMQ y Redis** — Infraestructura compartida en `subnet_b`.
+- **Capa de Datos (Data Layer)**  
+  Compuesta por:
+  - Bases de datos PostgreSQL independientes por servicio  
+  - Redis como almacenamiento en memoria para sesiones  
+  Cada microservicio accede únicamente a su propia fuente de datos.
 
-#### Patrones de despliegue aplicados
+##### Relaciones entre capas
 
-- **Containerized Deployment** — Todos los componentes corren como contenedores Docker independientes.
-- **Network Segmentation** — Dos subredes aisladas limitan el alcance ante una intrusión.
-- **Database per Service** — Aislamiento completo de persistencia; ningún servicio accede a la BD de otro.
-- **API Gateway** — Punto de entrada único centraliza routing, TLS y políticas de seguridad.
+- La capa de presentación se comunica exclusivamente con el API Gateway.
+- El API Gateway enruta las solicitudes hacia la capa de aplicación.
+- Los microservicios pueden comunicarse entre sí mediante HTTP cuando se requiere validación en tiempo real.
+- La comunicación asincrónica entre servicios se realiza mediante el broker de mensajería.
+- Cada servicio interactúa únicamente con su propia base de datos, evitando dependencias directas entre capas de datos.
 
----
+#### Descripción de patrones arquitectónicos utilizados
 
-### Vista N-Tier
+- **Layered Architecture Pattern**  
+  El sistema organiza sus responsabilidades en capas bien definidas, facilitando la separación de preocupaciones.
 
-![N-Tier](docs/architecture/NTier_Current.png)
+- **Separation of Concerns**  
+  Cada capa tiene una responsabilidad específica (presentación, lógica, integración, datos), reduciendo el acoplamiento.
 
-#### Descripción de capas
+- **API Gateway Pattern**  
+  Actúa como punto de entrada, separando la capa de presentación de la lógica de negocio.
 
-El sistema se organiza en 5 capas horizontales:
+- **Microservices Pattern**  
+  Cada componente de la capa de aplicación es un servicio independiente.
 
-- **Capa 0 — Presentación** — Browser y frontend Next.js 14 con SSR. Responsable de la interfaz de usuario y la comunicación con el gateway.
+- **Event-Driven Pattern**  
+  La capa de integración soporta comunicación basada en eventos para procesos asincrónicos.
 
-- **Capa 1 — Edge (API Gateway)** — NGINX como único proxy inverso. Gestiona TLS termination, rate limiting, CORS, routing por path y failover de auth.
-
-- **Capa 2 — Servicios de Negocio** — Los cinco microservicios FastAPI implementan la lógica de dominio. El `spare-coordinator` garantiza disponibilidad del auth-service.
-
-- **Capa 3 — Mensajería Asíncrona** — RabbitMQ desacopla la comunicación entre servicios mediante exchanges tipados (fanout y topic).
-
-- **Capa 4 — Datos** — Cuatro instancias PostgreSQL (una por servicio), Redis para sesiones/caché/rate-limit, y Groq API como servicio externo de inferencia LLM.
-
-#### Patrones aplicados
-
-- **Layered Architecture** — Separación clara de responsabilidades por capa.
-- **Separation of Concerns** — Cada capa tiene un propósito único.
-- **Event-Driven** — La capa 3 permite comunicación asincrónica desacoplada entre los servicios de capa 2.
-
----
-
-### Vista de Descomposición
-
-![Decomposition](docs/architecture/Decomposition_Current.png)
-
-#### Descripción de dominios de negocio
-
-La descomposición se realizó por *business capabilities* (capacidades de negocio), donde cada microservicio encapsula un dominio funcional específico:
-
-- **Dominio Identidad** → `auth-service`: autenticación, emisión de JWT y gestión de sesiones.
-- **Dominio Perfil de Usuario** → `user-service`: gestión de perfiles y direcciones de envío.
-- **Dominio Catálogo e Inventario** → `product-service`: productos, categorías, reviews, galería y stock.
-- **Dominio Comercio / Órdenes** → `order-service`: ciclo de vida de órdenes y coordinación de la saga de stock.
-- **Dominio Asistente IA** → `ai-service`: chat conversacional, recomendaciones y control de uso.
-
-La **infraestructura transversal** (NGINX, RabbitMQ, Redis, spare-coordinator) provee servicios compartidos sin pertenecer a ningún dominio de negocio.
-
-#### Estilos y patrones arquitectónicos
-
-**Estilos:**
-
-- **Arquitectura de microservicios** — Servicios independientes con ciclos de vida y bases de datos propias.
-- **Arquitectura orientada a eventos (EDA)** — Comunicación asincrónica mediante eventos publicados en RabbitMQ.
-
-**Patrones:**
-
-| Patrón | Implementación |
-|---|---|
-| **API Gateway** | NGINX como único punto de entrada — `api-gateway/` |
-| **Reverse Proxy** | NGINX enruta y oculta la topología interna |
-| **Network Segmentation** | `subnet_a` (pública) / `subnet_b` (privada) en `docker-compose.yml` |
-| **Secure Channel (TLS)** | HTTPS forzado en NGINX, TLS 1.2/1.3, HSTS |
-| **Saga (coreografía)** | Order ↔ Product vía RabbitMQ `commerce.saga` exchange |
-| **Cold-Spare Redundancy** | `auth-service-cold` + `spare-coordinator` watchdog |
-| **Database per Service** | 4 instancias PostgreSQL aisladas |
-| **Publish/Subscribe** | Auth → User (`AUTH_USER_REGISTERED`); Order ↔ Product (saga) |
-| **Rate Limiting** | NGINX (por IP) + Redis sliding window (por usuario) en `ai-service` |
-| **Idempotencia** | Tabla `processed_events` en order y product service |
+- **Database per Service Pattern**  
+  Cada servicio gestiona su propia persistencia dentro de la capa
 
 ---
 
-## 📋 Requerimientos
+### Estructura de Descomposición
 
-### Funcionales
+La descomposición del sistema se realizó basada en responsabilidades de negocio (business capabilities), donde cada microservicio encapsula un dominio funcional específico:
+- Autenticación → Auth Service  
+- Gestión de usuarios → User Service  
+- Catálogo de productos → Product Service  
+- Gestión de pedidos → Order Service  
+- Procesamiento inteligente → AI Service  
 
-| ID | Descripción |
-|---|---|
-| RF-01 | El sistema permite registro, inicio de sesión y gestión de perfiles de usuario. |
-| RF-02 | El sistema almacena el historial de órdenes y las interacciones de los usuarios. |
-| RF-03 | El sistema permite visualizar el catálogo completo de productos disponibles. |
-| RF-04 | El sistema permite a los vendedores publicar y gestionar productos con categoría, galería e inventario. |
-| RF-05 | El sistema genera recomendaciones personalizadas mediante IA, limitadas al inventario real. |
-| RF-06 | El sistema permite a usuarios publicar reseñas y calificaciones sobre productos. |
-| RF-07 | El sistema expone un asistente conversacional con memoria de historial y contexto del usuario. |
-| RF-08 | El sistema permite crear órdenes con confirmación automática de stock disponible. |
-| RF-09 | El sistema permite a los vendedores consultar estadísticas de sus ventas. |
-| RF-10 | El sistema gestiona el ciclo completo de una orden: creación, confirmación de stock, envío y entrega. |
-| RF-11 | El sistema permite filtrar y buscar productos por categoría. |
-| RF-12 | El sistema clasifica productos en categorías para facilitar la navegación del catálogo. |
+#### Vista de Descomposición
 
-### No Funcionales
+#### Descripción de elementos arquitectónicos y relaciones
 
-| ID | Descripción | Criterio de verificación |
-|---|---|---|
-| RNF-01 | **Disponibilidad:** El auth-service continúa operando ante el fallo del nodo primario. | El spare-coordinator activa el auth-service-cold en ≤ 10 s ante 3 fallos consecutivos. |
-| RNF-02 | **Arquitectura modular:** Los servicios son independientes y desplegables por separado. | Cada servicio tiene su propio Dockerfile, base de datos y puede reiniciarse sin afectar los demás. |
-| RNF-03 | **Integración de IA generativa:** El asistente de IA responde en lenguaje natural con contexto del inventario. | El chat recomienda solo productos existentes y respeta el presupuesto indicado por el usuario. |
-| RNF-04 | **Seguridad:** Todo el tráfico externo viaja cifrado y el backend está aislado de la red pública. | HTTP redirige a HTTPS con 301; los servicios backend no tienen puertos expuestos al host. |
-| RNF-05 | **Control de uso del LLM:** El endpoint AI está protegido contra abuso. | La doble capa de rate limiting (NGINX + Redis) responde con 429 ante ráfagas que excedan los límites. |
-| RNF-06 | **Despliegue reproducible:** El sistema se levanta con un único comando. | `docker compose up -d --build` levanta todos los servicios sin configuración manual adicional. |
+El sistema está compuesto por los siguientes microservicios:
 
-### Requerimientos del Curso
+- **Auth Service**  
+  Responsable de la autenticación y gestión de credenciales. Genera tokens JWT y publica eventos relacionados con el registro de usuarios.
 
-| ID | Requerimiento | Cumplimiento |
-|---|---|---|
-| C-RNF-01 | Sistema con arquitectura distribuida | ✅ 5 microservicios independientes |
-| C-RNF-02 | Al menos dos componentes de presentación | ✅ Frontend web + ChatWidget IA |
-| C-RNF-03 | Frontend web con SSR | ✅ Next.js 14 App Router con SSR |
-| C-RNF-04 | Al menos cuatro componentes de lógica | ✅ auth, user, product, order, ai (5) |
-| C-RNF-05 | Componente de comunicación/orquestación | ✅ NGINX API Gateway + RabbitMQ |
-| C-RNF-06 | Al menos cuatro componentes de datos | ✅ 4× PostgreSQL + Redis + RabbitMQ (6) |
-| C-RNF-07 | Componente de procesos asincrónicos | ✅ RabbitMQ + saga consumers + timeout worker |
-| C-RNF-08 | Conectores basados en HTTP | ✅ REST JSON entre todos los servicios |
-| C-RNF-09 | Al menos cuatro lenguajes de programación | ✅ Python · JavaScript · NGINX conf · YAML |
-| C-RNF-10 | Despliegue orientado a contenedores | ✅ Docker Compose con 13 contenedores |
+- **User Service**  
+  Encargado de la gestión de perfiles de usuario. Consume eventos generados por el Auth Service (ej. `USER_REGISTERED`) para crear la información del usuario en su base de datos.
 
+- **Product Service**  
+  Gestiona el catálogo de productos y las reseñas. Permite la creación, consulta y administración de productos dentro del sistema.
+
+- **Order Service**  
+  Responsable de la gestión de pedidos. Coordina la creación de órdenes y se comunica con el Product Service para validar la información de productos.
+
+- **AI Service**  
+  Procesa eventos del sistema para generar funcionalidades inteligentes como recomendaciones y personalización.
+
+
+#### Relaciones entre los componentes
+
+- El **Auth Service** publica eventos que son consumidos por el **User Service**.
+- El **Order Service** se comunica de forma síncrona con el **Product Service** para validar productos.
+- Los distintos servicios publican eventos en el broker de mensajería.
+- El **AI Service** consume eventos generados por múltiples servicios.
+- Todos los servicios son independientes y no comparten bases de datos.
+- La comunicación entre servicios puede ser:
+  - **Síncrona (HTTP/REST)**  
+  - **Asíncrona (eventos mediante RabbitMQ)**  
 ---
 
 ## 🚀 Inicio Rápido
 
 ### Prerrequisitos
 
-- **Docker** y **Docker Compose**
-- `mkcert` (recomendado) u `openssl` para el certificado TLS
-- ~4 GB de RAM disponibles
-- Puertos libres: `3000`, `8000`, `8443`, `5433–5436`, `6379`, `5672`, `15672`
-- API Key de Groq → [console.groq.com](https://console.groq.com)
+- **Docker Desktop** instalado y en ejecución
+- **Git**
+- **Python 3.12.x**
 
-### Con Docker Compose
+### Con Docker Compose (Recomendado)
 
 ```bash
 # 1. Clonar el repositorio
@@ -244,186 +306,501 @@ cd ecommerce-project
 
 # 2. Configurar variables de entorno
 cp .env.example .env
-# Editar .env y establecer:  AI_API_KEY=<tu-clave-groq>
+# Windows PowerShell:
+# Copy-Item .env.example .env
 
-# 3. Generar certificado TLS (solo la primera vez)
-bash generate_certs.sh
+# 3. Levantar todos los servicios con un solo comando
+docker compose up --build
 
-# 4. Levantar todos los servicios
-docker compose up -d --build
-
-# 5. Verificar que todos los servicios estén healthy
-docker compose ps
-
-# 6. Confiar el certificado en el navegador (solo la primera vez)
-#    Abrir: https://localhost:8443/health
-#    → "Avanzado" → "Continuar a localhost (no seguro)"
-
-# 7. Abrir la aplicación
-#    http://localhost:3000
+# 4. Acceder a la aplicación
+# API backend:                http://localhost:8000
+# API backend (Swagger):      http://localhost:8000/docs
+# API Health                  http://localhost:8000/health
 ```
-
-> El certificado es autofirmado (entorno de desarrollo). El paso 6 es necesario para que el frontend pueda comunicarse con el gateway por HTTPS sin bloqueos del browser.
 
 **Servicios levantados:**
 
-| Servicio | Puerto host | Descripción |
+| Servicio | Puerto | Descripción |
 |---|---|---|
-| `frontend` | 3000 | Interfaz web Next.js |
-| `api-gateway` | 8000 / 8443 | NGINX — HTTP redirect / HTTPS |
-| `rabbitmq` | 15672 | Management UI (guest/guest) |
-| `auth-postgres` | 5433 | PostgreSQL auth (dev) |
-| `user-postgres` | 5434 | PostgreSQL user (dev) |
-| `product-postgres` | 5435 | PostgreSQL product (dev) |
-| `order-postgres` | 5436 | PostgreSQL order (dev) |
-| `redis` | 6379 | Redis (dev) |
+| `backend` | 8000 | API FastAPI |
+| `postgres` | 5432 | PostgreSQL 15 |
+| `redis` | 6379 | Redis — caché NoSQL |
 
 ```bash
-# Detener y eliminar volúmenes (reset completo)
-docker compose down -v
+# Para detener
+docker compose down
 ```
 
 ---
 
-## 💻 Variables de Entorno
+## 💻 Instalación Local (Desarrollo)
 
-| Variable | Descripción | Requerida |
-|---|---|---|
-| `AI_API_KEY` | API Key de Groq para el chat AI | ✅ Sí |
-| `AUTH_JWT_SECRET` | Secret para firmar JWT (mín. 32 chars) | ✅ Sí |
-| `RABBITMQ_USER` / `RABBITMQ_PASS` | Credenciales de RabbitMQ | Opcional (default: guest) |
+### Opcion A: Docker Compose (recomendada para cualquier PC)
 
-> La fuente operativa completa son los `environment:` definidos en `docker-compose.yml`. Los valores por defecto cubren todo lo necesario para levantar el stack en desarrollo.
-
----
-
-## 🔄 Flujos Principales
-
-### 1. Autenticación y registro
-- El usuario se registra a través del API Gateway (`POST /auth/register`).
-- Auth Service crea las credenciales y publica `AUTH_USER_REGISTERED` en RabbitMQ.
-- User Service consume el evento y crea el perfil en su propia base de datos.
-- El JWT generado se almacena como cookie y autoriza futuras solicitudes.
-
-### 2. Flujo de orden con Saga de Stock
-- El usuario crea una orden (`POST /orders/`). La orden queda en estado `pending_stock_confirmation`.
-- Order Service publica `ORDER_CREATED` en el exchange `commerce.saga`.
-- Product Service consume el evento, aplica lock pesimista sobre el stock, crea una `StockReservation` y publica `STOCK_RESERVED` o `STOCK_UNAVAILABLE`.
-- Order Service consume la respuesta y transiciona la orden a `confirmed` o `cancelled`.
-- Un worker async cancela automáticamente órdenes que superen 30 s sin respuesta.
-
-### 3. Chat con IA
-- El usuario envía un mensaje al ChatWidget (`POST /ai/chat/`).
-- AI Service extrae en paralelo: historial conversacional (Redis), perfil del usuario (user-service) y rango de precio implícito (LLM auxiliar).
-- Consulta el catálogo real (product-service) y construye un bloque autoritativo de productos.
-- El LLM (Groq Llama 3.1) recibe el contexto y solo puede recomendar productos del bloque, respetando el presupuesto.
-
-### 4. Failover del Auth Service
-- El `spare-coordinator` hace polling a `/health` del auth-service primario cada 3 s.
-- Tras 3 fallos consecutivos, llama `POST /activate` en el auth-service-cold.
-- NGINX detecta el fallo del primario de forma independiente (`max_fails=2 fail_timeout=5s`) y redirige al backup automáticamente.
-
----
-
-## 🧪 Testing
-
-Los tests son de integración y requieren el stack levantado. Usan `pytest-asyncio` con clientes `httpx` async, uno por servicio.
+1. Clona el repositorio:
 
 ```bash
-cd backend/tests
-pip install -r requirements.txt
-
-pytest                              # todos los tests
-pytest -m auth                      # por marcador: auth, user, product, order, ai
-pytest -m integration               # flujos cross-servicio
-pytest test_order_product_integration.py::test_nombre   # test individual
+git clone https://github.com/jpastor1649/ecommerce-project.git
+cd ecommerce-project
 ```
 
-> El frontend no tiene suite de tests automatizados.
+2. Crea archivo de variables:
+
+Windows (PowerShell):
+
+```powershell
+Copy-Item .env.example .env
+```
+
+macOS/Linux:
+
+```bash
+cp .env.example .env
+```
+
+3. Levanta servicios:
+
+```bash
+docker compose up --build
+```
+
+Si tu Docker usa binario legacy:
+
+```bash
+docker-compose up --build
+```
+
+Para detener y eliminar contenedores:
+
+```bash
+docker compose down
+```
+
+4. Accesos locales:
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8000
+- Swagger: http://localhost:8000/docs
+
+### Opcion B: Sin Docker
+
+Requiere Python 3.12+, Node 20+, PostgreSQL y Redis ejecutandose localmente.
+
+### Backend
+
+```bash
+cd backend
+python -m venv .venv
+```
+
+Activa el entorno virtual:
+
+Windows (PowerShell):
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+macOS/Linux:
+
+```bash
+source .venv/bin/activate
+```
+
+Instala dependencias y ejecuta:
+
+```bash
+pip install --upgrade pip
+pip install .
+uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev -- --host 0.0.0.0 --port 3000
+```
+
+**Detener servicios (opción sin Docker):**
+- Cierra las terminales donde estén corriendo `uvicorn` y `npm run dev` (Ctrl + C).
 
 ---
 
-## 📚 Labs Entregados
+## 📋 Requerimientos
 
-### Lab 4 — Reverse Proxy Pattern
+Los siguientes requerimientos funcionales definen el dominio y el alcance del sistema:
 
-Implementación de NGINX como reverse proxy centralizado. Se documentó la vista de Componentes & Conectores del sistema completo mostrando las rutas de los 5 servicios, sus bases de datos, RabbitMQ, Redis y la API de Groq.
-
-→ [Documentación completa del Lab 4](docs/lab4/README.md)
-
-### Lab 5 — Security Patterns + Rate Limiting
-
-Implementación de tres patrones de seguridad (Network Segmentation, Reverse Proxy, Secure Channel/TLS) con rate limiting de doble capa sobre el AI Service. Validado con 8 escenarios de carga en Apache JMeter — con rate limiting activo NGINX bloquea ataques en 1–183 ms frente a tiempos de 9–12 s sin protección.
-
-→ [Documentación completa del Lab 5 con resultados JMeter](docs/lab5/README.md)
-
-### Lab 6 — Cluster Pattern + Redundancy (Kubernetes)
-
-Despliegue del `auth-service` como Deployment de Kubernetes con 2 réplicas en un clúster local (Minikube), expuesto vía Service NodePort (`:30801`), junto con PostgreSQL y Redis internos. Incluye pruebas de auto-recuperación (self-healing) y escalado horizontal. Manifests en [`k8s/`](k8s/).
-
-→ [Documentación completa del Lab 6](docs/lab6/README.md)
+| ID | Descripción |
+|---|---|
+| RF-01 | El sistema debe permitir el registro de nuevos usuarios, inicio de sesión y gestión de perfiles individuales. |
+| RF-02 | El sistema debe almacenar el historial de compras y las interacciones de los usuarios con los productos, incluyendo acciones como la visualización y la adquisición de productos. |
+| RF-03 | El sistema debe permitir a los usuarios visualizar el catálogo completo de productos disponibles en la plataforma. |
+| RF-04 | El sistema debe permitir a los usuarios gestionar su carrito de compras, incluyendo agregar productos, eliminar productos y modificar la cantidad de unidades antes de realizar la compra. |
+| RF-05 | El sistema debe generar recomendaciones de productos personalizadas utilizando un sistema de inteligencia artificial que analice el historial de compras y las interacciones de los usuarios con los productos. |
+| RF-06 | El sistema debe permitir a los usuarios publicar reseñas y calificaciones sobre los productos que hayan adquirido. |
+| RF-07 | El sistema debe exponer un asistente conversacional de IA generativa que ayude al usuario a encontrar productos, resolver dudas y recibir recomendaciones en lenguaje natural. |
+| RF-08 | El sistema debe permitir a los usuarios registrar y publicar productos dentro del catálogo de la plataforma, asignándolos a una categoría específica para su comercialización. |
+| RF-09 | El sistema debe permitir a los usuarios visualizar las estadísticas de ventas realizadas, incluyendo información como número de productos vendidos, ingresos generados y productos más vendidos. |
+| RF-10 | El sistema debe permitir a los usuarios completar el proceso de checkout para finalizar la compra de los productos seleccionados, ingresando la información de envío y seleccionando un método de pago disponible. |
+| RF-11 | El sistema debe permitir a los usuarios buscar productos por nombre o categoría y aplicar filtros para refinar los resultados de búsqueda. |
+| RF-12 | El sistema debe permitir la clasificación de productos en categorías para facilitar su organización y búsqueda dentro del catálogo. |
 
 ---
 
+### Requerimientos No Funcionales
+
+| ID | Descripción | Criterio de verificación |
+|---|---|---|
+| RNF-01 | **Disponibilidad:** El sistema debe garantizar la continuidad de las funcionalidades principales ante fallos de componentes no críticos. | El sistema continúa permitiendo operaciones principales (navegación de catálogo, carrito y checkout) cuando un componente no crítico falla. |
+| RNF-02 | **Arquitectura modular:** El sistema debe estar diseñado de manera modular, permitiendo la independencia y desacoplamiento de sus componentes. | Los componentes del sistema pueden ser desarrollados, desplegados y mantenidos de manera independiente sin afectar el funcionamiento global. |
+| RNF-03 | **Integración de IA generativa:** El sistema debe integrar servicios de inteligencia artificial para funcionalidades como recomendaciones, búsqueda inteligente y asistencia conversacional. | El sistema genera recomendaciones y respuestas en lenguaje natural basadas en el contexto del usuario. |
+| RNF-04 | **Despliegue:** El sistema debe permitir su despliegue de manera reproducible mediante un proceso automatizado. | El sistema puede ser desplegado en un entorno limpio siguiendo un procedimiento estandarizado sin configuraciones manuales complejas. |
+| RNF-05 | **Seguridad:** El sistema debe garantizar la protección de los datos de los usuarios mediante mecanismos de autenticación y control de acceso. | Solo usuarios autenticados pueden acceder a funcionalidades protegidas del sistema y a sus datos asociados. |
+
+### Requerimientos del Curso 
+
+| ID | Requerimiento |
+|---|---|
+| C-RNF-01 | El sistema debe seguir una arquitectura distribuida |
+| C-RNF-02 | El sistema debe incluir al menos dos componentes de presentación (uno de ellos: frontend web) |
+| C-RNF-03 | El frontend web debe seguir una subarquitectura SSR (Server-Side Rendering) |
+| C-RNF-04 | El sistema debe incluir al menos cuatro componentes de lógica |
+| C-RNF-05 | El sistema debe incluir al menos un componente que permita la comunicación/orquestación entre los componentes de lógica |
+| C-RNF-06 | El sistema debe incluir al menos cuatro componentes de datos (incluyendo bases de datos relacionales y NoSQL) |
+| C-RNF-07 | El sistema debe incluir al menos un componente encargado de manejar procesos asincrónicos |
+| C-RNF-08 | El sistema debe incluir un conjunto de conectores basados en HTTP |
+| C-RNF-09 | El sistema debe estar construido usando al menos cuatro lenguajes de programación |
+| C-RNF-10 | El despliegue del sistema debe ser orientado a contenedores |
+
+---
+#### Flujo cubierto:
+
+1. **Autenticación de usuario**  
+   - El usuario inicia sesión a través del API Gateway  
+   - El servicio de autenticación valida las credenciales contra su base de datos  
+   - Se genera un **JWT** y se almacena en Redis  
+   - El token es utilizado para autorizar futuras solicitudes a otros servicios  
+
+2. **Gestión de usuarios**  
+   - El usuario se registra a través del sistema de autenticación  
+   - El servicio de autenticación crea las credenciales del usuario  
+   - Se publica un evento en el broker de mensajería  
+   - El servicio de usuarios consume este evento y crea el perfil del usuario en su base de datos  
+   - La información del usuario se almacena en PostgreSQL (base de datos propia del servicio)   
+
+3. **Gestión de catálogo de productos**  
+   - El usuario autenticado accede al catálogo mediante el API Gateway  
+   - El servicio de productos valida el JWT antes de procesar la solicitud  
+   - Se permite la creación y consulta de productos  
+   - Los productos se almacenan en su base de datos correspondiente  
+
+4. **Publicación de reseñas de productos**  
+   - Los usuarios autenticados pueden publicar reseñas sobre productos existentes  
+   - El servicio de productos gestiona la creación y almacenamiento de reseñas  
+   - Esta funcionalidad permite incorporar interacción entre usuarios dentro del sistema  
+
+5. **Procesamiento inteligente (AI Service)**  
+
+
+6. **Comunicación asincrónica basada en eventos**  
+   - Los servicios publican eventos en un broker (RabbitMQ) ante acciones relevantes  
+   - Otros servicios se suscriben a estos eventos y reaccionan de forma desacoplada  
+   - Este mecanismo permite:
+     - escalabilidad  
+     - independencia entre servicios  
+     - extensión futura del sistema  
+---
 ## 🤝 Contribución
 
-### Estrategia de Ramas (Git Flow Simplificado)
+### 📌 Estrategia de Ramas (Git Flow Simplificado)
+
+Usamos un modelo de branching que separa **desarrollo** de **producción:**
 
 ```
-┌──────────────────────────────────────────────────────┐
-│ RAMA: main                                           │
-│ ✅ Producción lista — solo versiones completadas     │
-│ 🔒 Protegida — requiere PR revisado                 │
-└──────────────────────────────────────────────────────┘
-                        ↑
-              (merge cuando entrega completa)
-                        │
-┌──────────────────────────────────────────────────────┐
-│ RAMA: develop                                        │
-│ 🔄 Integración continua de features                 │
-│ 🧪 Aquí se prueban todas las features               │
-└──────────────────────────────────────────────────────┘
-       ↑                  ↑                  ↑
-  feature/auth     feature/saga       bugfix/cors
+┌─────────────────────────────────────────────────────────────┐
+│ RAMA: main                                                  │
+│ ✅ Producción lista para deploy                            │
+│ 📌 Solo versiones/releases completados (MVP validados)    │
+│ 🔒 Protegida - requiere PR reviewado + CI pass            │
+└─────────────────────────────────────────────────────────────┘
+                            ↑
+                    (merge cuando MVP completo)
+                            │
+┌─────────────────────────────────────────────────────────────┐
+│ RAMA: develop                                               │
+│ 🔄 Integración continua de features                        │
+│ ✨ Rama "maestra" de desarrollo                            │
+│ 🧪 Aquí se prueban todas las features antes de producción  │
+└─────────────────────────────────────────────────────────────┘
+       ↑                    ↑                    ↑
+       │                    │                    │
+  feature/auth          feature/products    feature/ui
+  feature/payments      feature/cart        bugfix/auth-token
 ```
 
-### Flujo de Trabajo
+### 🚀 Flujo de Trabajo: Paso a Paso
+
+#### 1️⃣ **Crear una Feature**
 
 ```bash
-# 1. Crear rama desde develop actualizado
-git checkout develop && git pull origin develop
-git checkout -b feature/nombre-corto
+# Asegúrate estar sincronizado con develop
+git checkout develop
+git pull origin develop
 
-# 2. Desarrollar y levantar servicios
-docker compose up -d --build
+# Crea una rama para tu feature
+# Formato: feature/nombre-corto o bugfix/nombre-corto
+git checkout -b feature/agregar-filtro-productos
 
-# 3. Ejecutar tests
-cd backend/tests && pytest -m integration
-
-# 4. Commit con formato convencional
-git commit -m "feat(orders): agregar timeout de confirmación"
-# Tipos: feat | fix | refactor | docs | test | chore
-
-# 5. Push y Pull Request hacia develop
-git push -u origin feature/nombre-corto
+# O para bugs:
+git checkout -b bugfix/arreglar-login
 ```
 
-### Reglas
+#### 2️⃣ **Desarrollar localmente**
 
-| Regla | Detalle |
-|---|---|
-| **main → producción** | Solo merges cuando hay entrega completada |
-| **develop → integración** | Todos los features se mergen aquí primero |
-| **Sin commits directos** | Siempre vía Pull Request |
-| **Ramas descriptivas** | `feature/xxx`, `bugfix/xxx`, `docs/xxx` |
+```bash
+# Levanta los servicios (Docker Compose - Opción A)
+docker compose up --build -d
 
+# O instalación manual (Opción B)
+cd backend
+.venv\Scripts\Activate.ps1
+uvicorn src.main:app --reload
+
+# Haz cambios en el código...
+# El servidor se recarga automáticamente (--reload)
+```
+
+#### 3️⃣ **Ejecuta tests y validaciones**
+
+```bash
+# Tests unitarios
+cd backend
+pytest tests/ -v
+
+# Con cobertura
+pytest tests/ --cov=src --cov-report=html
+
+# Linting (verificar estilo de código)
+black src/  # Formatea automáticamente
+pylint src/
+```
+
+#### 4️⃣ **Commit con formato convencional**
+
+Usamos [Conventional Commits](https://www.conventionalcommits.org/) para claridad:
+
+```bash
+# Formato: type(scope): mensaje
+
+git add .
+
+# Feature nueva
+git commit -m "feat(products): agregar filtro por categoría"
+
+# Bug fix
+git commit -m "fix(auth): resolver token expirado incorrectamente"
+
+# Mejora o refactor
+git commit -m "refactor(database): optimizar query de productos"
+
+# Documentación
+git commit -m "docs(readme): agregar instalación con Docker"
+```
+
+**Tipos válidos:** `feat` | `fix` | `refactor` | `docs` | `test` | `style` | `chore`
+
+#### 5️⃣ **Push y abrir Pull Request**
+
+```bash
+# Sube tu rama
+git push -u origin feature/agregar-filtro-productos
+
+# Luego:
+# 1. Ve a GitHub → tu fork/repo
+# 2. Haz click en "Compare & Pull Request"
+# 3. Asegúrate que:
+#    ✅ Base branch: develop 
+#    ✅ Head branch: feature/tu-rama
+# 4. Escribe descripción clara del cambio
+# 5. Clic en "Create Pull Request"
+```
+
+**Descripción del PR:**
+```markdown
+## Descripción
+Agrega filtro de productos por categoría en el endpoint `/products`
+
+## Cambios
+- ✨ Nuevo parámetro `category` en GET /products
+- 🧪 Tests para filtro con 3+ casos
+- 📝 Docs actualizada en Swagger
+
+## Testing
+- [x] Tests pasando (`pytest`)
+- [x] Linting limpio (`black`, `pylint`)
+- [x] Manual testing en `http://localhost:8000/docs`
+
+Fixes #123 (número del issue, si aplica)
+```
+
+#### 6️⃣ **Code Review y Merge**
+
+El PR pasará automáticamente:
+- ✅ **lint.yml** — verifica formato y estilo (`black --check`, `pylint`)
+- ✅ **test.yml** — ejecuta tests (`pytest`)
+- ✅ **docker.yml** — valida build de imagen Docker
+
+Si todo pasa:
+1. Un mantainer revisa el código
+2. Se aprueba el PR
+3. **Merges a develop** (lista para siguiente release)
+
+---
+
+### ✅ Checklist antes de hacer Push
+
+```bash
+# 1. Tests están pasando
+cd backend && pytest tests/ --cov=src
+✅ Pass
+
+# 2. Código está formateado
+black src/
+✅ OK
+
+# 3. Sin errores de linting
+pylint src/
+✅ OK
+
+# 4. Sin cambios sin commitear
+git status
+✅ clean
+
+# 5. Commits con mensaje claro
+git log --oneline -3
+✅ feat(products): agregar filtro
+✅ test(products): casos de filtro
+✅ docs(readme): actualizar ejemplos
+```
+
+---
+
+### 🚨 Reglas Importantes
+
+| Regla | Detalles |
+|-------|----------|
+| **main → producción únicamente** | Solo merges cuando hay MVP completado y testeable |
+| **develop → rama de integración** | Todos los features se mergen aquí primero |
+| **NO commits directos a main/develop** | Siempre via Pull Request |
+| **Nombra ramas claramente** | `feature/xxx`, `bugfix/xxx`, `docs/xxx` |
+| **Tests obligatorios** | CI falla si tests no pasan (bloquea el merge) |
+| **Squash opcional** | Si tu rama tiene 5+ commits, considera squash antes de merge |
+
+---
+
+### 📚 Ejemplo Completo (Real)
+
+```bash
+# 1. Crear rama desde main actualizada
+git checkout main && git pull origin main
+git checkout -b feature/descripcion-corta
+
+# 2. Hacer cambios y validar
+cd backend && pytest
+cd ../frontend && npm run lint
+
+# 3. Guardar cambios
+git add .
+git commit -m "feat(scope): descripcion corta"
+
+# 4. Subir rama
+git push -u origin feature/descripcion-corta
+```
+
+---
+
+### ✅ Status Checks Automáticos (CI/CD)
+
+Cuando haces **push o abres un PR**, GitHub ejecuta automáticamente estos checks:
+
+#### 1️⃣ **Lint** (`lint.yml`)
+
+```yaml
+Ejecuta:
+  - black --check src/        # Verifica formato PEP8
+  - pylint src/               # Revisa errores y posibles mejoras
+
+Falla si:
+  ❌ Código mal formateado
+  ❌ Variables sin usar
+  ❌ Imports innecesarios
+
+Fix rápido (en tu máquina):
+  cd backend
+  black src/                  # Formatea automáticamente
+  git add . && git commit --amend --no-edit && git push --force
+```
+
+#### 2️⃣ **Tests** (`test.yml`)
+
+```yaml
+Ejecuta:
+  - pytest tests/              # Tests unitarios
+  - --cov=src                  # Calcula cobertura
+
+Falla si:
+  ❌ Un test no pasa
+  ❌ Errores en fixtures
+
+Variables de entorno (automáticas en CI):
+  DATABASE_URL: postgresql+asyncpg://test:test@localhost/test
+  JWT_SECRET: test-secret-key
+  GEMINI_API_KEY: (vacía para tests)
+```
+
+#### 3️⃣ **Docker Build** (`docker.yml`)
+
+```yaml
+Ejecuta (solo en main):
+  - docker build -t ecommerce-backend:latest backend/
+
+Falla si:
+  ❌ Dockerfile tiene errores
+  ❌ Missing dependencies
+```
+
+#### Status en el PR
+
+Después de hacer push, verás en tu PR:
+
+```
+✅ All checks passed
+  ✓ Lint (pylint + black)
+  ✓ Tests (pytest)
+  ✓ Docker Build (si es main)
+  
+→ PR puede ser mergeado
+```
+
+Si falla:
+```
+❌ Some checks failed
+  ✗ Lint:  Variables sin usar en src/services/auth_service.py:42
+  → click "Details" para ver log completo
+  → Arregla localamente y haz git push
+```
+
+---
 ---
 
 ## 👥 Equipo
 
-**Proyecto Académico — Arquitectura de Software 2026-I · UNAL**
+**Proyecto Académico — Arquisoft 2026**
 
-| # | Nombre |
+**Nombre:** Grupo D
+
+| # | Nombre completo |
 |---|---|
 | 1 | Sara Isabel Ospina Valderrama |
 | 2 | Andrés Felipe Perdomo Uruburu |
@@ -434,10 +811,9 @@ git push -u origin feature/nombre-corto
 
 ## 📚 Documentación Adicional
 
-- **[docs/lab4/](docs/lab4/)** — Lab 4: Reverse Proxy Pattern + diagrama C&C (oficial)
-- **[docs/lab5/](docs/lab5/)** — Lab 5: Security Patterns + resultados JMeter
-- **[docs/lab6/](docs/lab6/)** — Lab 6: Cluster Pattern con Kubernetes (manifests en [`k8s/`](k8s/))
-- **[docs/architecture/](docs/architecture/)** — Diagramas PlantUML fuente (`.puml`) + PNG
+- **[docs/entrega1.md](docs/entrega1.md)**: Documento de primera entrega — requisitos y arquitectura completa
+- **[docs/architecture/](docs/architecture/)**: Diagramas C4 (PlantUML) y vista C&C
+- **API Docs (local)**: [http://localhost:8000/docs](http://localhost:8000/docs)
 
 ---
 
@@ -448,5 +824,6 @@ Este proyecto está licenciado bajo la **Licencia MIT**. Ver [LICENSE](LICENSE) 
 ---
 
 <div align="center">
+  <p>Construido con ❤️ por el Grupo D</p>
   <p>Arquitectura de Software — UNAL 2026</p>
 </div>

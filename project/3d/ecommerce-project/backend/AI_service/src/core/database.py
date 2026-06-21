@@ -1,20 +1,15 @@
-"""Async SQLAlchemy engine for the AI service's own pgvector database."""
-
-from __future__ import annotations
-
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+from sqlalchemy.orm import DeclarativeBase
 from collections.abc import AsyncGenerator
 
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.orm import DeclarativeBase
-
-from .config import settings
+from order_service.src.core.config import settings
 
 engine = create_async_engine(
-    settings.ai_database_url,
+    settings.DATABASE_URL,
     echo=False,
     pool_pre_ping=True,
-    pool_size=5,
-    max_overflow=10,
+    pool_size=10,
+    max_overflow=20,
 )
 
 AsyncSessionLocal = async_sessionmaker(
@@ -36,3 +31,5 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
         except Exception:
             await session.rollback()
             raise
+        finally:
+            await session.close()

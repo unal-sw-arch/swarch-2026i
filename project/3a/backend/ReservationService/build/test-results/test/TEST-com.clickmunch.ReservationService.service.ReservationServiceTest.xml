@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.clickmunch.ReservationService.service.ReservationServiceTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-06-10T04:25:49.750Z" hostname="Mikes-MacBook-Pro.local" time="0.309">
+  <properties/>
+  <testcase name="linkOrder_shouldSetOrderId()" classname="com.clickmunch.ReservationService.service.ReservationServiceTest" time="0.297"/>
+  <testcase name="updateStatus_shouldChangeStatus()" classname="com.clickmunch.ReservationService.service.ReservationServiceTest" time="0.003"/>
+  <testcase name="createReservation_shouldReturnResponse()" classname="com.clickmunch.ReservationService.service.ReservationServiceTest" time="0.002"/>
+  <testcase name="getReservationById_shouldReturnResponse()" classname="com.clickmunch.ReservationService.service.ReservationServiceTest" time="0.001"/>
+  <testcase name="getReservationsByRestaurant_shouldReturnList()" classname="com.clickmunch.ReservationService.service.ReservationServiceTest" time="0.001"/>
+  <testcase name="deleteReservation_shouldSucceed()" classname="com.clickmunch.ReservationService.service.ReservationServiceTest" time="0.001"/>
+  <testcase name="getReservationById_notFound_shouldThrow()" classname="com.clickmunch.ReservationService.service.ReservationServiceTest" time="0.001"/>
+  <testcase name="deleteReservation_notFound_shouldThrow()" classname="com.clickmunch.ReservationService.service.ReservationServiceTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -26,6 +26,7 @@ interface AddToWishlistButtonProps {
 type State = 'idle' | 'loading' | 'added' | 'unauthenticated' | 'error';
 
 export function AddToWishlistButton({ game }: AddToWishlistButtonProps) {
+  console.log('game.coverImage en el botón:', game.coverImage);
   const [state, setState] = useState<State>('loading');
   const [wishlistGameId, setWishlistGameId] = useState<string | null>(null);
 

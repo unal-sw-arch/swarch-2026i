@@ -1,16 +1,19 @@
 package com.clickmunch.MenuService.service;
 
-import com.clickmunch.MenuService.dto.MenuItemRequest;
-import com.clickmunch.MenuService.dto.MenuCategoryRequest;
-import com.clickmunch.MenuService.dto.MenuRestaurantResponse;
-import com.clickmunch.MenuService.dto.MenuCreateRequest;
-import com.clickmunch.MenuService.entity.*;
-import com.clickmunch.MenuService.repository.*;
-import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
+import com.clickmunch.MenuService.dto.MenuCategoryRequest;
+import com.clickmunch.MenuService.dto.MenuCreateRequest;
+import com.clickmunch.MenuService.dto.MenuItemRequest;
+import com.clickmunch.MenuService.dto.MenuRestaurantResponse;
+import com.clickmunch.MenuService.entity.MenuCategory;
+import com.clickmunch.MenuService.entity.MenuItem;
+import com.clickmunch.MenuService.repository.MenuCategoryRepository;
+import com.clickmunch.MenuService.repository.MenuItemRepository;
 
 @Service
 public class MenuService {
@@ -71,6 +74,9 @@ public class MenuService {
         item.setDescription(req.description());
         item.setPrice(req.price());
         item.setImageUrl(req.imageUrl());
+        item.setAvailableFrom(req.availableFrom());
+        item.setAvailableTo(req.availableTo());
+        item.setPreparationMinutes(req.preparationMinutes());
 
         return menuItemRepository.save(item);
     }
@@ -102,20 +108,27 @@ public class MenuService {
 
         // 2) build items with the saved category ids and save
         List<MenuItem> itemsToSave = new ArrayList<>();
-        for (int i = 0; i < savedCats.size(); i++) {
-            MenuCategory savedCat = savedCats.get(i);
-            List<MenuCreateRequest.ItemRequest> itemReqs = request.categories().get(i).items();
-            if (itemReqs == null) continue;
-            for (MenuCreateRequest.ItemRequest ir : itemReqs) {
-                MenuItem mi = new MenuItem();
-                mi.setCategoryId(savedCat.getId());
-                mi.setName(ir.name());
-                mi.setDescription(ir.description());
-                mi.setPrice(ir.price());
-                mi.setImageUrl(ir.imageUrl());
-                itemsToSave.add(mi);
-            }
+        for (MenuCategory savedCat : savedCats) {
+            MenuCreateRequest.CategoryRequest originalCategory = request.categories().stream()
+            .filter(c -> c.category().equals(savedCat.getCategory()))
+            .findFirst()
+            .orElse(null);
+
+        if (originalCategory == null || originalCategory.items() == null) continue;
+
+        for (MenuCreateRequest.ItemRequest ir : originalCategory.items()) {
+            MenuItem mi = new MenuItem();
+            mi.setCategoryId(savedCat.getId());
+            mi.setName(ir.name());
+            mi.setDescription(ir.description());
+            mi.setPrice(ir.price());
+            mi.setImageUrl(ir.imageUrl());
+            mi.setAvailableFrom(ir.availableFrom());
+            mi.setAvailableTo(ir.availableTo());
+            mi.setPreparationMinutes(ir.preparationMinutes());
+            itemsToSave.add(mi);
         }
+    }
 
         List<MenuItem> savedItems = menuItemRepository.saveAll(itemsToSave);
 
@@ -160,11 +173,14 @@ public class MenuService {
                 .orElseThrow(() -> new RuntimeException("Menu Item not found"));
         MenuItem updated = new MenuItem();
         updated.setId(existing.getId());
-        updated.setCategoryId(existing.getCategoryId());
+        updated.setCategoryId(req.categoryId() != null ? req.categoryId() : existing.getCategoryId());
         updated.setName(req.name() != null ? req.name() : existing.getName());
         updated.setDescription(req.description() != null ? req.description() : existing.getDescription());
         updated.setPrice(req.price() != null ? req.price() : existing.getPrice());
         updated.setImageUrl(req.imageUrl() != null ? req.imageUrl() : existing.getImageUrl());
+        updated.setAvailableFrom(req.availableFrom() != null ? req.availableFrom() : existing.getAvailableFrom());
+        updated.setAvailableTo(req.availableTo() != null ? req.availableTo() : existing.getAvailableTo());
+        updated.setPreparationMinutes(req.preparationMinutes() != null ? req.preparationMinutes() : existing.getPreparationMinutes());
 
         return menuItemRepository.save(updated);
     }

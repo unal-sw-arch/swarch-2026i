@@ -1,9 +1,10 @@
 package com.clickmunch.MenuService.dto;
 
-import com.clickmunch.MenuService.entity.Category;
-
 import java.math.BigDecimal;
+import java.time.LocalTime;
 import java.util.List;
+
+import com.clickmunch.MenuService.entity.Category;
 
 public record MenuCreateRequest(
     Long restaurantId,
@@ -18,6 +19,9 @@ public record MenuCreateRequest(
         String name,
         String description,
         BigDecimal price,
-        String imageUrl
+        String imageUrl,
+        LocalTime availableFrom,
+        LocalTime availableTo,
+        Integer preparationMinutes
     ) {}
 }

@@ -22,12 +22,6 @@ class Settings(BaseSettings):
     max_images_per_product: int = 8
     forbidden_review_terms: str = ""
 
-    rabbitmq_host: str = "rabbitmq"
-    rabbitmq_port: int = 5672
-    rabbitmq_user: str = "guest"
-    rabbitmq_password: str = "guest"
-    rabbitmq_saga_exchange: str = "commerce.saga"
-
     class Config:
         """Pydantic settings source configuration."""
 

@@ -1,103 +1,249 @@
-import type { Product, CreateProductDTO, UpdateProductDTO, ProductStatus } from '@/lib/types';
+import { getSession } from '@/lib/auth';
+import type {
+  Product,
+  CreateProductDTO,
+  UpdateProductDTO,
+  ProductStatus
+} from '@/lib/types';
 
-// TODO: Conectar con el backend - MenuService (puerto 8082)
-// URL base: http://localhost:8082/api/menus
+const API_BASE = import.meta.env.VITE_API_URL ?? '';
 
-// Datos mock mientras se conecta con el backend
-let mockProducts: Product[] = [
-  {
-    id: 'PRD-001',
-    name: 'Latte Vainilla',
-    description: 'Delicioso café latte con jarabe de vainilla natural',
-    price: 4.50,
-    category: 'Bebidas',
+interface BackendMenuItem {
+  id: string;
+  categoryId: string;
+  name: string;
+  description: string;
+  price: number;
+  imageUrl: string;
+  availableFrom?: string;
+  availableTo?: string;
+  preparationMinutes?: string;
+}
+
+interface BackendMenuCategory {
+  id: string;
+  restaurantId: number;
+  category: string;
+}
+
+const FRONTEND_TO_BACKEND_CATEGORY: Record<string, string> = {
+  'Entrada': 'ENTRADA',
+  'Bebidas': 'BEBIDA',
+  'Ensaladas': 'ENSALADA',
+  'Platos fuertes': 'PLATO_FUERTE',
+  'Postres': 'POSTRE',
+  'Aperitivos': 'APERITIVO',
+  'Sopas': 'SOPA',
+  'Carnes': 'CARNE',
+  'Pescados': 'PESCADO',
+  'Vegetariano': 'VEGETARIANO',
+  'Vegano': 'VEGANO',
+  'Adicional': 'ADICIONAL',
+};
+
+const BACKEND_TO_FRONTEND_CATEGORY: Record<string, string> = {
+  'ENTRADA': 'Entrada',
+  'BEBIDA': 'Bebidas',
+  'ENSALADA': 'Ensaladas',
+  'PLATO_FUERTE': 'Platos fuertes',
+  'POSTRE': 'Postres',
+  'APERITIVO': 'Aperitivos',
+  'SOPA': 'Sopas',
+  'CARNE': 'Carnes',
+  'PESCADO': 'Pescados',
+  'VEGETARIANO': 'Vegetariano',
+  'VEGANO': 'Vegano',
+  'ADICIONAL': 'Adicional',
+};
+
+const categoryCache = new Map<string, BackendMenuCategory>();
+
+function authHeaders(): Record<string, string> {
+  const session = getSession();
+  return {
+    'Content-Type': 'application/json',
+    ...(session ? { Authorization: `Bearer ${session.token}` } : {}),
+  };
+}
+
+// 🔥 Conversión robusta a Product
+function toProduct(item: BackendMenuItem, categoryName: string): Product {
+  return {
+    id: item.id,
+    name: item.name,
+    description: item.description,
+    price: Number(item.price),
+    category: categoryName,
     status: 'Publicado',
-    image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&h=400&fit=crop&auto=format',
-    createdAt: '2025-01-01T10:00:00Z',
-    updatedAt: '2025-01-01T10:00:00Z',
-  },
-  {
-    id: 'PRD-002',
-    name: 'Ensalada Mediterránea',
-    description: 'Mezcla fresca de vegetales con queso feta y aceitunas',
-    price: 9.80,
-    category: 'Ensaladas',
-    status: 'Pendiente',
-    image: 'https://images.unsplash.com/photo-1550304943-4f24f54ddde9?w=400&h=400&fit=crop&auto=format',
-    createdAt: '2025-01-02T10:00:00Z',
-    updatedAt: '2025-01-02T10:00:00Z',
-  },
-  {
-    id: 'PRD-003',
-    name: 'Burger Doble',
-    description: 'Hamburguesa doble con queso cheddar, lechuga y tomate',
-    price: 12.00,
-    category: 'Platos fuertes',
-    status: 'Publicado',
-    image: 'https://images.unsplash.com/photo-1550547660-d9450f859349?w=400&h=400&fit=crop&auto=format',
-    createdAt: '2025-01-03T10:00:00Z',
-    updatedAt: '2025-01-03T10:00:00Z',
-  },
-  {
-    id: 'PRD-004',
-    name: 'Cheesecake Frutos Rojos',
-    description: 'Pastel de queso cremoso con salsa de frutos rojos',
-    price: 6.40,
-    category: 'Postres',
-    status: 'Borrador',
-    image: 'https://images.unsplash.com/photo-1505253758473-96b7015fcd40?w=400&h=400&fit=crop&auto=format',
-    createdAt: '2025-01-04T10:00:00Z',
-    updatedAt: '2025-01-04T10:00:00Z',
-  },
-];
+    image: item.imageUrl ?? '',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    availableFrom: item.availableFrom ?? '00:00',
+    availableTo: item.availableTo ?? '23:59',
+    preparationMinutes: item.preparationMinutes,
+  };
+}
 
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+// 🔍 Obtener categoría con cache
+async function fetchCategory(categoryId: string): Promise<BackendMenuCategory | null> {
+  if (categoryCache.has(categoryId)) return categoryCache.get(categoryId)!;
+
+  const res = await fetch(`${API_BASE}/menu/categories/${categoryId}`, {
+    headers: authHeaders(),
+  });
+
+  if (!res.ok) return null;
+
+  const cat: BackendMenuCategory = await res.json();
+  categoryCache.set(cat.id, cat);
+  return cat;
+}
+
+// 🔄 Obtener o crear categoría
+async function getOrCreateCategory(
+  restaurantId: number,
+  backendCategory: string
+): Promise<string> {
+
+  for (const cat of categoryCache.values()) {
+    if (cat.restaurantId === restaurantId && cat.category === backendCategory) {
+      return cat.id;
+    }
+  }
+
+  const res = await fetch(`${API_BASE}/menu/categories`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ restaurantId, category: backendCategory }),
+  });
+
+  if (!res.ok) throw new Error('Error creando categoría');
+
+  const newCat: BackendMenuCategory = await res.json();
+  categoryCache.set(newCat.id, newCat);
+  return newCat.id;
+}
 
 export const productService = {
-  async getAll(): Promise<Product[]> {
-    await delay(300);
-    return [...mockProducts];
+
+  // 📋 Obtener todos los productos
+  async getAll(restaurantId: number): Promise<Product[]> {
+    const res = await fetch(`${API_BASE}/menu/restaurants/${restaurantId}/items`, {
+      headers: authHeaders(),
+    });
+
+    if (!res.ok) return [];
+
+    const items: BackendMenuItem[] = await res.json();
+
+    const uniqueIds = [...new Set(items.map(i => i.categoryId))];
+    await Promise.all(uniqueIds.map(fetchCategory));
+
+    return items.map(item => {
+      const cat = categoryCache.get(item.categoryId);
+      const name = cat
+        ? (BACKEND_TO_FRONTEND_CATEGORY[cat.category] ?? cat.category)
+        : 'Sin categoría';
+
+      return toProduct(item, name);
+    });
   },
 
+  // 🔍 Obtener por ID
   async getById(id: string): Promise<Product | null> {
-    await delay(200);
-    return mockProducts.find(p => p.id === id) || null;
+    const res = await fetch(`${API_BASE}/menu/items/${id}`, {
+      headers: authHeaders(),
+    });
+
+    if (!res.ok) return null;
+
+    const item: BackendMenuItem = await res.json();
+    const cat = await fetchCategory(item.categoryId);
+
+    const categoryName = cat
+      ? (BACKEND_TO_FRONTEND_CATEGORY[cat.category] ?? cat.category)
+      : 'Sin categoría';
+
+    return toProduct(item, categoryName);
   },
 
-  async create(data: CreateProductDTO): Promise<Product> {
-    await delay(500);
-    const newProduct: Product = {
-      ...data,
-      id: `PRD-${String(mockProducts.length + 1).padStart(3, '0')}`,
-      status: 'Borrador',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    mockProducts.push(newProduct);
-    return newProduct;
+  // ➕ Crear producto
+  async create(data: CreateProductDTO, restaurantId: number): Promise<Product> {
+    const backendCategory = FRONTEND_TO_BACKEND_CATEGORY[data.category] ?? 'ADICIONAL';
+    const categoryId = await getOrCreateCategory(restaurantId, backendCategory);
+
+    const res = await fetch(`${API_BASE}/menu/categories/${categoryId}/items`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({
+        name: data.name,
+        description: data.description,
+        price: data.price,
+        imageUrl: data.image,
+        availableFrom: data.availableFrom,
+        availableTo: data.availableTo,
+        preparationMinutes: data.preparationMinutes
+          ? Number(data.preparationMinutes)
+          : undefined,
+      }),
+    });
+
+    if (!res.ok) throw new Error('Error al crear producto');
+
+    const item: BackendMenuItem = await res.json();
+    return toProduct(item, data.category);
   },
 
-  async update(data: UpdateProductDTO): Promise<Product | null> {
-    await delay(500);
-    const index = mockProducts.findIndex(p => p.id === data.id);
-    if (index === -1) return null;
-    mockProducts[index] = {
-      ...mockProducts[index],
-      ...data,
-      updatedAt: new Date().toISOString(),
-    };
-    return mockProducts[index];
+  // ✏️ Actualizar producto
+  async update(data: UpdateProductDTO, restaurantId: number): Promise<Product> {
+    const body: Record<string, unknown> = {};
+
+    if (data.name !== undefined) body.name = data.name;
+    if (data.description !== undefined) body.description = data.description;
+    if (data.price !== undefined) body.price = data.price;
+    if (data.image !== undefined) body.imageUrl = data.image;
+    if (data.availableFrom !== undefined) body.availableFrom = data.availableFrom;
+    if (data.availableTo !== undefined) body.availableTo = data.availableTo;
+    if (data.preparationMinutes !== undefined) {
+      body.preparationMinutes = data.preparationMinutes
+        ? Number(data.preparationMinutes)
+        : undefined;
+    }
+    if (data.category !== undefined && restaurantId !== undefined) {
+      const backendCategory = FRONTEND_TO_BACKEND_CATEGORY[data.category] ?? 'ADICIONAL';
+      body.categoryId = await getOrCreateCategory(restaurantId, backendCategory);
+    }
+
+    const res = await fetch(`${API_BASE}/menu/items/${data.id}`, {
+      method: 'PUT',
+      headers: authHeaders(),
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) throw new Error('Error al actualizar producto');
+
+    const item: BackendMenuItem = await res.json();
+    const cat = await fetchCategory(item.categoryId);
+
+    const categoryName = cat
+      ? (BACKEND_TO_FRONTEND_CATEGORY[cat.category] ?? cat.category)
+      : (data.category ?? 'Sin categoría');
+
+    return toProduct(item, categoryName);
   },
 
+  // 🗑️ Eliminar
   async delete(id: string): Promise<boolean> {
-    await delay(500);
-    const index = mockProducts.findIndex(p => p.id === id);
-    if (index === -1) return false;
-    mockProducts.splice(index, 1);
-    return true;
+    const res = await fetch(`${API_BASE}/menu/items/${id}`, {
+      method: 'DELETE',
+      headers: authHeaders(),
+    });
+
+    return res.ok;
   },
 
-  async updateStatus(id: string, status: ProductStatus): Promise<Product | null> {
-    return this.update({ id, status });
+  // 🔄 Estado (placeholder)
+  async updateStatus(id: string, _status: ProductStatus): Promise<Product | null> {
+    return this.getById(id);
   },
 };

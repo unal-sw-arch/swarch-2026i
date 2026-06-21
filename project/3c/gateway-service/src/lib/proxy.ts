@@ -1,15 +1,29 @@
 import type { Context } from "hono";
 
+type ProxyRequestOptions = {
+  defaultHeaders?: Record<string, string>;
+};
+
 /**
  * Builds a set of upstream headers from the incoming request,
  * stripping the `host` header so the upstream resolves its own host.
  */
-function buildUpstreamHeaders(c: Context): Headers {
+function buildUpstreamHeaders(
+  c: Context,
+  options: ProxyRequestOptions = {},
+): Headers {
   const headers = new Headers();
 
   for (const [key, value] of Object.entries(c.req.header())) {
     if (key.toLowerCase() === "host") continue;
     headers.set(key, value);
+  }
+
+  for (const [key, value] of Object.entries(options.defaultHeaders ?? {})) {
+    const currentValue = headers.get(key);
+    if (!currentValue || currentValue.toLowerCase() === "null") {
+      headers.set(key, value);
+    }
   }
 
   return headers;
@@ -23,6 +37,7 @@ function buildUpstreamHeaders(c: Context): Headers {
 export async function proxyRequest(
   upstreamUrl: string,
   c: Context,
+  options: ProxyRequestOptions = {},
 ): Promise<Response> {
   const method = c.req.method;
 
@@ -35,7 +50,7 @@ export async function proxyRequest(
 
   const upstreamResponse = await fetch(upstreamUrl, {
     method,
-    headers: buildUpstreamHeaders(c),
+    headers: buildUpstreamHeaders(c, options),
     body,
     // Do not follow redirects on behalf of the client — let them handle it.
     redirect: "manual",

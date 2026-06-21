@@ -10,8 +10,6 @@ from order_service.src.models.order import OrderStatus
 class OrderItemCreate(BaseModel):
     product_id: uuid.UUID
     quantity: int = Field(gt=0, le=1000)
-    unit_price: Decimal = Field(gt=0)
-    product_name: Optional[str] = Field(default=None, max_length=255)
 
     model_config = {"from_attributes": True}
 
@@ -53,8 +51,6 @@ class OrderResponse(BaseModel):
     total_amount: Decimal
     shipping_address: Dict[str, Any]
     notes: Optional[str] = None
-    saga_id: Optional[uuid.UUID] = None
-    reservation_id: Optional[uuid.UUID] = None
     items: List[OrderItemResponse]
     created_at: datetime
     updated_at: datetime
@@ -88,3 +84,9 @@ class SellerSalesListResponse(BaseModel):
     items: List[SellerSaleItemResponse]
 
 
+class ProductStockInfo(BaseModel):
+    product_id: uuid.UUID
+    name: str
+    price: Decimal
+    stock: int
+    available: bool

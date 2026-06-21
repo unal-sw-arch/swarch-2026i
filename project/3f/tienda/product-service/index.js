@@ -6,15 +6,26 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const pool = new Pool({
-  user: "admin",
-  host: "postgres",
-  database: "giftshop",
-  password: "admin",
-  port: 5432,
-});
+const pool = new Pool(
+  process.env.DATABASE_URL
+    ? {
+        connectionString: process.env.DATABASE_URL,
+        ssl: process.env.NODE_ENV === "production"
+          ? { rejectUnauthorized: false }
+          : false,
+      }
+    : {
+        host: process.env.DB_HOST || "postgres",
+        user: process.env.DB_USER || "admin",
+        password: process.env.DB_PASSWORD || "admin",
+        database: process.env.DB_NAME || "giftshop",
+        port: process.env.DB_PORT || 5432,
+      }
+);
+
 
 async function waitForDB() {
+// ✅ Inicializar tabla una sola vez al arrancar
   let connected = false;
   while (!connected) {
     try {
@@ -43,15 +54,12 @@ async function initDB() {
         imagen3 TEXT
       );
     `);
-
-    // ✅ Si la tabla ya existía sin stock, agregar la columna
     await pool.query(`
       ALTER TABLE products ADD COLUMN IF NOT EXISTS stock INTEGER DEFAULT 0;
     `);
-
     console.log("Tabla products lista");
   } catch (error) {
-    console.error("Error inicializando DB:", error);
+    console.error("Error inicializando DB:", error.message);
   }
 }
 
@@ -62,7 +70,8 @@ app.get("/products", async (req, res) => {
     const result = await pool.query("SELECT * FROM products");
     res.json(result.rows);
   } catch (error) {
-    res.status(500).json({ error: "Error obteniendo productos" });
+    console.error("Error GET products:", error.message);
+    res.status(500).json({ error: error.message }); // ✅ mensaje real
   }
 });
 
@@ -71,14 +80,13 @@ app.post("/products", async (req, res) => {
   try {
     const result = await pool.query(
       `INSERT INTO products (nombre, descripcion, precio, stock, imagen1, imagen2, imagen3)
-       VALUES ($1,$2,$3,$4,$5,$6,$7)
-       RETURNING *`,
+       VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
       [nombre, descripcion, parseFloat(precio), parseInt(stock) || 0, imagen1, imagen2, imagen3]
     );
     res.json(result.rows[0]);
   } catch (error) {
-    console.error("Error detallado:", error.message);
-    res.status(500).json({ error: "Error creando producto", detalle: error.message });
+    console.error("Error POST products:", error.message);
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -92,28 +100,27 @@ app.put("/products/:id", async (req, res) => {
     );
     res.json(result.rows[0]);
   } catch (error) {
-    res.status(500).json({ error: "Error actualizando precio" });
+    console.error("Error PUT products:", error.message);
+    res.status(500).json({ error: error.message });
   }
 });
 
-// ✅ Nueva ruta: descontar stock al confirmar compra
 app.put("/products/:id/stock", async (req, res) => {
   const { cantidad } = req.body;
   const { id } = req.params;
   try {
-    // Verificar stock disponible
     const check = await pool.query("SELECT stock FROM products WHERE id=$1", [id]);
     if (check.rows[0].stock < cantidad) {
       return res.status(400).json({ error: "Stock insuficiente" });
     }
-
     const result = await pool.query(
       "UPDATE products SET stock = stock - $1 WHERE id=$2 RETURNING *",
       [cantidad, id]
     );
     res.json(result.rows[0]);
   } catch (error) {
-    res.status(500).json({ error: "Error actualizando stock" });
+    console.error("Error PUT stock:", error.message);
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -123,10 +130,15 @@ app.delete("/products/:id", async (req, res) => {
     await pool.query("DELETE FROM products WHERE id=$1", [id]);
     res.json({ message: "Producto eliminado" });
   } catch (error) {
-    res.status(500).json({ error: "Error eliminando producto" });
+    console.error("Error DELETE products:", error.message);
+    res.status(500).json({ error: error.message });
   }
 });
 
-app.listen(4000, () => {
-  console.log("Product Service en puerto 4000");
+module.exports = app;
+
+// Start server when run as main
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => {
+  console.log(`Product service listening on port ${PORT}`);
 });

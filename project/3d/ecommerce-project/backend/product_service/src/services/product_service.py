@@ -1,10 +1,7 @@
 """Product Service - Business logic for product catalog operations."""
 
-import asyncio
-import uuid as _uuid
+import re
 from collections import defaultdict
-from datetime import datetime, timedelta
-from decimal import Decimal
 from uuid import UUID
 import httpx
 from sqlalchemy import select, or_, func
@@ -12,30 +9,26 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException, status
 
-from product_service.src.models.product import Category, Product, ProductImage, ProductReview
-from product_service.src.models.reservation import StockReservation
+from product_service.src.models.product import (
+    Category,
+    Product,
+    ProductImage,
+    ProductReview,
+)
 from product_service.src.core.config.settings import settings
 from product_service.src.core.redis_client import get_redis_client
-
-# Reuse a single httpx client across requests to avoid per-call TCP handshakes.
-_http_client: httpx.AsyncClient | None = None
-
-def get_http_client() -> httpx.AsyncClient:
-    global _http_client
-    if _http_client is None:
-        _http_client = httpx.AsyncClient(timeout=2.5)
-    return _http_client
-
-# Sentinel stored in Redis when a seller is not found in user-service.
-# Prevents repeated HTTP calls for sellers that don't exist there.
-_SELLER_NOT_FOUND = "__NOT_FOUND__"
-_SELLER_NOT_FOUND_TTL = 120  # seconds before retrying unknown sellers
 
 
 class ProductService:
     """Service for product catalog operations."""
 
     def __init__(self, db: AsyncSession):
+        """
+        Initialize service with database session.
+
+        Args:
+            db: SQLAlchemy AsyncSession for database operations
+        """
         self.db = db
 
     @staticmethod
@@ -45,6 +38,28 @@ class ProductService:
     @staticmethod
     def _normalize_name(value: str) -> str:
         return value.strip()
+
+    @staticmethod
+    def _forbidden_review_terms() -> list[str]:
+        raw = settings.forbidden_review_terms or ""
+        return [term.strip().lower() for term in raw.split(",") if term.strip()]
+
+    def _sanitize_review_comment(self, comment: str | None) -> str | None:
+        if not isinstance(comment, str):
+            return comment
+
+        cleaned = re.sub(r"\s+", " ", comment).strip()
+        if not cleaned:
+            return None
+
+        lowered = cleaned.lower()
+        for term in self._forbidden_review_terms():
+            if term in lowered:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="La reseña contiene términos no permitidos",
+                )
+        return cleaned
 
     async def _hydrate_products(self, products: list[Product]) -> list[Product]:
         if not products:
@@ -56,17 +71,12 @@ class ProductService:
 
         category_names_by_id: dict[UUID, str] = {}
         missing_category_ids: list[UUID] = []
-
-        # Fetch all cached category names in one Redis call
-        cache_keys = [f"product:category_name:{cat_id}" for cat_id in category_ids]
-        cached_values = await redis_client.mget(cache_keys) if cache_keys else []
-
-        for cache_key, cached_name in zip(cache_keys, cached_values):
+        for category_id in category_ids:
+            cache_key = f"product:category_name:{category_id}"
+            cached_name = await redis_client.get(cache_key)
             if cached_name:
-                category_id = UUID(cache_key.split(":")[-1])
                 category_names_by_id[category_id] = cached_name
             else:
-                category_id = UUID(cache_key.split(":")[-1])
                 missing_category_ids.append(category_id)
 
         if missing_category_ids:
@@ -98,103 +108,171 @@ class ProductService:
         seller_names: dict[str, str] = {}
         missing_seller_ids: list[str] = []
 
-        # Fetch all cached seller names in one Redis call
-        seller_cache_keys = [f"product:seller_name:{seller_id}" for seller_id in seller_ids]
-        cached_seller_values = await redis_client.mget(seller_cache_keys) if seller_cache_keys else []
-
-        for cache_key, cached_name in zip(seller_cache_keys, cached_seller_values):
-            seller_id = cache_key.split(":")[-1]
-            if cached_name is None:
-                missing_seller_ids.append(seller_id)
-            elif cached_name != _SELLER_NOT_FOUND:
+        for seller_id in seller_ids:
+            cache_key = f"product:seller_name:{seller_id}"
+            cached_name = await redis_client.get(cache_key)
+            if cached_name:
                 seller_names[seller_id] = cached_name
-            # cached_name == _SELLER_NOT_FOUND → known miss, skip HTTP call
+            else:
+                missing_seller_ids.append(seller_id)
 
         if missing_seller_ids:
-            client = get_http_client()
-
-            async def fetch_seller_name(seller_id: str) -> tuple[str, str | None]:
-                try:
-                    response = await client.get(f"{settings.user_service_base_url}/users/{seller_id}")
-                    if response.status_code != 200:
-                        return seller_id, None
-                    data = response.json()
-                    display_name = data.get("name") or data.get("email")
-                    if isinstance(display_name, str) and display_name.strip():
-                        return seller_id, display_name.strip()
-                    return seller_id, None
-                except httpx.HTTPError:
-                    return seller_id, None
-
-            results = await asyncio.gather(*[fetch_seller_name(sid) for sid in missing_seller_ids])
-            for seller_id, display_name in results:
-                cache_key = f"product:seller_name:{seller_id}"
-                if display_name:
-                    seller_names[seller_id] = display_name
-                    await redis_client.set(cache_key, display_name, ex=settings.seller_name_cache_ttl_seconds)
-                else:
-                    # Cache the not-found result to avoid repeated HTTP calls.
-                    await redis_client.set(cache_key, _SELLER_NOT_FOUND, ex=_SELLER_NOT_FOUND_TTL)
-
-        # Batch-compute average_rating and review_count for all products
-        rating_result = await self.db.execute(
-            select(
-                ProductReview.product_id,
-                func.avg(ProductReview.rating).label("avg_rating"),
-                func.count(ProductReview.id).label("cnt"),
-            )
-            .where(
-                ProductReview.product_id.in_(product_ids),
-                ProductReview.is_active.is_(True),
-            )
-            .group_by(ProductReview.product_id)
-        )
-        rating_by_product: dict[UUID, tuple[float, int]] = {
-            row.product_id: (float(row.avg_rating), int(row.cnt))
-            for row in rating_result
-        }
+            async with httpx.AsyncClient(timeout=2.5) as client:
+                for seller_id in missing_seller_ids:
+                    try:
+                        response = await client.get(f"{settings.user_service_base_url}/users/{seller_id}")
+                        if response.status_code != 200:
+                            continue
+                        data = response.json()
+                        display_name = data.get("name") or data.get("email")
+                        if isinstance(display_name, str) and display_name.strip():
+                            normalized = display_name.strip()
+                            seller_names[seller_id] = normalized
+                            cache_key = f"product:seller_name:{seller_id}"
+                            await redis_client.set(
+                                cache_key,
+                                normalized,
+                                ex=settings.seller_name_cache_ttl_seconds,
+                            )
+                    except httpx.HTTPError:
+                        continue
 
         for product in products:
             setattr(product, "category_name", category_names_by_id.get(product.category_id))
             setattr(product, "seller_display_name", seller_names.get(str(product.seller_user_id)))
             setattr(product, "cover_image_url", cover_by_product.get(product.id))
-            rating_data = rating_by_product.get(product.id)
-            setattr(product, "average_rating", round(rating_data[0], 2) if rating_data else None)
-            setattr(product, "review_count", rating_data[1] if rating_data else 0)
 
         return products
 
-    async def get_all_products(
-        self,
-        category_slug: str | None = None,
-        min_price: Decimal | None = None,
-        max_price: Decimal | None = None,
-    ) -> list[Product]:
-        """Get all active products, optionally filtered by category and price range."""
+    async def get_all_products(self, category_slug: str | None = None) -> list[Product]:
+        """
+        Get all active products, optionally filtered by category.
+
+        Args:
+            category_slug: Optional category slug for filtering
+
+        Returns:
+            List of active Product objects
+        """
         query = select(Product).where(Product.is_active.is_(True))
 
         if category_slug:
             query = query.join(Category).where(Category.slug == category_slug)
-        if min_price is not None:
-            query = query.where(Product.price >= min_price)
-        if max_price is not None:
-            query = query.where(Product.price <= max_price)
-        if max_price is not None and min_price is None:
-            query = query.order_by(Product.price.asc())
 
         result = await self.db.execute(query)
         products = result.scalars().all()
         return await self._hydrate_products(products)
 
+    async def get_all_categories(self) -> list[Category]:
+        """
+        Get all active categories.
 
-    async def search_products(
-        self,
-        query_string: str,
-        category_slug: str | None = None,
-        min_price: Decimal | None = None,
-        max_price: Decimal | None = None,
-    ) -> list[Product]:
-        """Search products by name or description with optional price range filter."""
+        Returns:
+            List of active Category objects
+        """
+        result = await self.db.execute(
+            select(Category).where(Category.is_active.is_(True))
+        )
+        return result.scalars().all()
+
+    async def get_category_by_id(self, category_id: UUID) -> Category | None:
+        result = await self.db.execute(select(Category).where(Category.id == category_id))
+        return result.scalar_one_or_none()
+
+    async def create_category(self, payload) -> Category:
+        if payload.parent_id is not None:
+            parent = await self.get_category_by_id(payload.parent_id)
+            if parent is None:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Categoria padre no encontrada")
+
+        category = Category(
+            name=self._normalize_name(payload.name),
+            slug=self._normalize_slug(payload.slug),
+            description=payload.description,
+            image_url=str(payload.image_url) if payload.image_url else None,
+            parent_id=payload.parent_id,
+            is_active=True,
+        )
+        self.db.add(category)
+
+        try:
+            await self.db.commit()
+        except IntegrityError as exc:
+            await self.db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Nombre o slug de categoria ya existe",
+            ) from exc
+
+        await self.db.refresh(category)
+        return category
+
+    async def update_category(self, category_id: UUID, payload) -> Category:
+        category = await self.get_category_by_id(category_id)
+        if category is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Categoria no encontrada")
+
+        updates = payload.model_dump(exclude_unset=True)
+        if "name" in updates and isinstance(updates["name"], str):
+            updates["name"] = self._normalize_name(updates["name"])
+        if "slug" in updates and isinstance(updates["slug"], str):
+            updates["slug"] = self._normalize_slug(updates["slug"])
+        if "image_url" in updates and updates["image_url"] is not None:
+            updates["image_url"] = str(updates["image_url"])
+
+        if "parent_id" in updates and updates["parent_id"] is not None:
+            if updates["parent_id"] == category_id:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Categoria no puede ser su propio padre")
+            parent = await self.get_category_by_id(updates["parent_id"])
+            if parent is None:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Categoria padre no encontrada")
+
+        for field, value in updates.items():
+            setattr(category, field, value)
+
+        try:
+            await self.db.commit()
+        except IntegrityError as exc:
+            await self.db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Nombre o slug de categoria ya existe",
+            ) from exc
+
+        await self.db.refresh(category)
+        return category
+
+    async def deactivate_category(self, category_id: UUID) -> None:
+        category = await self.get_category_by_id(category_id)
+        if category is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Categoria no encontrada")
+
+        active_products = await self.db.execute(
+            select(func.count(Product.id)).where(
+                Product.category_id == category_id,
+                Product.is_active.is_(True),
+            )
+        )
+        if int(active_products.scalar() or 0) > 0:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="No puedes desactivar una categoria con productos activos",
+            )
+
+        category.is_active = False
+        await self.db.commit()
+
+    async def search_products(self, query_string: str, category_slug: str | None = None) -> list[Product]:
+        """
+        Search products by name or description (case-insensitive).
+
+        Args:
+            query_string: Search term (will be searched in name and description)
+            category_slug: Optional category slug for filtering results
+
+        Returns:
+            List of Product objects matching the search criteria
+        """
         search_term = f"%{query_string}%"
         query = select(Product).where(
             Product.is_active.is_(True),
@@ -206,12 +284,6 @@ class ProductService:
 
         if category_slug:
             query = query.join(Category).where(Category.slug == category_slug)
-        if min_price is not None:
-            query = query.where(Product.price >= min_price)
-        if max_price is not None:
-            query = query.where(Product.price <= max_price)
-        if max_price is not None and min_price is None:
-            query = query.order_by(Product.price.asc())
 
         result = await self.db.execute(query)
         products = result.scalars().all()
@@ -311,6 +383,229 @@ class ProductService:
         product.is_active = False
         await self.db.commit()
 
+    async def create_review(self, product_id: UUID, reviewer_user_id: UUID, payload) -> ProductReview:
+        """Create or update review for a product by the authenticated user."""
+        product = await self.get_product_by_id(product_id)
+        if product is None or not product.is_active:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Producto no encontrado")
+
+        if product.seller_user_id == reviewer_user_id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No puedes reseñar tu propio producto",
+            )
+
+        existing = await self.db.execute(
+            select(ProductReview).where(
+                ProductReview.product_id == product_id,
+                ProductReview.reviewer_user_id == reviewer_user_id,
+            )
+        )
+        review = existing.scalar_one_or_none()
+
+        if review is None:
+            review = ProductReview(
+                product_id=product_id,
+                reviewer_user_id=reviewer_user_id,
+                rating=payload.rating,
+                comment=self._sanitize_review_comment(payload.comment),
+                is_active=True,
+            )
+            self.db.add(review)
+        else:
+            review.rating = payload.rating
+            review.comment = self._sanitize_review_comment(payload.comment)
+            review.is_active = True
+
+        await self.db.commit()
+        await self.db.refresh(review)
+        return review
+
+    async def get_product_reviews(self, product_id: UUID) -> list[ProductReview]:
+        """Return active reviews for a given product."""
+        result = await self.db.execute(
+            select(ProductReview)
+            .where(ProductReview.product_id == product_id, ProductReview.is_active.is_(True))
+            .order_by(ProductReview.created_at.desc())
+        )
+        return result.scalars().all()
+
+    async def add_product_image(self, product_id: UUID, seller_user_id: UUID, payload) -> ProductImage:
+        """Attach an image to a seller's own product."""
+        product = await self.get_product_by_id(product_id)
+        if product is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Producto no encontrado")
+
+        if product.seller_user_id != seller_user_id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No puedes editar este producto")
+
+        images_count_result = await self.db.execute(
+            select(func.count(ProductImage.id)).where(
+                ProductImage.product_id == product_id,
+                ProductImage.is_active.is_(True),
+            )
+        )
+        if int(images_count_result.scalar() or 0) >= settings.max_images_per_product:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Maximo de imagenes alcanzado ({settings.max_images_per_product})",
+            )
+
+        image = ProductImage(
+            product_id=product_id,
+            image_url=str(payload.image_url).strip(),
+            alt_text=payload.alt_text.strip() if isinstance(payload.alt_text, str) else payload.alt_text,
+            position=payload.position,
+            is_active=True,
+        )
+        self.db.add(image)
+        await self.db.commit()
+        await self.db.refresh(image)
+        return image
+
+    async def update_product_image(self, product_id: UUID, image_id: UUID, seller_user_id: UUID, payload) -> ProductImage:
+        """Update image metadata for a seller owned listing."""
+        product = await self.get_product_by_id(product_id)
+        if product is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Producto no encontrado")
+        if product.seller_user_id != seller_user_id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No puedes editar este producto")
+
+        result = await self.db.execute(
+            select(ProductImage).where(ProductImage.id == image_id, ProductImage.product_id == product_id)
+        )
+        image = result.scalar_one_or_none()
+        if image is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Imagen no encontrada")
+
+        updates = payload.model_dump(exclude_unset=True)
+        if "image_url" in updates and updates["image_url"] is not None:
+            updates["image_url"] = str(updates["image_url"]).strip()
+        if "alt_text" in updates and isinstance(updates["alt_text"], str):
+            updates["alt_text"] = updates["alt_text"].strip() or None
+
+        for field, value in updates.items():
+            setattr(image, field, value)
+
+        await self.db.commit()
+        await self.db.refresh(image)
+        return image
+
+    async def deactivate_product_image(self, product_id: UUID, image_id: UUID, seller_user_id: UUID) -> None:
+        """Soft-delete a product image for owned listing."""
+        product = await self.get_product_by_id(product_id)
+        if product is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Producto no encontrado")
+        if product.seller_user_id != seller_user_id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No puedes editar este producto")
+
+        result = await self.db.execute(
+            select(ProductImage).where(ProductImage.id == image_id, ProductImage.product_id == product_id)
+        )
+        image = result.scalar_one_or_none()
+        if image is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Imagen no encontrada")
+
+        image.is_active = False
+        await self.db.commit()
+
+    async def reorder_product_images(self, product_id: UUID, seller_user_id: UUID, payload) -> list[ProductImage]:
+        """Reorder product images in batch by explicit positions."""
+        product = await self.get_product_by_id(product_id)
+        if product is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Producto no encontrado")
+        if product.seller_user_id != seller_user_id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No puedes editar este producto")
+
+        requested_ids = [item.image_id for item in payload.items]
+        if len(requested_ids) != len(set(requested_ids)):
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Imagen duplicada en el reordenamiento")
+
+        result = await self.db.execute(
+            select(ProductImage).where(
+                ProductImage.product_id == product_id,
+                ProductImage.id.in_(requested_ids),
+                ProductImage.is_active.is_(True),
+            )
+        )
+        images = result.scalars().all()
+        if len(images) != len(requested_ids):
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Una o mas imagenes no existen")
+
+        by_id = {image.id: image for image in images}
+        for item in payload.items:
+            by_id[item.image_id].position = item.position
+
+        await self.db.commit()
+        refreshed = await self.get_product_images(product_id)
+        return refreshed
+
+    async def set_cover_image(self, product_id: UUID, image_id: UUID, seller_user_id: UUID) -> list[ProductImage]:
+        """Set one image as cover by moving it to position 0 and shifting others."""
+        product = await self.get_product_by_id(product_id)
+        if product is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Producto no encontrado")
+        if product.seller_user_id != seller_user_id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No puedes editar este producto")
+
+        images = await self.get_product_images(product_id)
+        if not images:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No hay imagenes activas")
+
+        cover = next((img for img in images if img.id == image_id), None)
+        if cover is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Imagen no encontrada")
+
+        ordered = [cover] + [img for img in images if img.id != image_id]
+        for index, image in enumerate(ordered):
+            image.position = index
+
+        await self.db.commit()
+        return await self.get_product_images(product_id)
+
+    async def get_product_images(self, product_id: UUID) -> list[ProductImage]:
+        """Return active gallery images for a product."""
+        result = await self.db.execute(
+            select(ProductImage)
+            .where(
+                ProductImage.product_id == product_id,
+                ProductImage.is_active.is_(True),
+            )
+            .order_by(ProductImage.position.asc(), ProductImage.created_at.asc())
+        )
+        return result.scalars().all()
+
+    async def get_reviews_by_user(self, reviewer_user_id: UUID) -> list[ProductReview]:
+        """Return reviews authored by current user (for profile)."""
+        result = await self.db.execute(
+            select(ProductReview)
+            .where(ProductReview.reviewer_user_id == reviewer_user_id, ProductReview.is_active.is_(True))
+            .order_by(ProductReview.created_at.desc())
+        )
+        return result.scalars().all()
+
+    async def get_reviews_about_seller(self, seller_user_id: UUID) -> list[ProductReview]:
+        """Return reviews received by seller across all listings."""
+        result = await self.db.execute(
+            select(ProductReview)
+            .join(Product, Product.id == ProductReview.product_id)
+            .where(Product.seller_user_id == seller_user_id, ProductReview.is_active.is_(True))
+            .order_by(ProductReview.created_at.desc())
+        )
+        return result.scalars().all()
+
+    async def get_seller_rating_summary(self, seller_user_id: UUID) -> dict[str, float | int]:
+        """Compute average rating and count for seller listings."""
+        result = await self.db.execute(
+            select(func.count(ProductReview.id), func.avg(ProductReview.rating))
+            .join(Product, Product.id == ProductReview.product_id)
+            .where(Product.seller_user_id == seller_user_id, ProductReview.is_active.is_(True))
+        )
+        reviews_count, average_rating = result.one()
+        return {
+            "reviews_count": int(reviews_count or 0),
+            "average_rating": float(average_rating or 0),
+        }
 
     async def get_stock_info(self, product_ids: list[UUID]) -> list[dict]:
         """Return stock and pricing details for requested products."""
@@ -339,15 +634,11 @@ class ProductService:
 
         return items
 
-    async def reserve_stock(self, items: list[dict], order_id: UUID) -> UUID:
-        """Atomically reserve stock for multiple products and create StockReservation rows.
-
-        Returns the reservation_id UUID grouping all items for this order.
-        Raises HTTPException on insufficient stock or missing products.
-        """
+    async def reserve_stock(self, items: list[dict]) -> None:
+        """Atomically reserve stock for multiple products."""
         totals_by_product_id: dict[UUID, int] = defaultdict(int)
         for item in items:
-            totals_by_product_id[UUID(str(item["product_id"]))] += int(item["quantity"])
+            totals_by_product_id[item["product_id"]] += int(item["quantity"])
 
         product_ids = list(totals_by_product_id.keys())
         result = await self.db.execute(
@@ -375,50 +666,31 @@ class ProductService:
                     detail=f"Insufficient stock for '{product.name}'.",
                 )
 
-        reservation_id = _uuid.uuid4()
-        expires_at = datetime.utcnow() + timedelta(minutes=15)
-
         for product_id, requested_qty in totals_by_product_id.items():
             products_by_id[product_id].stock -= requested_qty
-            self.db.add(StockReservation(
-                reservation_id=reservation_id,
-                order_id=order_id,
-                product_id=product_id,
-                quantity_reserved=requested_qty,
-                expires_at=expires_at,
-                status="ACTIVE",
-            ))
 
         await self.db.commit()
-        return reservation_id
 
-    async def release_stock(self, order_id: UUID) -> bool:
-        """Release stock for all ACTIVE reservations of the given order_id.
+    async def release_stock(self, items: list[dict]) -> None:
+        """Release previously reserved stock for multiple products."""
+        totals_by_product_id: dict[UUID, int] = defaultdict(int)
+        for item in items:
+            totals_by_product_id[item["product_id"]] += int(item["quantity"])
 
-        Returns True if reservations were found and released, False if none existed.
-        """
+        product_ids = list(totals_by_product_id.keys())
         result = await self.db.execute(
-            select(StockReservation).where(
-                StockReservation.order_id == order_id,
-                StockReservation.status == "ACTIVE",
-            ).with_for_update()
-        )
-        reservations = result.scalars().all()
-
-        if not reservations:
-            return False
-
-        product_ids = [r.product_id for r in reservations]
-        prod_result = await self.db.execute(
             select(Product).where(Product.id.in_(product_ids)).with_for_update()
         )
-        products_by_id = {p.id: p for p in prod_result.scalars().all()}
+        products_by_id = {product.id: product for product in result.scalars().all()}
 
-        for reservation in reservations:
-            product = products_by_id.get(reservation.product_id)
-            if product:
-                product.stock += reservation.quantity_reserved
-            reservation.status = "RELEASED"
+        missing = [str(pid) for pid in product_ids if pid not in products_by_id]
+        if missing:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Products not found: {', '.join(missing)}",
+            )
+
+        for product_id, quantity in totals_by_product_id.items():
+            products_by_id[product_id].stock += quantity
 
         await self.db.commit()
-        return True

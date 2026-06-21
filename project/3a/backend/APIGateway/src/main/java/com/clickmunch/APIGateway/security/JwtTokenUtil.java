@@ -1,18 +1,29 @@
 package com.clickmunch.APIGateway.security;
 
-import io.jsonwebtoken.*;
+import java.util.Date;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.UnsupportedJwtException;
 
 @Component
 public class JwtTokenUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtTokenUtil.class);
 
-    private static final String SecretKey = "1245789630ClickAndMunchSuperSecretKey1245789630";
+    private final String SecretKey;
+
+    public JwtTokenUtil(@Value("${jwt.secret}") String secretKey) {
+        this.SecretKey = secretKey;
+    }
 
     public String generateToken(String username, String role) {
         logger.info("Generating token for username {} and role {}", username, role);

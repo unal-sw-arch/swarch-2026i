@@ -1,0 +1,2 @@
+timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect
+1780364816799,2629,GET /api/games/search,200,OK,Throttling Users 1-1,text,true,,1218,178,1,1,http://localhost:8080/api/games/search?name=Cyberpunk,2627,0,17

@@ -1,108 +1,47 @@
 @startuml
 !theme plain
-skinparam defaultFontSize 11
-skinparam defaultFontName Arial
 skinparam shadowing false
-skinparam backgroundColor #FFFFFF
-skinparam ArrowColor #999999
-skinparam ArrowThickness 1.2
-skinparam ArrowFontSize 9
-skinparam ArrowFontColor #555555
+left to right direction
 
-skinparam node {
-  BackgroundColor #FAFAFA
-  BorderColor #AAAAAA
-  BorderStyle dashed
-  BorderThickness 1.5
-  FontStyle bold
-  RoundCorner 10
-}
+title Deployment View - Docker Compose (Current, Apr 2026)
 
-skinparam component {
-  BackgroundColor #FFFFFF
-  BorderColor #CCCCCC
-  BorderThickness 1.2
-  RoundCorner 6
-  FontSize 10
-}
+node "Developer Machine" {
+  node "Docker Engine" {
+    node "frontend container\nNext.js :3000" as Frontend
+    node "api-gateway container\nNginx :8000" as Gateway
 
-skinparam database {
-  BackgroundColor #E8F5E8
-  BorderColor #88BB88
-  BorderThickness 1.2
-  FontSize 10
-}
+    node "auth-service container\n:8001" as Auth
+    node "user-service container\n:8002->8000" as UserService
+    node "product-service container\n:8003" as Product
+    node "order-service container\n:8004" as Order
 
-title <size:15><b>AICart -- Vista de Despliegue (Docker Compose)</b></size>
-
-node "Maquina del Desarrollador" {
-
-  node "subnet_a  172.20.0.0/24  (Publica)" #FFF5E8/FFE8C8 {
-    component "<<client>>\n<b>frontend</b>\nNext.js 14  :3000" as FE #FFFAF5
-    component "<<gateway>>\n<b>api-gateway</b>\nNGINX 1.27\n:8000 HTTP-301  :8443 HTTPS\nRate-limiting  CORS  TLS" as GW #FFF8EE
-  }
-
-  node "subnet_b  172.20.1.0/24  (Privada)" #EEF4FF/D8E8FF {
-    component "<<service>>\n<b>auth-service</b>\nFastAPI :8001  JWT bcrypt" as Auth #FFFFFF
-    component "<<spare>>\n<b>auth-service-cold</b>\nFastAPI :8002  (backup)" as AuthC #F8F8F8
-    component "<<watchdog>>\n<b>spare-coordinator</b>\nPython  polling /health 3s" as Coord #F8F8F8
-    component "<<service>>\n<b>user-service</b>\nFastAPI :8000" as User #FFFFFF
-    component "<<service>>\n<b>product-service</b>\nFastAPI :8003" as Prod #FFFFFF
-    component "<<service>>\n<b>order-service</b>\nFastAPI :8004  Saga  Pagos" as Order #FFFFFF
-    component "<<service>>\n<b>ai-service</b>\nFastAPI :8005  Groq  RAG" as AI #FFFFFF
-    component "<<broker>>\n<b>rabbitmq</b>\nRabbitMQ 3\nAMQP :5672  Mgmt :15672" as MQ #FFFFF0
-    database "<b>auth-postgres</b>\nPostgreSQL 16 :5433" as ADB
-    database "<b>user-postgres</b>\nPostgreSQL 16 :5434" as UDB
-    database "<b>product-postgres</b>\nPostgreSQL 16 :5435" as PDB
-    database "<b>order-postgres</b>\nPostgreSQL 16 :5436" as ODB
-    database "<b>ai-postgres</b>\npgvector/pg16  (interno :5432)\nRAG embeddings 384-dim HNSW" as AIDB
-    database "<b>redis</b>\nRedis 7 :6379" as Redis
+    database "auth-postgres\n:5433->5432" as AuthDB
+    database "user-postgres\n:5432->5432\n(user + product tables)" as UserDB
+    database "order-postgres\n:5434->5432" as OrderDB
+    database "redis\n:6379" as Redis
+    queue "rabbitmq\n:5672 / :15672" as MQ
   }
 }
 
-cloud "<b>Groq API</b>\nLlama 3.1 8b Instant\n(externa)" as Groq #EEEEFF
+Frontend --> Gateway : NEXT_PUBLIC_API_URL
+Gateway --> Auth : /auth/
+Gateway --> UserService : /users/, /internal/
+Gateway --> Product : /products/
+Gateway --> Order : /orders/ -> /api/v1/orders/
 
-note right of Groq
-  <b>Puertos host expuestos:</b>
-  3000  -> frontend
-  8000 / 8443  -> api-gateway
-  15672  -> rabbitmq mgmt
-  5433-5436  -> postgres (dev)
-  6379  -> redis (dev)
-end note
+Auth --> AuthDB
+Auth --> Redis
+Auth --> MQ
 
-FE    -[#E8A000,thickness=2]->   GW    : HTTPS
+UserService --> UserDB
+UserService --> MQ
 
-GW    -[#4488CC]-> Auth  : /auth/* (primary)
-GW    -[#4488CC,dashed]->        AuthC : /auth/* (failover)
-GW    -[#4488CC]-> User  : /users/*
-GW    -[#4488CC]-> Prod  : /products/*
-GW    -[#4488CC]-> Order : /orders/*
-GW    -[#4488CC]-> AI    : /ai/*
+Product --> UserDB
+Product --> Redis
+Product --> UserService
 
-Coord -[#888888,dashed]->        Auth  : GET /health
-Coord -[#CC4444,dashed]->        AuthC : POST /activate
-
-Auth  -[#55AA55]->  ADB
-AuthC -[#55AA55,dashed]-> ADB
-User  -[#55AA55]->  UDB
-Prod  -[#55AA55]->  PDB
-Order -[#55AA55]->  ODB
-AI    -[#55AA55]->  AIDB : RAG pgvector
-
-Auth  -[#DD6666]->  Redis : blacklist
-Prod  -[#DD6666]->  Redis : cache
-AI    -[#DD6666]->  Redis : historial
-
-Auth  -[#FF9933]->  MQ : AUTH_USER_REGISTERED
-User  -[#FF9933]->  MQ : consume
-Prod  -[#FF9933]->  MQ : STOCK events
-Order -[#FF9933]->  MQ : ORDER_CREATED
-
-Order -[#4488CC,dashed]->  Prod : /internal/products/*
-AI    -[#4488CC,dashed]->  User : contexto
-AI    -[#4488CC,dashed]->  Prod : catalogo
-
-AI    -[#9966CC,thickness=2]->  Groq : inferencia LLM
+Order --> OrderDB
+Order --> Product
+Order --> MQ
 
 @enduml

@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers'
-import OrdersPage from '../../../components/orders/OrdersPage'
+import OrdersPage from '../../../pages/orders/OrdersPage'
 
 const API_SERVER_URL = (process.env.API_SERVER_URL || process.env.NEXT_PUBLIC_API_URL || 'http://api-gateway:8000').replace(/\/$/, '')
 

@@ -1,4 +1,5 @@
-fetch('http://localhost:3000/api/products')
+const API = "https://api-gateway-gilt-nu.vercel.app";
+fetch(`${API}/api/products`)
   .then(response => response.json())
   .then(productos => {
     const contenedor = document.getElementById('productos');

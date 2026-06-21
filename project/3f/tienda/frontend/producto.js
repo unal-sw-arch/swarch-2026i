@@ -1,5 +1,6 @@
 const params = new URLSearchParams(window.location.search);
 const idProducto = parseInt(params.get("id"));
+const API = "https://api-gateway-gilt-nu.vercel.app";
 
 if (!idProducto) {
   document.getElementById("producto").innerHTML =
@@ -9,7 +10,7 @@ if (!idProducto) {
 // ── RESEÑAS ──────────────────────────────────────────
 
 function cargarReseñas(productId) {
-  fetch(`http://localhost:3000/api/reviews/${productId}`)
+  fetch(`${API}/api/reviews/${productId}`)
     .then(res => res.json())
     .then(reviews => {
       const contenedor = document.getElementById("listaReseñas");
@@ -46,7 +47,7 @@ function enviarReseña() {
     return;
   }
 
-  fetch("http://localhost:3000/api/reviews", {
+  fetch(`${API}/api/reviews`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ product_id: idProducto, autor, comentario, estrellas })
@@ -93,7 +94,7 @@ estrellas.forEach(star => {
 
 // ── Producto ──────────────────────────────────────────
 
-fetch('http://localhost:3000/api/products')
+fetch(`${API}/api/products`)
   .then(response => response.json())
   .then(productos => {
     const producto = productos.find(p => p.id === idProducto);

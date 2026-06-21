@@ -1,6 +1,6 @@
 // Servicio de API centralizado para comunicación con el backend
 // Utiliza authFetch para incluir automáticamente el token de Firebase
-
+import type { StreakData, LeaderboardData } from '../types';
 import { authFetch } from '../auth/authFetch';
 import { firebaseAuth } from '../auth/firebase';
 import type {
@@ -16,7 +16,8 @@ import type {
   CreateHabitDto,
 } from '../types';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
+const API_URL = import.meta.env.VITE_API_URL || window.location.origin;
 
 // Helper para manejar respuestas
 async function handleResponse<T>(response: Response): Promise<T> {
@@ -256,5 +257,62 @@ export const usersApi = {
   async getById(userId: number): Promise<{ id: number; name: string; email: string }> {
     const response = await authFetch(`${API_URL}/activity/users/${userId}`);
     return handleResponse(response);
+  },
+};
+
+// ============================================================================
+// CHAT API  —
+// ============================================================================
+
+import type { ChatMessage, ChatReactionKey } from '../types';
+
+export const chatApi = {
+  async getMessages(roomId: number, limit = 50, before?: string): Promise<ChatMessage[]> {
+    const params = new URLSearchParams({ limit: String(limit) });
+    if (before !== undefined) params.set('before', before);
+    const response = await authFetch(`${API_URL}/chat/rooms/${roomId}/chat?${params}`);
+    const data = await handleResponse<{ messages: ChatMessage[] }>(response);
+    return data.messages;
+  },
+
+  async sendMessage(roomId: number, text: string): Promise<ChatMessage> {
+    const response = await authFetch(`${API_URL}/chat/rooms/${roomId}/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text }),
+    });
+    const data = await handleResponse<{ message: ChatMessage }>(response);
+    return data.message;
+  },
+
+  async toggleReaction(roomId: number, messageId: string, reactionKey: ChatReactionKey): Promise<void> {
+    const response = await authFetch(`${API_URL}/chat/rooms/${roomId}/chat/${messageId}/reactions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reaction_key: reactionKey }),
+    });
+    await handleResponse(response);
+  },
+};
+
+// ============================================================================
+// ANALYTICS API
+// ============================================================================
+
+export const analyticsApi = {
+  // Racha de hábitos de un usuario en una sala
+  async getStreak(roomId: number, userId: number): Promise<StreakData> {
+    const response = await authFetch(
+      `${API_URL}/analytics/rooms/${roomId}/streak/${userId}`
+    );
+    return handleResponse<StreakData>(response);
+  },
+
+  // Leaderboard semanal de tareas de una sala
+  async getLeaderboard(roomId: number): Promise<LeaderboardData> {
+    const response = await authFetch(
+      `${API_URL}/analytics/rooms/${roomId}/leaderboard`
+    );
+    return handleResponse<LeaderboardData>(response);
   },
 };

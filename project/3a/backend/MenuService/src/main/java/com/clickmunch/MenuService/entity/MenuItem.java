@@ -1,6 +1,7 @@
 package com.clickmunch.MenuService.entity;
 
 import java.math.BigDecimal;
+import java.time.LocalTime;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -30,4 +31,10 @@ public class MenuItem {
     private BigDecimal price;
     @Schema(description = "Image URL of the menu item", example = "http://example.com/images/cheeseburger.jpg")
     private String imageUrl;
+    @Schema(description = "Time from which this item is available (null = always available)", example = "11:00")
+    private LocalTime availableFrom;
+    @Schema(description = "Time until which this item is available (null = always available)", example = "15:00")
+    private LocalTime availableTo;
+    @Schema(description = "Estimated preparation time in minutes", example = "20")
+    private Integer preparationMinutes;
 }

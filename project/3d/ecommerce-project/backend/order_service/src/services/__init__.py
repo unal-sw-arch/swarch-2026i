@@ -1,1 +1,1 @@
-"""Business logic services for order_service."""
+"""Business services for order service."""

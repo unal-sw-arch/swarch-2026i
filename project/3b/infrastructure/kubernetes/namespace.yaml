@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: deliunal
+  labels:
+    app.kubernetes.io/name: deliunal
+    app.kubernetes.io/part-of: deliunal-platform

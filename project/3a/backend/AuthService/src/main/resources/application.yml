@@ -5,9 +5,9 @@ spring:
     enabled: false
 
   datasource:
-    url: jdbc:postgresql://localhost:5433/auth_db
-    username: mike
-    password: secret
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/auth_db}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   sql:
@@ -18,6 +18,14 @@ spring:
   data:
     jdbc:
       dialect: postgresql
+
+jwt:
+  secret: ${JWT_SECRET}
+
+app:
+  seed:
+    enabled: ${APP_SEED_ENABLED:false}
+    password: ${APP_SEED_PASSWORD:Password123!}
 
 server:
   port: 8081

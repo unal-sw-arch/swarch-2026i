@@ -7,7 +7,6 @@ import { clearAuthToken, getAuthToken } from '../../shared/lib/auth'
 // import aicartLogo from '../../assets/AICart.png'
 // import heroImg from '../../assets/hero.png'
 import './DashboardLayout.css'
-import ChatWidget from './ChatWidget'
 
 const NAV_ITEMS = [
   {
@@ -200,7 +199,6 @@ export default function DashboardLayout({ children, initialViewerLabel = 'Seller
       <section className="dashboard-content">
         {children}
       </section>
-    <ChatWidget />
     </div>
   )
 }

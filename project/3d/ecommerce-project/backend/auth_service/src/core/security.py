@@ -6,7 +6,7 @@ import bcrypt
 from fastapi import HTTPException, status
 from jose import jwt
 
-from auth_service.src.core.config.settings import settings
+from auth_service.src.core.settings import settings
 
 
 def hash_password(raw_password: str) -> str:

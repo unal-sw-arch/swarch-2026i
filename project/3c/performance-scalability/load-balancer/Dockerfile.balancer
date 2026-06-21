@@ -1,0 +1,15 @@
+# Lightweight image for the load balancer only.
+# The scrapper-service uses its own Dockerfile — this one only runs balancer.py.
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install dependencies before copying source to leverage Docker layer caching
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy only the balancer source file
+COPY balancer.py .
+
+# Start the FastAPI app with uvicorn on port 8080
+CMD ["uvicorn", "balancer:app", "--host", "0.0.0.0", "--port", "8080"]

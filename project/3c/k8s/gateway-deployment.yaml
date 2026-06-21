@@ -1,0 +1,77 @@
+# =============================================================================
+# Part A — Cluster Pattern (Reliability Lab 6)
+#
+# Deploys the GameSeeker gateway-service as a Kubernetes Deployment with 2
+# replicas (the lab minimum). The Deployment + its control-plane reconciliation
+# loop provide the Cluster Pattern's reliability tactics:
+#
+#   * Fault detection  -> liveness/readiness probes on /health
+#   * Redundant spare  -> replicas: 2 (and trivially scalable)
+#   * Load balancing   -> traffic is spread across Pods by gateway-service (svc)
+#
+# Cluster type: ACTIVE/ACTIVE — every replica serves traffic simultaneously.
+# The gateway is stateless, so any replica can answer any request; losing one
+# Pod never loses state and the Service keeps routing to the survivors.
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway-service
+  labels:
+    app: gateway-service
+    part: cluster-pattern
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: gateway-service
+  template:
+    metadata:
+      labels:
+        app: gateway-service
+    spec:
+      containers:
+        - name: gateway-service
+          image: gameseeker/gateway-service:lab6
+          # Image is built locally and loaded into the cluster, so never pull.
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            # gateway-service/src/lib/env.ts hard-requires these three at boot.
+            # For the cluster-pattern demo the downstreams need not resolve — the
+            # Pod only has to start and answer /health — so placeholders are fine.
+            - name: PORT
+              value: "8080"
+            - name: USER_SERVICE_URL
+              value: "http://user-service:4000"
+            - name: SCRAPPER_SERVICE_URL
+              value: "http://scrapper-service:5000"
+            - name: RANKING_SERVICE_URL
+              value: "http://ranking-coordinator:6001"
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"
+          # Readiness: only receive Service traffic once /health answers 200.
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 3
+          # Liveness: if /health stops answering, the kubelet restarts the
+          # container — this is the "fault detection -> recovery" tactic.
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3

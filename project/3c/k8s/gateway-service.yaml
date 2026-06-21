@@ -1,0 +1,28 @@
+# =============================================================================
+# Service for the gateway-service Deployment.
+#
+# A single, stable virtual endpoint (gateway-service:80) sits in front of all
+# gateway Pods. Clients address the Service, never an individual Pod; kube-proxy
+# load-balances each connection across the ready replicas selected by `app`.
+# This is what lets the cluster "behave as a single machine".
+#
+# Type NodePort so the cluster is reachable from the host during the demo
+# (minikube service gateway-service --url). ClusterIP would be enough for
+# in-cluster traffic.
+# =============================================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway-service
+  labels:
+    app: gateway-service
+    part: cluster-pattern
+spec:
+  type: NodePort
+  selector:
+    app: gateway-service
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+      nodePort: 30080

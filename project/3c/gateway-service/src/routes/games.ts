@@ -8,6 +8,10 @@ const games = new Hono();
 // Rate-limit search to reduce scraping costs under high traffic
 games.use("/search", rateLimiter);
 
+// if (process.env.RATE_LIMIT_ENABLED !== "false") {
+//   games.use("/search", rateLimiter);
+// }
+
 /**
  * Wildcard proxy: /api/games/* -> scrapper-service /api/v1/games/*
  *

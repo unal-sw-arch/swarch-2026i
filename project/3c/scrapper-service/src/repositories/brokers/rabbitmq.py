@@ -15,6 +15,9 @@ class RabbitMQProducer(BaseProducer):
         self.password = Config.RABBITMQ_PASSWORD
         self.queue_name = Config.QUEUE_NAME
         self.notification_queue = Config.NOTIFICATION_QUEUE_NAME
+        # Active Redundancy (Hot Spare): ranking events go to a fanout exchange so
+        # every ranking instance (active + spare) receives a copy of each message.
+        self.ranking_exchange = getattr(Config, "RANKING_EXCHANGE", "ranking_prices_exchange")
         self.connection = None
         self.channel = None
 
@@ -31,7 +34,14 @@ class RabbitMQProducer(BaseProducer):
             self.channel.confirm_delivery()
             self.channel.queue_declare(queue=self.queue_name, durable=True)
             self.channel.queue_declare(queue=self.notification_queue, durable=True)
-            self.channel.queue_declare(queue="ranking_prices_queue", durable=True)
+            # Fanout exchange for the ranking hot-spare group. Each ranking
+            # instance binds its own queue to this exchange (see ranking-service
+            # RabbitMQConfig), so a single publish reaches active AND spare.
+            self.channel.exchange_declare(
+                exchange=self.ranking_exchange,
+                exchange_type="fanout",
+                durable=True,
+            )
             logger.info(f"Connected to RabbitMQ at {self.host}:{self.port}")
         except Exception as e:
             logger.error(f"Failed to connect to RabbitMQ: {e}")
@@ -53,9 +63,11 @@ class RabbitMQProducer(BaseProducer):
                         delivery_mode=2,
                     )
                 )
+                # Fanout: routing_key is ignored; every bound ranking queue
+                # (active + spare) receives this message.
                 self.channel.basic_publish(
-                    exchange='',
-                    routing_key="ranking_prices_queue",
+                    exchange=self.ranking_exchange,
+                    routing_key="",
                     body=message,
                     properties=pika.BasicProperties(
                         delivery_mode=2,

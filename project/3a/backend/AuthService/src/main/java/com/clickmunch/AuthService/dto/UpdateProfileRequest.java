@@ -7,5 +7,6 @@ public record UpdateProfileRequest(
         @Size(max = 500) String bio,
         @Size(max = 500) String profileImageUrl,
         String address,
-        @Size(max = 100) String governmentId
+        @Size(max = 100) String governmentId,
+        @Size(max = 50) String telegramChatId
 ) {}

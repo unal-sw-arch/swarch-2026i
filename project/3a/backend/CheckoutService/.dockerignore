@@ -1,0 +1,20 @@
+# Keep the Docker build context lean. Only requirements.txt and main.py are
+# COPYed by the Dockerfile, but excluding the rest speeds up context transfer
+# and keeps layers stable.
+
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.venv/
+venv/
+tests/
+
+# IDE / OS noise
+.idea/
+.vscode/
+.DS_Store
+
+# VCS
+.git/
+.gitignore

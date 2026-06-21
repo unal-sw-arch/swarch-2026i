@@ -6,10 +6,12 @@ import ThemedButton from '@/presentation/theme/components/themed-button';
 import ThemedLink from '@/presentation/theme/components/themed-link';
 import { useAuthStore } from '@/presentation/auth/store/useAuthStore';
 import { router } from 'expo-router';
+import { useThemeColor } from '@/presentation/theme/hooks/use-theme-color';
 
 const LoginScreen = () => {
 
   const { login } = useAuthStore();
+  const primaryColor = useThemeColor({}, 'primary');
   
   const { height } = useWindowDimensions();
 
@@ -58,11 +60,13 @@ const LoginScreen = () => {
       >
         <View
           style={{
-            paddingTop: height * 0.12,
+            paddingTop: height * 0.08,
+            alignItems: 'center',
+            marginBottom: 24,
           }}
         >
-          <ThemedText type='title'>Ingresar</ThemedText>
-          <ThemedText style={{ color: 'grey', paddingTop: 10, paddingBottom: 20 }}>Por favor ingrese para continuar</ThemedText>
+          <ThemedText style={{ fontSize: 36, fontFamily: 'KanitBold', color: primaryColor }}>Click & Munch</ThemedText>
+          <ThemedText style={{ color: 'grey', paddingTop: 6, fontSize: 16 }}>Por favor ingresa para continuar</ThemedText>
         </View>
 
         <View>

@@ -1,13 +1,23 @@
 // ProtectedRoute.tsx - Componente para proteger rutas que requieren autenticación
 import { Navigate } from 'react-router';
 import { useAuth } from '@/contexts/AuthContext';
+import { getCurrentUserRole } from '@/lib/auth';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  allowedRoles?: string[];
 }
 
-export default function ProtectedRoute({ children }: ProtectedRouteProps) {
+function defaultRouteForRole(role: string | null): string {
+  if (role === 'CUSTOMER') return '/customer';
+  if (role === 'CHEF') return '/kitchen';
+  if (role === 'WAITER') return '/orders';
+  return '/';
+}
+
+export default function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
   const { isAuthenticated, isLoading } = useAuth();
+  const role = getCurrentUserRole();
 
   // Mostrar loading mientras verifica autenticación
   if (isLoading) {
@@ -24,6 +34,12 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   // Redirigir a login si no está autenticado
   if (!isAuthenticated) {
     return <Navigate to="/auth/login" replace />;
+  }
+
+  if (allowedRoles && allowedRoles.length > 0) {
+    if (!role || !allowedRoles.includes(role)) {
+      return <Navigate to={defaultRouteForRole(role)} replace />;
+    }
   }
 
   // Renderizar contenido protegido

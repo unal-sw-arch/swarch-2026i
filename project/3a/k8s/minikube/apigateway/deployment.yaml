@@ -1,0 +1,103 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apigateway
+  namespace: clickmunch
+  labels:
+    app: apigateway
+    tier: gateway
+spec:
+  replicas: 2                          # Active/Active — ambas réplicas sirven tráfico simultáneamente
+  selector:
+    matchLabels:
+      app: apigateway
+  strategy:
+    type: RollingUpdate                # Actualización sin downtime
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: apigateway
+        tier: gateway
+    spec:
+      containers:
+        - name: apigateway
+          image: clickmunch/apigateway:latest
+          imagePullPolicy: Never       # Imagen construida localmente en Minikube
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: clickmunch-secrets
+                  key: JWT_SECRET
+            - name: SERVICES_AUTH_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: clickmunch-config
+                  key: SERVICES_AUTH_URL
+            - name: SERVICES_RESTAURANT_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: clickmunch-config
+                  key: SERVICES_RESTAURANT_URL
+            - name: SERVICES_MENU_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: clickmunch-config
+                  key: SERVICES_MENU_URL
+            - name: SERVICES_ORDER_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: clickmunch-config
+                  key: SERVICES_ORDER_URL
+            - name: SERVICES_ORDER_WS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: clickmunch-config
+                  key: SERVICES_ORDER_WS_URL
+            - name: SERVICES_RESERVATION_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: clickmunch-config
+                  key: SERVICES_RESERVATION_URL
+            - name: SERVICES_CHECKOUT_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: clickmunch-config
+                  key: SERVICES_CHECKOUT_URL
+            - name: SERVICES_RATING_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: clickmunch-config
+                  key: SERVICES_RATING_URL
+            - name: SERVICES_NOTIFICATION_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: clickmunch-config
+                  key: SERVICES_NOTIFICATION_URL
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "384Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 45
+            periodSeconds: 15
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 3

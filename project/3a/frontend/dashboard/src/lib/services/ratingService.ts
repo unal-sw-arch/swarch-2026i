@@ -31,7 +31,7 @@ export interface Restaurant {
 }
 // --- Configuración del Servicio ---
 
-const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8080';
+const API_BASE = import.meta.env.VITE_API_URL ?? '';
 const BASE_PATH = `${API_BASE}/rating`;
 
 /**
@@ -128,6 +128,23 @@ export const ratingService = {
   async getWaiterRatings(waiterId: number | string): Promise<IndividualRating[]> {
     try {
       const res = await fetch(`${BASE_PATH}/waiter/${waiterId}`, {
+        method: 'GET',
+        headers: authHeaders(),
+      });
+      if (!res.ok) return [];
+      return await res.json();
+    } catch (error) {
+      return [];
+    }
+  },
+
+  /**
+   * Obtiene todas las reseñas de meseros de un restaurante (para el dashboard)
+   * GET /api/ratings/waiter/restaurant/{restaurantId}
+   */
+  async getWaiterRatingsByRestaurant(restaurantId: number | string): Promise<IndividualRating[]> {
+    try {
+      const res = await fetch(`${BASE_PATH}/waiter/restaurant/${restaurantId}`, {
         method: 'GET',
         headers: authHeaders(),
       });

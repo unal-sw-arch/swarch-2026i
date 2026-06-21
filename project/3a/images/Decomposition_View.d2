@@ -1,0 +1,83 @@
+# Click & Munch — Decomposition View
+# Render:  d2 Decomposition_View.d2 Decomposition_View.png   (grid layout, engine-agnostic)
+
+direction: down
+
+vars: {
+  d2-config: { theme-id: 0 }
+}
+
+classes: {
+  wrap:     { style: { fill: "#ffffff"; stroke: "#ffffff"; stroke-width: 1 } }
+  root:     { style: { fill: "#ffffff"; stroke: "#c0561f"; stroke-width: 2; font-color: "#c0561f"; bold: true; border-radius: 10 } }
+  dombox:   { style: { fill: "#ffffff"; stroke: "#cfcfcf"; stroke-width: 1; border-radius: 10; font-color: "#555555" } }
+  infrabox: { style: { fill: "#fbfbfb"; stroke: "#e6e6e6"; stroke-width: 1; border-radius: 10; font-color: "#999999"; bold: true } }
+  svc:      { style: { fill: "#fbfbfb"; stroke: "#d8d8d8"; stroke-width: 1; border-radius: 8; font-color: "#222222" } }
+  gw:       { style: { fill: "#fff9f3"; stroke: "#e0b48a"; stroke-width: 1; border-radius: 8; font-color: "#7a3414" } }
+  lb:       { style: { fill: "#eef4ff"; stroke: "#7aa0d6"; stroke-width: 1; border-radius: 8; font-color: "#234e8a" } }
+  internal: { style: { fill: "#fbfbfb"; stroke: "#bdbdbd"; stroke-width: 1; border-radius: 8; font-color: "#222222"; stroke-dash: 4 } }
+  green:    { style: { fill: "#ecf8ee"; stroke: "#b6dcb9"; stroke-width: 1; border-radius: 8; font-color: "#2f6b34" } }
+  yellow:   { style: { fill: "#fdf6e3"; stroke: "#ecd9a6"; stroke-width: 1; border-radius: 8; font-color: "#9a6b1f" } }
+}
+
+page: "" {
+  class: wrap
+  grid-rows: 3
+  grid-gap: 22
+
+  root: "Sistema Click & Munch · Plataforma de Microservicios Distribuida" { class: root }
+
+  domains: "" {
+    class: wrap
+    grid-columns: 6
+    grid-gap: 16
+
+    pres: "Presentación · Dominio" {
+      class: dombox
+      grid-columns: 1
+      mobile: "Mobile App\nRN · Expo" { class: svc }
+      dash:   "Web Dashboard\nReact 19 · Vite" { class: svc }
+    }
+    ing: "Ingreso · Ingress · Dominio" {
+      class: dombox
+      grid-columns: 1
+      gw: "API Gateway\nSpring Cloud GW · TLS" { class: gw }
+    }
+    idd: "Identidad & Acceso · Dominio" {
+      class: dombox
+      grid-columns: 1
+      auth: "AuthService\nJava · auth_db" { class: svc }
+    }
+    local: "Gestión de Local · Dominio" {
+      class: dombox
+      grid-columns: 1
+      rest: "Restaurant Service\nJava" { class: svc }
+      geo:  "Geo Service\nJava · PostGIS" { class: internal }
+      lb:   "nginx-menu (LB)\nreverse proxy" { class: lb }
+      menu: "Menu Service ×3\nJava · MongoDB" { class: svc }
+    }
+    ped: "Pedidos · Ordering · Dominio" {
+      class: dombox
+      grid-columns: 1
+      order:    "Order Service\nJava" { class: svc }
+      checkout: "Checkout Service ★\nPython · saga" { class: svc }
+      resv:     "Reservation Service\nJava" { class: svc }
+    }
+    inter: "Interacción · Dominio" {
+      class: dombox
+      grid-columns: 1
+      rating: "Rating Service\nJava" { class: svc }
+      notif:  "Notification Service\nJava · SSE" { class: svc }
+    }
+  }
+
+  infra: "NIVEL DE INFRAESTRUCTURA" {
+    class: infrabox
+    grid-columns: 4
+    grid-gap: 14
+    pg:      "PostgreSQL ×6\nauth · rest · order · reserv · rating · notif" { class: green }
+    postgis: "PostGIS 16-3.4\ngeo_db" { class: green }
+    mongo:   "MongoDB 7\nmenu_db" { class: green }
+    rmq:     "RabbitMQ 3 · topic clickmunch.events\norder.created · order.status · reservation.confirmed · reservation.cancelled" { class: yellow }
+  }
+}

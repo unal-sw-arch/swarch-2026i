@@ -30,6 +30,10 @@ export const LoginPage = () => {
       const role = getCurrentUserRole();
       if (role === 'CUSTOMER') {
         navigate('/customer');
+      } else if (role === 'CHEF') {
+        navigate('/kitchen');
+      } else if (role === 'WAITER') {
+        navigate('/orders');
       } else {
         navigate('/');
       }

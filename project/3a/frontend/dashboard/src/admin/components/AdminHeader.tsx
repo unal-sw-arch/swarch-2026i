@@ -1,15 +1,19 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react';
-import { Search, Bell, MessageSquare, Settings, LogOut } from 'lucide-react';
+import { Search, Bell, MessageSquare, Settings, LogOut, KeyRound } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { getCurrentUserInitials, getCurrentUserRole } from '@/lib/auth';
+import { AccountSettingsModal } from './AccountSettingsModal';
+import { NOTIFICATIONS_SEEN_EVENT, notificationService } from '@/lib/services/notificationService';
 
 export const AdminHeader: React.FC = () => {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout, restaurantId } = useAuth();
   const [query, setQuery] = useState("");
   const [focused, setFocused] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [configOpen, setConfigOpen] = useState(false);
+  const [hasNewNotifications, setHasNewNotifications] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -23,6 +27,38 @@ export const AdminHeader: React.FC = () => {
   }, []);
 
   const userInitial = useMemo(() => getCurrentUserInitials(), []);
+
+  useEffect(() => {
+    if (!restaurantId) {
+      setHasNewNotifications(false);
+      return;
+    }
+
+    const loadNotifications = async () => {
+      try {
+        const notifications = await notificationService.getByRestaurant(restaurantId);
+        setHasNewNotifications(notificationService.hasUnseen(restaurantId, notifications));
+      } catch (error) {
+        console.error("Error loading notification indicator:", error);
+      }
+    };
+
+    void loadNotifications();
+    const interval = window.setInterval(loadNotifications, 30_000);
+
+    const handleSeen = (event: Event) => {
+      const detail = (event as CustomEvent<{ restaurantId?: string }>).detail;
+      if (detail?.restaurantId === String(restaurantId)) {
+        setHasNewNotifications(false);
+      }
+    };
+    window.addEventListener(NOTIFICATIONS_SEEN_EVENT, handleSeen);
+
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener(NOTIFICATIONS_SEEN_EVENT, handleSeen);
+    };
+  }, [restaurantId]);
 
   // Cerrar dropdown al hacer click fuera
   useEffect(() => {
@@ -40,8 +76,10 @@ export const AdminHeader: React.FC = () => {
     { label: "Dashboard", path: "/", roles: ['ADMIN', 'RESTAURANT_MANAGER'] },
     { label: "Productos", path: "/products", roles: ['ADMIN', 'RESTAURANT_MANAGER'] },
     { label: "Usuarios", path: "/users", roles: ['ADMIN'] },
-    { label: "Órdenes", path: "/orders", roles: ['ADMIN', 'RESTAURANT_MANAGER'] },
-    { label: "Reservas", path: "/reservations", roles: ['ADMIN', 'RESTAURANT_MANAGER'] },
+    { label: "Órdenes", path: "/orders", roles: ['ADMIN', 'RESTAURANT_MANAGER', 'WAITER'] },
+    { label: "Cocina", path: "/kitchen", roles: ['ADMIN', 'RESTAURANT_MANAGER', 'CHEF'] },
+    { label: "Reservas", path: "/reservations", roles: ['ADMIN', 'RESTAURANT_MANAGER', 'WAITER'] },
+    { label: "Mesas", path: "/tables", roles: ['RESTAURANT_MANAGER', 'WAITER'] },
     { label: "Restaurantes", path: "/restaurants", roles: ['ADMIN'] },
     { label: "Ratings", path: "/ratings", roles: ['ADMIN', 'RESTAURANT_MANAGER'] },
     { label: "Reportes", path: "/reports", roles: ['ADMIN', 'RESTAURANT_MANAGER'] },
@@ -73,6 +111,14 @@ export const AdminHeader: React.FC = () => {
     if (suggestions.length > 0) {
       handleSelect(suggestions[0].path);
     }
+  };
+
+  const handleNotificationsClick = () => {
+    if (restaurantId) {
+      notificationService.markRestaurantSeen(restaurantId);
+      setHasNewNotifications(false);
+    }
+    navigate('/notifications');
   };
 
   return (
@@ -111,16 +157,33 @@ export const AdminHeader: React.FC = () => {
 
         {/* Actions */}
         <div className="flex items-center space-x-4">
-          <button title="button" className="relative p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+          <button
+            type="button"
+            title="Notificaciones"
+            onClick={handleNotificationsClick}
+            className="relative p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+          >
             <Bell size={20} />
-            <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
+            {hasNewNotifications && (
+              <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
+            )}
           </button>
           
-          <button title="button" className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+          <button
+            type="button"
+            title="Mensajes"
+            onClick={() => navigate('/reservations')}
+            className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+          >
             <MessageSquare size={20} />
           </button>
           
-          <button title="button" className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+          <button
+            type="button"
+            title="Configuración"
+            onClick={() => setConfigOpen(true)}
+            className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+          >
             <Settings size={20} />
           </button>
 
@@ -140,6 +203,16 @@ export const AdminHeader: React.FC = () => {
                 </div>
                 <button
                   onClick={() => {
+                    setConfigOpen(true);
+                    setDropdownOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                >
+                  <KeyRound size={16} />
+                  Configuración
+                </button>
+                <button
+                  onClick={() => {
                     logout();
                     setDropdownOpen(false);
                     navigate('/auth/login');
@@ -154,6 +227,13 @@ export const AdminHeader: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <AccountSettingsModal
+        open={configOpen}
+        onClose={() => setConfigOpen(false)}
+        username={user?.username}
+        role={user?.role}
+      />
     </header>
   );
 };

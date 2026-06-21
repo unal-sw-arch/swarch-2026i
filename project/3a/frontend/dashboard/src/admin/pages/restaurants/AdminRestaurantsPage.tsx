@@ -6,28 +6,51 @@ import { RestaurantPreviewDialog } from "@/admin/components/restaurants/Restaura
 import { restaurantService } from "@/lib/services/restaurantService";
 import type { Restaurant } from "@/lib/types";
 
+type GeoStatus = "requesting" | "granted" | "denied";
+
 export const AdminRestaurantsPage = () => {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(true);
+  const [apiError, setApiError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
   const [search, setSearch] = useState("");
   const [cityFilter, setCityFilter] = useState("all");
   const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
+  const [geoStatus, setGeoStatus] = useState<GeoStatus>("requesting");
 
   useEffect(() => {
-    const loadRestaurants = async () => {
+    const loadRestaurants = async (lat?: number, lng?: number) => {
       setLoading(true);
+      setApiError(null);
       try {
-        const data = await restaurantService.getAll();
+        const data = await restaurantService.getAll(lat, lng);
         setRestaurants(data);
       } catch (error) {
-        console.error("Error loading restaurants:", error);
+        const msg = error instanceof Error ? error.message : String(error);
+        console.error("Error loading restaurants:", msg);
+        setApiError(msg);
       } finally {
         setLoading(false);
       }
     };
 
-    loadRestaurants();
+    if (!navigator.geolocation) {
+      setGeoStatus("denied");
+      loadRestaurants();
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setGeoStatus("granted");
+        loadRestaurants(position.coords.latitude, position.coords.longitude);
+      },
+      () => {
+        setGeoStatus("denied");
+        loadRestaurants();
+      },
+      { timeout: 10000 },
+    );
   }, []);
 
   const cities = useMemo(() => {
@@ -115,8 +138,25 @@ export const AdminRestaurantsPage = () => {
 
       <div className="space-y-3">
         <p className="text-sm text-gray-600">
-          {loading ? "Cargando restaurantes..." : `Restaurantes cerca de tu ubicacion (${filteredRestaurants.length})`}
+          {loading
+            ? geoStatus === "requesting"
+              ? "Obteniendo tu ubicación..."
+              : "Cargando restaurantes..."
+            : geoStatus === "granted"
+              ? `Restaurantes cerca de tu ubicación (${filteredRestaurants.length})`
+              : `Restaurantes disponibles (${filteredRestaurants.length})`}
         </p>
+        {geoStatus === "denied" && !loading && (
+          <p className="text-xs text-gray-400">
+            Activa tu ubicación para ver restaurantes ordenados por proximidad
+          </p>
+        )}
+
+        {apiError && (
+          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            Error al cargar restaurantes: <span className="font-mono">{apiError}</span>
+          </div>
+        )}
 
         {loading ? (
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">

@@ -1,6 +1,6 @@
 import type { OperatingHours } from "../types";
 
-const API_GATEWAY_BASE = import.meta.env.VITE_API_GATEWAY_BASE ?? "http://localhost:8080";
+const API_GATEWAY_BASE = import.meta.env.VITE_API_GATEWAY_BASE ?? "";
 
 // Función auxiliar para centralizar headers (Token + JSON)
 const getHeaders = () => {

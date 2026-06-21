@@ -24,6 +24,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
+    private final TelegramNotificationPublisher telegramPublisher;
     private final Map<Long, CopyOnWriteArrayList<SseEmitter>> userEmitters = new ConcurrentHashMap<>();
 
     @Transactional
@@ -44,6 +45,16 @@ public class NotificationService {
 
         // Push to SSE subscribers
         sendToUser(request.userId(), response);
+
+        // Delegate Telegram delivery to the Worker via RabbitMQ (desacoplado)
+        if (request.telegramChatId() != null && !request.telegramChatId().isBlank()) {
+            telegramPublisher.sendNotification(
+                    request.telegramChatId(),
+                    request.title() + "\n" + request.message(),
+                    "NotificationService",
+                    request.type()
+            );
+        }
 
         return response;
     }

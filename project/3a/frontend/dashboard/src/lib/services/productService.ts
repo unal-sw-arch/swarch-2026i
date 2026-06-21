@@ -6,7 +6,7 @@ import type {
   ProductStatus
 } from '@/lib/types';
 
-const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8080';
+const API_BASE = import.meta.env.VITE_API_URL ?? '';
 
 interface BackendMenuItem {
   id: string;
@@ -27,25 +27,33 @@ interface BackendMenuCategory {
 }
 
 const FRONTEND_TO_BACKEND_CATEGORY: Record<string, string> = {
+  'Entrada': 'ENTRADA',
   'Bebidas': 'BEBIDA',
   'Ensaladas': 'ENSALADA',
-  'Platos fuertes': 'PLATO',
+  'Platos fuertes': 'PLATO_FUERTE',
   'Postres': 'POSTRE',
-  'Aperitivos': 'ENTRADA',
-  'Sopas': 'ENTRADA',
-  'Carnes': 'PLATO',
-  'Pescados': 'PLATO',
-  'Vegetariano': 'PLATO',
-  'Vegano': 'ADICIONAL',
+  'Aperitivos': 'APERITIVO',
+  'Sopas': 'SOPA',
+  'Carnes': 'CARNE',
+  'Pescados': 'PESCADO',
+  'Vegetariano': 'VEGETARIANO',
+  'Vegano': 'VEGANO',
+  'Adicional': 'ADICIONAL',
 };
 
 const BACKEND_TO_FRONTEND_CATEGORY: Record<string, string> = {
+  'ENTRADA': 'Entrada',
   'BEBIDA': 'Bebidas',
   'ENSALADA': 'Ensaladas',
-  'PLATO': 'Platos fuertes',
+  'PLATO_FUERTE': 'Platos fuertes',
   'POSTRE': 'Postres',
-  'ENTRADA': 'Aperitivos',
-  'ADICIONAL': 'Vegano',
+  'APERITIVO': 'Aperitivos',
+  'SOPA': 'Sopas',
+  'CARNE': 'Carnes',
+  'PESCADO': 'Pescados',
+  'VEGETARIANO': 'Vegetariano',
+  'VEGANO': 'Vegano',
+  'ADICIONAL': 'Adicional',
 };
 
 const categoryCache = new Map<string, BackendMenuCategory>();
@@ -187,7 +195,7 @@ export const productService = {
   },
 
   // ✏️ Actualizar producto
-  async update(data: UpdateProductDTO): Promise<Product | null> {
+  async update(data: UpdateProductDTO, restaurantId: number): Promise<Product> {
     const body: Record<string, unknown> = {};
 
     if (data.name !== undefined) body.name = data.name;
@@ -201,6 +209,10 @@ export const productService = {
         ? Number(data.preparationMinutes)
         : undefined;
     }
+    if (data.category !== undefined && restaurantId !== undefined) {
+      const backendCategory = FRONTEND_TO_BACKEND_CATEGORY[data.category] ?? 'ADICIONAL';
+      body.categoryId = await getOrCreateCategory(restaurantId, backendCategory);
+    }
 
     const res = await fetch(`${API_BASE}/menu/items/${data.id}`, {
       method: 'PUT',
@@ -208,7 +220,7 @@ export const productService = {
       body: JSON.stringify(body),
     });
 
-    if (!res.ok) return null;
+    if (!res.ok) throw new Error('Error al actualizar producto');
 
     const item: BackendMenuItem = await res.json();
     const cat = await fetchCategory(item.categoryId);

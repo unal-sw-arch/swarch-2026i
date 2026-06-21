@@ -16,7 +16,8 @@ CREATE TABLE IF NOT EXISTS users (
     invited_restaurant_id BIGINT,
     reset_token VARCHAR(255),
     reset_token_expiry TIMESTAMP,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    telegram_chat_id VARCHAR(50)
 );
 
 CREATE INDEX IF NOT EXISTS idx_users_approval_status ON users(approval_status);

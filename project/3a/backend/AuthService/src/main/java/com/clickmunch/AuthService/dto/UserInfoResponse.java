@@ -11,6 +11,7 @@ public record UserInfoResponse(
         String bio,
         String profileImageUrl,
         String address,
-        String governmentId
+        String governmentId,
+        String telegramChatId
 ) {
 }

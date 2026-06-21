@@ -3,6 +3,7 @@ package com.clickmunch.NotificationService.event;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
+import com.clickmunch.NotificationService.client.AuthServiceClient;
 import com.clickmunch.NotificationService.config.RabbitMQConfig;
 import com.clickmunch.NotificationService.dto.CreateNotificationRequest;
 import com.clickmunch.NotificationService.service.NotificationService;
@@ -16,14 +17,16 @@ import lombok.extern.slf4j.Slf4j;
 public class NotificationEventConsumer {
 
     private final NotificationService notificationService;
+    private final AuthServiceClient authServiceClient;
 
     @RabbitListener(queues = RabbitMQConfig.ORDER_QUEUE)
     public void handleOrderEvent(OrderEvent event) {
         log.info("Received order event: {} for order {}", event.eventType(), event.orderId());
 
+        String telegramChatId = authServiceClient.getTelegramChatId(event.customerId());
+
         switch (event.eventType()) {
             case "ORDER_CREATED" -> {
-                // Notify the customer
                 notificationService.createNotification(new CreateNotificationRequest(
                         event.customerId(),
                         event.restaurantId(),
@@ -31,7 +34,8 @@ public class NotificationEventConsumer {
                         "Pedido recibido",
                         "Tu pedido #" + event.orderId() + " en " + event.restaurantName() +
                                 " ha sido recibido y se está preparando. Total: $" + event.total(),
-                        event.orderId()
+                        event.orderId(),
+                        telegramChatId
                 ));
             }
             case "ORDER_STATUS_CHANGED" -> {
@@ -55,7 +59,8 @@ public class NotificationEventConsumer {
                         type,
                         title,
                         message,
-                        event.orderId()
+                        event.orderId(),
+                        telegramChatId
                 ));
             }
             default -> log.warn("Unknown order event type: {}", event.eventType());
@@ -65,6 +70,8 @@ public class NotificationEventConsumer {
     @RabbitListener(queues = RabbitMQConfig.RESERVATION_QUEUE)
     public void handleReservationEvent(ReservationEvent event) {
         log.info("Received reservation event: {} for reservation {}", event.eventType(), event.reservationId());
+
+        String telegramChatId = authServiceClient.getTelegramChatId(event.customerId());
 
         switch (event.eventType()) {
             case "RESERVATION_CONFIRMED" -> {
@@ -76,7 +83,8 @@ public class NotificationEventConsumer {
                         "Tu reservación en " + event.restaurantName() + " para " +
                                 event.partySize() + " personas el " + event.reservationDate() +
                                 " a las " + event.reservationTime() + " ha sido confirmada.",
-                        null
+                        null,
+                        telegramChatId
                 ));
             }
             case "RESERVATION_CANCELLED" -> {
@@ -88,7 +96,8 @@ public class NotificationEventConsumer {
                         "Tu reservación en " + event.restaurantName() + " para el " +
                                 event.reservationDate() + " a las " + event.reservationTime() +
                                 " ha sido cancelada.",
-                        null
+                        null,
+                        telegramChatId
                 ));
             }
             default -> log.warn("Unknown reservation event type: {}", event.eventType());

@@ -173,7 +173,7 @@ public class MenuService {
                 .orElseThrow(() -> new RuntimeException("Menu Item not found"));
         MenuItem updated = new MenuItem();
         updated.setId(existing.getId());
-        updated.setCategoryId(existing.getCategoryId());
+        updated.setCategoryId(req.categoryId() != null ? req.categoryId() : existing.getCategoryId());
         updated.setName(req.name() != null ? req.name() : existing.getName());
         updated.setDescription(req.description() != null ? req.description() : existing.getDescription());
         updated.setPrice(req.price() != null ? req.price() : existing.getPrice());

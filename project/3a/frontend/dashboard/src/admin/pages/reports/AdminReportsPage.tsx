@@ -8,14 +8,20 @@ export const AdminReportsPage = () => {
   const { restaurantId } = useAuth();
 
   const [orders, setOrders] = useState<Order[]>([]);
+  const [monthlyEarnings, setMonthlyEarnings] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   const loadData = async () => {
     if (!restaurantId) return;
     setLoading(true);
     try {
-      const data = await orderService.getByRestaurant(Number(restaurantId));
+      const now = new Date();
+      const [data, earnings] = await Promise.all([
+        orderService.getByRestaurant(Number(restaurantId)),
+        orderService.getMonthlyEarnings(Number(restaurantId), now.getFullYear(), now.getMonth() + 1),
+      ]);
       setOrders(data);
+      setMonthlyEarnings(earnings);
     } catch (err) {
       console.error(err);
     } finally {
@@ -28,23 +34,25 @@ export const AdminReportsPage = () => {
   }, [restaurantId]);
 
   const completed = orders.filter(
-    (o) => o.status === "Delivered" || o.status === "Cancelled"
+    (o) => o.status === "DELIVERED" || o.status === "CANCELLED"
   );
 
-  const revenue = completed
-    .filter((o) => o.status === "Delivered")
+  const localRevenue = completed
+    .filter((o) => o.status === "DELIVERED")
     .reduce((acc, o) => acc + o.total, 0);
 
-  const totalOrders = completed.length;
+  const revenue = Number(monthlyEarnings?.grossEarnings ?? localRevenue);
 
-  const avgTicket = totalOrders ? revenue / totalOrders : 0;
+  const totalOrders = Number(monthlyEarnings?.deliveredOrders ?? completed.length);
+
+  const avgTicket = Number(monthlyEarnings?.averageTicket ?? (totalOrders ? revenue / totalOrders : 0));
 
   const avgPrep =
     completed.reduce((acc, o) => acc + (o.preparationMinutes || 0), 0) /
     (totalOrders || 1);
 
-  const delivered = completed.filter(o => o.status === "Delivered").length;
-  const cancelled = completed.filter(o => o.status === "Cancelled").length;
+  const delivered = completed.filter(o => o.status === "DELIVERED").length;
+  const cancelled = completed.filter(o => o.status === "CANCELLED").length;
 
   const productMap: Record<string, number> = {};
 
@@ -139,7 +147,7 @@ export const AdminReportsPage = () => {
                 <td>
                   <span
                     className={`px-2 py-1 rounded text-xs font-bold ${
-                      o.status === "Delivered"
+                      o.status === "DELIVERED"
                         ? "bg-green-100 text-green-700"
                         : "bg-red-100 text-red-600"
                     }`}

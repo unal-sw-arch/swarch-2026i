@@ -1,31 +1,62 @@
 package com.clickmunch.RestaurantService.service;
 
-import com.clickmunch.RestaurantService.client.AuthClient;
-import com.clickmunch.RestaurantService.client.GeoClient;
-import com.clickmunch.RestaurantService.client.MenuClient;
-import com.clickmunch.RestaurantService.dto.*;
-import com.clickmunch.RestaurantService.entity.Restaurant;
-import com.clickmunch.RestaurantService.repository.RestaurantRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.web.client.HttpClientErrorException;
-
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.ArgumentMatchers.anyString;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.client.HttpClientErrorException;
+
+import com.clickmunch.RestaurantService.client.AuthClient;
+import com.clickmunch.RestaurantService.client.GeoClient;
+import com.clickmunch.RestaurantService.client.MenuClient;
+import com.clickmunch.RestaurantService.dto.AuthUserResponse;
+import com.clickmunch.RestaurantService.dto.CreateRestaurantRequest;
+import com.clickmunch.RestaurantService.dto.LocationDto;
+import com.clickmunch.RestaurantService.dto.RestaurantDetailsResponse;
+import com.clickmunch.RestaurantService.dto.RestaurantResponse;
+import com.clickmunch.RestaurantService.entity.Restaurant;
+import com.clickmunch.RestaurantService.repository.OperatingHoursRepository;
+import com.clickmunch.RestaurantService.repository.RestaurantAdminRepository;
+import com.clickmunch.RestaurantService.repository.RestaurantProfileRepository;
+import com.clickmunch.RestaurantService.repository.RestaurantRepository;
+import com.clickmunch.RestaurantService.repository.RestaurantTableRepository;
+import com.clickmunch.RestaurantService.repository.StaffAssignmentRepository;
 
 @ExtendWith(MockitoExtension.class)
 class RestaurantServiceTest {
 
     @Mock
     private RestaurantRepository restaurantRepository;
+
+    @Mock
+    private RestaurantProfileRepository restaurantProfileRepository;
+
+    @Mock
+    private RestaurantTableRepository tableRepository;
+
+    @Mock
+    private OperatingHoursRepository hoursRepository;
+
+    @Mock
+    private StaffAssignmentRepository staffRepository;
+
+    @Mock
+    private RestaurantAdminRepository adminRepository;
 
     @Mock
     private GeoClient geoClient;
@@ -55,7 +86,7 @@ class RestaurantServiceTest {
 
         createRequest = new CreateRestaurantRequest(
                 2L, "Test Restaurant", "Test Description",
-                "123-456-7890", "test@restaurant.com", null, 40.7128, -74.0060
+                "123-456-7890", "test@restaurant.com", null, null, 40.7128, -74.0060
         );
     }
 
@@ -63,7 +94,7 @@ class RestaurantServiceTest {
     void createRestaurant_withValidOwner_returnsRestaurantResponse() {
         AuthUserResponse owner = new AuthUserResponse("owner@test.com", "RESTAURANT_MANAGER");
         when(authClient.getUserDetails(2L)).thenReturn(owner);
-        when(geoClient.createLocation(anyString(), anyDouble(), anyDouble())).thenReturn(10L);
+        when(geoClient.createLocation(anyString(), anyDouble(), anyDouble(), any())).thenReturn(10L);
         when(restaurantRepository.save(any(Restaurant.class))).thenReturn(testRestaurant);
 
         RestaurantResponse response = restaurantService.createRestaurant(createRequest);

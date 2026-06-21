@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="updateMenuCategory Tests" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-06-10T04:02:37.098Z" hostname="Mikes-MacBook-Pro.local" time="0.002">
+  <properties/>
+  <testcase name="Should update category successfully" classname="com.clickmunch.MenuService.service.MenuServiceTest$UpdateMenuCategoryTests" time="0.001"/>
+  <testcase name="Should throw exception when category not found" classname="com.clickmunch.MenuService.service.MenuServiceTest$UpdateMenuCategoryTests" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

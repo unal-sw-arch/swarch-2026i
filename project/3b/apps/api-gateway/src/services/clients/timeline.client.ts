@@ -4,6 +4,7 @@ import { BaseAxiosHttpClient, type ForwardableHttpRequest } from './base-http.cl
 
 export class TimelineClient {
   private readonly http = new BaseAxiosHttpClient({
+    name: 'timeline',
     baseURL: services.timeline.baseUrl,
     timeoutMs: services.timeline.timeoutMs,
   });

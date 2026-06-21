@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@/app/config/routes";
 import { useLogin } from "@/features/auth/hooks/use-login";
@@ -68,6 +69,13 @@ export function LoginForm() {
           {isSubmitting || isLoggingIn ? "Ingresando..." : "Ingresar"}
         </Button>
       </form>
+
+      <p className="text-center text-sm text-slate-600">
+        No tienes cuenta?{" "}
+        <Link className="font-medium text-slate-900 underline-offset-4 hover:underline" to={ROUTES.REGISTER}>
+          Crear cuenta
+        </Link>
+      </p>
     </Card>
   );
 }

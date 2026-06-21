@@ -4,6 +4,7 @@ import { BaseAxiosHttpClient, type ForwardableHttpRequest } from './base-http.cl
 
 export class PromotionsClient {
   private readonly http = new BaseAxiosHttpClient({
+    name: 'promotions',
     baseURL: services.promotions.baseUrl,
     timeoutMs: services.promotions.timeoutMs,
   });

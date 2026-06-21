@@ -1,6 +1,7 @@
 export const ROUTES = {
   health: '/health',
   authRegisterCustomer: '/auth/register/customer',
+  authRegisterRestaurant: '/auth/register/restaurant',
   authLoginCustomer: '/auth/login/customer',
   authLoginRestaurant: '/auth/login/restaurant',
   authMe: '/auth/me',

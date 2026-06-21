@@ -5,6 +5,7 @@ import type {
   MeInput,
   ProxyResponse,
   RegisterCustomerInput,
+  RegisterRestaurantInput,
 } from './auth.types';
 
 export class AuthProxy {
@@ -14,6 +15,17 @@ export class AuthProxy {
     const response = await this.client.forward({
       method: 'POST',
       path: '/auth/register/customer',
+      body: input.body,
+      context: input.context,
+    });
+
+    return { status: response.status, data: response.data };
+  }
+
+  public async registerRestaurant(input: RegisterRestaurantInput): Promise<ProxyResponse> {
+    const response = await this.client.forward({
+      method: 'POST',
+      path: '/auth/register/restaurant',
       body: input.body,
       context: input.context,
     });

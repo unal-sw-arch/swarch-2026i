@@ -27,6 +27,23 @@ async def test_register_customer_success():
     assert response.json()["email"] == email
 
 @pytest.mark.asyncio
+async def test_register_restaurant_success():
+    email = get_unique_email("rest_register")
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        response = await ac.post("/auth/register/restaurant", json={
+            "name": "Restaurante Nuevo", "email": email, "password": "123456", "restaurantId": 88
+        })
+        login = await ac.post("/auth/login/restaurant", json={
+            "email": email, "password": "123456"
+        })
+    assert response.status_code == 201
+    assert response.json()["email"] == email
+    assert response.json()["role"] == "RESTAURANT"
+    assert login.status_code == 200
+    assert login.json()["restaurantId"] == 88
+
+@pytest.mark.asyncio
 async def test_register_duplicate_email():
     email = "duplicate@test.com"
     transport = ASGITransport(app=app)

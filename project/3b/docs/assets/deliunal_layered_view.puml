@@ -1,0 +1,70 @@
+@startuml Layered_View_DELIUNAL
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+skinparam package {
+    BackgroundColor #F8F9FA
+    BorderColor #2C3E50
+}
+skinparam component {
+    BackgroundColor white
+    BorderColor black
+}
+skinparam database {
+    BackgroundColor white
+    BorderColor black
+}
+skinparam queue {
+    BackgroundColor white
+    BorderColor black
+}
+skinparam arrow {
+    Color #666666
+}
+
+title DELIUNAL - Prototype 3 - Layered View
+
+' To force vertical stacking
+top to bottom direction
+
+package "Presentation Layer" as L_Presentation {
+    component "Customer App\n<<Next.js>>" as C_CustomerApp
+    component "Restaurant Dashboard\n<<React/Vite>>" as C_Dashboard
+}
+
+package "Orchestration Layer" as L_Orchestration {
+    component "API Gateway\n<<Express>>" as C_Gateway
+}
+
+package "Business Logic Layer" as L_Business {
+    component "Auth Service\n<<FastAPI>>" as C_Auth
+    component "Catalog Service\n<<Node.js>>" as C_Catalog
+    component "Order Service\n<<Spring Boot>>" as C_Order
+    component "Kitchen Service\n<<Go/Fiber>>" as C_Kitchen
+    component "Notification Service\n<<Django>>" as C_Notif
+}
+
+package "Async Processing Layer" as L_Async {
+    queue "Event Broker\n<<RabbitMQ>>" as C_RabbitMQ
+}
+
+package "Persistence Layer" as L_Persistence {
+    database "Auth DB\n<<PostgreSQL>>" as DB_Auth
+    database "Catalog DB\n<<PostgreSQL>>" as DB_Catalog
+    database "Order DB\n<<PostgreSQL>>" as DB_Order
+    database "Kitchen DB\n<<MongoDB>>" as DB_Kitchen
+    database "Valkey Cache\n<<Redis>>" as DB_Valkey
+}
+
+package "External Services" as L_External {
+    component "Google SMTP Server" <<External>> as Ext_SMTP
+}
+
+' --- Layout Rules and Layer Dependencies ---
+' Arrows between the layers themselves representing the "allowed to use" constraints
+L_Presentation --> L_Orchestration : <<allow to use>>
+L_Orchestration --> L_Business : <<allow to use>>
+L_Business --> L_Async : <<allow to use>>
+L_Business --> L_Persistence : <<allow to use>>
+L_Business --> L_External : <<allow to use>>
+
+@enduml

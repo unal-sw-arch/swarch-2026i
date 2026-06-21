@@ -1,0 +1,83 @@
+@startuml
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+skinparam node {
+    BackgroundColor #E8F4F8
+    BorderColor #2C3E50
+}
+skinparam component {
+    BackgroundColor white
+    BorderColor black
+}
+skinparam arrow {
+    Color #666666
+    Style dashed
+}
+
+title Deployment Structure - DELIUNAL Prototype 3
+
+left to right direction
+
+package "DELIUNAL System Deploy" {
+
+' --- Logical Elements (Left Side) ---
+component "Customer App\n<<Next.js>>" as C_CustomerApp
+component "Restaurant Dashboard\n<<React/Vite>>" as C_Dashboard
+
+component "API Gateway\n<<Express>>" as C_Gateway
+
+component "Auth Service\n<<FastAPI>>" as C_AuthService
+component "Catalog Service\n<<Node.js>>" as C_CatalogService
+component "Order Service\n<<Spring Boot>>" as C_OrderService
+component "Kitchen Service\n<<Go/Fiber>>" as C_KitchenService
+component "Notification Service\n<<Django>>" as C_NotificationService
+
+queue "Event Broker\n<<RabbitMQ>>" as C_RabbitMQ
+database "Valkey Cache\n<<Redis>>" as C_Valkey
+database "Catalog DB\n<<PostgreSQL>>" as C_CatalogDB
+database "Order DB\n<<PostgreSQL>>" as C_OrderDB
+database "Kitchen DB\n<<MongoDB>>" as C_KitchenDB
+
+' --- Execution Environments (Right Side) ---
+
+node "Local Infrastructure\n<<Docker Host>>\n--\nOS: Windows/Linux/macOS\nRAM: 16 GB\nEngine: Docker Desktop" <<Environment>> {
+    node "Docker Engine\n[Container Orchestrator]" as Env_Docker {
+        node "customer-app_container\n[Docker Container]" as Cont_CustomerApp
+        node "restaurant-dashboard_container\n[Docker Container]" as Cont_Dashboard
+        
+        node "api-gateway_container\n[Docker Container]" as Cont_Gateway
+        
+        node "auth-service_container\n[Docker Container]" as Cont_Auth
+        node "catalog-service_container\n[Docker Container]" as Cont_Catalog
+        node "order-service_container\n[Docker Container]" as Cont_Order
+        node "kitchen-service_container\n[Docker Container]" as Cont_Kitchen
+        node "notification-service_container\n[Docker Container]" as Cont_Notif
+        
+        node "rabbitmq_container\n[Docker Container]" as Cont_RabbitMQ
+        node "valkey_container\n[Docker Container]" as Cont_Valkey
+        node "catalog-db_container\n[Docker Container]" as Cont_CatalogDB
+        node "order-db_container\n[Docker Container]" as Cont_OrderDB
+        node "kitchen-db_container\n[Docker Container]" as Cont_KitchenDB
+    }
+}
+
+' --- Deployment Mappings ---
+C_CustomerApp ..> Cont_CustomerApp : <<deployed_in>>
+C_Dashboard ..> Cont_Dashboard : <<deployed_in>>
+
+C_Gateway ..> Cont_Gateway : <<deployed_in>>
+
+C_AuthService ..> Cont_Auth : <<deployed_in>>
+C_CatalogService ..> Cont_Catalog : <<deployed_in>>
+C_OrderService ..> Cont_Order : <<deployed_in>>
+C_KitchenService ..> Cont_Kitchen : <<deployed_in>>
+C_NotificationService ..> Cont_Notif : <<deployed_in>>
+
+C_RabbitMQ ..> Cont_RabbitMQ : <<deployed_in>>
+C_Valkey ..> Cont_Valkey : <<deployed_in>>
+C_CatalogDB ..> Cont_CatalogDB : <<deployed_in>>
+C_OrderDB ..> Cont_OrderDB : <<deployed_in>>
+C_KitchenDB ..> Cont_KitchenDB : <<deployed_in>>
+
+}
+@enduml

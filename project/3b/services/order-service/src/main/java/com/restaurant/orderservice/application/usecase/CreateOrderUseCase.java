@@ -10,6 +10,8 @@ import com.restaurant.orderservice.domain.model.OrderItem;
 import com.restaurant.orderservice.domain.model.OrderStatus;
 import com.restaurant.orderservice.domain.repository.OrderRepository;
 import com.restaurant.orderservice.infrastructure.client.CatalogClient;
+import com.restaurant.orderservice.infrastructure.client.TrackingServiceClient;
+import com.restaurant.orderservice.infrastructure.client.dto.ActivityEventDto;
 import com.restaurant.orderservice.infrastructure.client.dto.CatalogMenuItemDto;
 import com.restaurant.orderservice.infrastructure.messaging.OrderEventPublisher;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,7 @@ public class CreateOrderUseCase {
 
     private final OrderRepository      orderRepository;
     private final CatalogClient        catalogClient;
+    private final TrackingServiceClient trackingServiceClient;
     private final OrderEventPublisher  orderEventPublisher;
     private final OrderMapper          orderMapper;
 
@@ -82,6 +85,21 @@ public class CreateOrderUseCase {
         log.info("Order {} created for customer {}", saved.getId(), customerId);
 
         orderEventPublisher.publishOrderCreated(saved);
+
+        ActivityEventDto event = ActivityEventDto.builder()
+            .eventType("ORDER_CREATED")
+            .entityType("ORDER")
+            .entityId(saved.getId().toString())
+            .restaurantId(saved.getRestaurantId())
+            .orderId(saved.getId().toString())
+            .timestamp(java.time.Instant.now().toString())
+            .sourceService("order-service")
+            .payload(Map.of(
+                "status", saved.getStatus().name(),
+                "customerId", String.valueOf(saved.getCustomerId())
+            ))
+            .build();
+        trackingServiceClient.publishActivityEvent(event);
 
         return orderMapper.toOrderResponse(saved);
     }

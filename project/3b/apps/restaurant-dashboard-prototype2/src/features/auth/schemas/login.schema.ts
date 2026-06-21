@@ -5,11 +5,11 @@ export const loginSchema = z.object({
     .string()
     .trim()
     .min(1, "El email es obligatorio")
-    .email("Email inválido"),
+    .email("Email invalido"),
   password: z
     .string()
-    .min(1, "La contraseña es obligatoria")
-    .min(6, "Mínimo 6 caracteres"),
+    .min(1, "La contrasena es obligatoria")
+    .min(6, "Minimo 6 caracteres"),
 });
 
 export type LoginSchema = z.infer<typeof loginSchema>;

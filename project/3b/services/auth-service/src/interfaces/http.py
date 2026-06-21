@@ -18,6 +18,12 @@ class RegisterCustomerRequest(BaseModel):
     email: EmailStr
     password: str
 
+class RegisterRestaurantRequest(BaseModel):
+    name: str
+    email: EmailStr
+    password: str
+    restaurantId: int
+
 class RegisterResponse(BaseModel):
     id: int
     role: str
@@ -62,6 +68,13 @@ async def register_customer(req: RegisterCustomerRequest, db: AsyncSession = Dep
     user = await use_case.register_customer(req.name, req.email, req.password)
     return user
 
+@router.post("/register/restaurant", status_code=201, response_model=RegisterResponse)
+async def register_restaurant(req: RegisterRestaurantRequest, db: AsyncSession = Depends(get_db)):
+    repository = SQLUserRepository(db)
+    use_case = AuthUseCase(repository)
+    user = await use_case.register_restaurant(req.name, req.email, req.password, req.restaurantId)
+    return user
+
 @router.post("/login/customer", response_model=LoginCustomerResponse)
 async def login_customer(req: LoginRequest, db: AsyncSession = Depends(get_db)):
     repository = SQLUserRepository(db)
@@ -76,6 +89,12 @@ async def login_restaurant(req: LoginRequest, db: AsyncSession = Depends(get_db)
 
 @router.get("/me", response_model=MeResponse)
 async def get_me(user_id: int = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    repository = SQLUserRepository(db)
+    use_case = AuthUseCase(repository)
+    return await use_case.get_me(user_id)
+
+@router.get("/users/{user_id}", response_model=MeResponse)
+async def get_user_by_id(user_id: int, db: AsyncSession = Depends(get_db)):
     repository = SQLUserRepository(db)
     use_case = AuthUseCase(repository)
     return await use_case.get_me(user_id)

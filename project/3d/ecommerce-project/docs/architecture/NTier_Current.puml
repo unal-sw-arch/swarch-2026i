@@ -1,0 +1,53 @@
+@startuml
+!theme plain
+skinparam defaultFontSize 12
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam backgroundColor #FFFFFF
+skinparam rectangleRoundCorner 12
+skinparam rectangleBorderThickness 1.5
+skinparam ArrowColor #888888
+skinparam ArrowThickness 1.2
+
+title <size:16><b>AICart — Vista N-Tier</b></size>
+
+rectangle "  CAPA 0 — PRESENTACIÓN  " as C0 #FFE5CC/FFD0A0 {
+  rectangle "<b>Browser</b>\nCliente web" as Browser #FFFFFF/FFF8F0
+  rectangle "<b>Frontend</b>\nNext.js 14 · SSR · :3000" as FE #FFFFFF/FFF8F0
+}
+
+rectangle "  CAPA 1 — EDGE  " as C1 #FFE5CC/FFD0A0 {
+  rectangle "<b>API Gateway</b>\nNGINX 1.27\n:8000 HTTP → 301  ·  :8443 HTTPS\nRate Limiting · CORS · TLS 1.2/1.3 · Failover" as GW #FFFFFF/FFF8F0
+}
+
+rectangle "  CAPA 2 — SERVICIOS DE NEGOCIO  " as C2 #FFE5CC/FFD0A0 {
+  rectangle "<b>auth-service</b>\nFastAPI · Python 3.12 · :8001\nJWT · bcrypt · sesiones Redis" as Auth #FFFFFF/FFF8F0
+  rectangle "<b>auth-service-cold</b>\nFastAPI · :8002 · spare" as AuthC #FFFAF5/FFF0E0
+  rectangle "<b>user-service</b>\nFastAPI · Python 3.11 · :8000\nPerfiles · Direcciones" as User #FFFFFF/FFF8F0
+  rectangle "<b>product-service</b>\nFastAPI · Python 3.12 · :8003\nCatálogo · Inventario · Reviews" as Prod #FFFFFF/FFF8F0
+  rectangle "<b>order-service</b>\nFastAPI · Python 3.12 · :8004\nÓrdenes · Saga · Timeout · Pagos" as Order #FFFFFF/FFF8F0
+  rectangle "<b>ai-service</b>\nFastAPI · Python 3.12 · :8005\nChat · Rate Limit · Groq · RAG" as AI #FFFFFF/FFF8F0
+  rectangle "<b>spare-coordinator</b>\nPython watchdog\nPolling /health cada 3 s" as Coord #FFFAF5/FFF0E0
+}
+
+rectangle "  CAPA 3 — MENSAJERÍA ASÍNCRONA  " as C3 #FFFACC/FFF5A0 {
+  rectangle "<b>RabbitMQ 3</b>\nExchange <i>events</i> (fanout) — registro de usuarios\nExchange <i>commerce.saga</i> (topic) — saga de stock · DLQ" as MQ #FFFFF0/FFFCE0
+}
+
+rectangle "  CAPA 4 — DATOS  " as C4 #D8F0D8/C0E8C0 {
+  rectangle "<b>auth-postgres</b>\nPostgreSQL 16 · :5433" as ADB #F0FFF0/E8FFE8
+  rectangle "<b>user-postgres</b>\nPostgreSQL 16 · :5434" as UDB #F0FFF0/E8FFE8
+  rectangle "<b>product-postgres</b>\nPostgreSQL 16 · :5435" as PDB #F0FFF0/E8FFE8
+  rectangle "<b>order-postgres</b>\nPostgreSQL 16 · :5436" as ODB #F0FFF0/E8FFE8
+  rectangle "<b>ai-postgres</b>\npgvector/pg16\nRAG embeddings 384-dim" as AIDB #F0FFF0/E8FFE8
+  rectangle "<b>Redis 7</b>\n:6379\nSesiones · Caché · Rate-limit" as Redis #FFF0F0/FFE8E8
+  rectangle "<b>Groq API</b>\nLlama 3.1 8b Instant\n(servicio externo)" as Groq #F0F0FF/E8E8FF
+}
+
+C0 -[#E8A000,thickness=2,dashed]-> C1 : HTTPS
+C1 -[#E8A000,thickness=2,dashed]-> C2 : routing por path
+C2 -[#E8A000,thickness=2,dashed]-> C3 : eventos asincrónicos
+C2 -[#E8A000,thickness=2,dashed]-> C4 : persistencia
+C3 -[#E8A000,thickness=2,dashed]-> C4 : almacenamiento
+
+@enduml

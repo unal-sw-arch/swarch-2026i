@@ -1,0 +1,136 @@
+1780365506739,61,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-8,false,,766,https://localhost:8443/ai/chat/,61
+1780365506739,71,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-7,false,,766,https://localhost:8443/ai/chat/,71
+1780365506802,8,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-8,false,,766,https://localhost:8443/ai/chat/,8
+1780365506740,70,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-9,false,,766,https://localhost:8443/ai/chat/,70
+1780365506754,60,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-16,false,,766,https://localhost:8443/ai/chat/,60
+1780365506745,69,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-11,false,,766,https://localhost:8443/ai/chat/,69
+1780365506752,62,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-15,false,,766,https://localhost:8443/ai/chat/,62
+1780365506750,65,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-14,false,,766,https://localhost:8443/ai/chat/,65
+1780365506764,60,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-12,false,,766,https://localhost:8443/ai/chat/,60
+1780365506740,84,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-10,false,,766,https://localhost:8443/ai/chat/,84
+1780365506747,78,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-13,false,,766,https://localhost:8443/ai/chat/,78
+1780365506736,92,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-1,false,,766,https://localhost:8443/ai/chat/,92
+1780365506756,72,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-18,false,,766,https://localhost:8443/ai/chat/,72
+1780365506821,7,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-14,false,,766,https://localhost:8443/ai/chat/,7
+1780365506757,75,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-19,false,,766,https://localhost:8443/ai/chat/,75
+1780365506819,15,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-15,false,,766,https://localhost:8443/ai/chat/,15
+1780365506829,6,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-18,false,,766,https://localhost:8443/ai/chat/,6
+1780365506816,19,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-7,false,,766,https://localhost:8443/ai/chat/,19
+1780365506817,18,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-16,false,,766,https://localhost:8443/ai/chat/,18
+1780365506817,19,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-9,false,,766,https://localhost:8443/ai/chat/,19
+1780365506818,17,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-11,false,,766,https://localhost:8443/ai/chat/,17
+1780365506829,6,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-1,false,,766,https://localhost:8443/ai/chat/,6
+1780365506826,11,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-10,false,,766,https://localhost:8443/ai/chat/,11
+1780365506826,11,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-13,false,,766,https://localhost:8443/ai/chat/,11
+1780365506817,19,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-8,false,,766,https://localhost:8443/ai/chat/,19
+1780365506826,12,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-12,false,,766,https://localhost:8443/ai/chat/,12
+1780365506829,10,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-14,false,,766,https://localhost:8443/ai/chat/,10
+1780365506835,6,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-15,false,,766,https://localhost:8443/ai/chat/,6
+1780365506836,5,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-7,false,,766,https://localhost:8443/ai/chat/,5
+1780365506833,8,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-19,false,,766,https://localhost:8443/ai/chat/,8
+1780365506837,8,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-1,false,,766,https://localhost:8443/ai/chat/,8
+1780365506756,90,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-17,false,,766,https://localhost:8443/ai/chat/,90
+1780365506757,89,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-20,false,,766,https://localhost:8443/ai/chat/,89
+1780365506836,9,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-16,false,,766,https://localhost:8443/ai/chat/,9
+1780365506836,9,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-18,false,,766,https://localhost:8443/ai/chat/,9
+1780365506842,4,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-15,false,,766,https://localhost:8443/ai/chat/,4
+1780365506838,7,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-10,false,,766,https://localhost:8443/ai/chat/,7
+1780365506836,9,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-9,false,,766,https://localhost:8443/ai/chat/,9
+1780365506842,5,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-7,false,,766,https://localhost:8443/ai/chat/,5
+1780365506842,5,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-19,false,,766,https://localhost:8443/ai/chat/,5
+1780365506838,8,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-8,false,,766,https://localhost:8443/ai/chat/,8
+1780365506840,8,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-12,false,,766,https://localhost:8443/ai/chat/,8
+1780365506838,7,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-11,false,,766,https://localhost:8443/ai/chat/,7
+1780365506838,8,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-13,false,,766,https://localhost:8443/ai/chat/,8
+1780365506840,10,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-14,false,,766,https://localhost:8443/ai/chat/,10
+1780365506846,11,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-1,false,,766,https://localhost:8443/ai/chat/,11
+1780365506846,11,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-18,false,,766,https://localhost:8443/ai/chat/,11
+1780365506846,11,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-17,false,,766,https://localhost:8443/ai/chat/,11
+1780365506846,11,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-20,false,,766,https://localhost:8443/ai/chat/,11
+1780365506846,11,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-16,false,,766,https://localhost:8443/ai/chat/,11
+1780365506848,9,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-19,false,,766,https://localhost:8443/ai/chat/,9
+1780365506846,11,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-15,false,,766,https://localhost:8443/ai/chat/,11
+1780365506849,8,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-12,false,,766,https://localhost:8443/ai/chat/,8
+1780365506847,10,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-10,false,,766,https://localhost:8443/ai/chat/,10
+1780365506850,12,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-13,false,,766,https://localhost:8443/ai/chat/,11
+1780365506848,14,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-7,false,,766,https://localhost:8443/ai/chat/,14
+1780365506849,13,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-8,false,,766,https://localhost:8443/ai/chat/,13
+1780365506848,14,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-9,false,,766,https://localhost:8443/ai/chat/,14
+1780365506850,14,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-11,false,,766,https://localhost:8443/ai/chat/,14
+1780365506850,13,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-14,false,,766,https://localhost:8443/ai/chat/,13
+1780365506858,13,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-16,false,,766,https://localhost:8443/ai/chat/,13
+1780365506862,9,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-13,false,,766,https://localhost:8443/ai/chat/,9
+1780365506858,13,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-1,false,,766,https://localhost:8443/ai/chat/,13
+1780365506858,13,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-19,false,,766,https://localhost:8443/ai/chat/,13
+1780365506858,13,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-18,false,,766,https://localhost:8443/ai/chat/,13
+1780365506864,7,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-11,false,,766,https://localhost:8443/ai/chat/,7
+1780365506858,13,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-17,false,,766,https://localhost:8443/ai/chat/,13
+1780365506858,13,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-20,false,,766,https://localhost:8443/ai/chat/,13
+1780365506859,12,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-10,false,,766,https://localhost:8443/ai/chat/,12
+1780365506858,13,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-12,false,,766,https://localhost:8443/ai/chat/,13
+1780365506864,11,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-9,false,,766,https://localhost:8443/ai/chat/,11
+1780365506872,8,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-20,false,,766,https://localhost:8443/ai/chat/,8
+1780365506872,8,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-17,false,,766,https://localhost:8443/ai/chat/,8
+1780365506881,4,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-17,false,,766,https://localhost:8443/ai/chat/,4
+1780365506881,4,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-20,false,,766,https://localhost:8443/ai/chat/,4
+1780365506736,991,POST /ai/chat (burst),200,OK,2 - Rate Limit Burst 2-3,false,"Test failed: code expected to equal /
+
+****** received  : [[[200]]]
+
+****** comparison: [[[429]]]
+
+/",825,https://localhost:8443/ai/chat/,991
+1780365507728,1,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-3,false,,766,https://localhost:8443/ai/chat/,1
+1780365507729,1,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-3,false,,766,https://localhost:8443/ai/chat/,1
+1780365507730,1,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-3,false,,766,https://localhost:8443/ai/chat/,1
+1780365507731,1,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-3,false,,766,https://localhost:8443/ai/chat/,1
+1780365506738,1015,POST /ai/chat (burst),200,OK,2 - Rate Limit Burst 2-6,false,"Test failed: code expected to equal /
+
+****** received  : [[[200]]]
+
+****** comparison: [[[429]]]
+
+/",825,https://localhost:8443/ai/chat/,1015
+1780365507753,1,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-6,false,,766,https://localhost:8443/ai/chat/,1
+1780365507755,1,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-6,false,,766,https://localhost:8443/ai/chat/,1
+1780365507756,1,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-6,false,,766,https://localhost:8443/ai/chat/,1
+1780365507758,0,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-6,false,,766,https://localhost:8443/ai/chat/,0
+1780365506736,1044,POST /ai/chat (burst),200,OK,2 - Rate Limit Burst 2-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[200]]]
+
+****** comparison: [[[429]]]
+
+/",825,https://localhost:8443/ai/chat/,1044
+1780365506738,1059,POST /ai/chat (burst),200,OK,2 - Rate Limit Burst 2-5,false,"Test failed: code expected to equal /
+
+****** received  : [[[200]]]
+
+****** comparison: [[[429]]]
+
+/",825,https://localhost:8443/ai/chat/,1059
+1780365507797,2,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-5,false,,766,https://localhost:8443/ai/chat/,2
+1780365507799,2,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-5,false,,766,https://localhost:8443/ai/chat/,2
+1780365507801,1,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-5,false,,766,https://localhost:8443/ai/chat/,1
+1780365507802,1,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-5,false,,766,https://localhost:8443/ai/chat/,1
+1780365506736,1195,POST /ai/chat (burst),200,OK,2 - Rate Limit Burst 2-2,false,"Test failed: code expected to equal /
+
+****** received  : [[[200]]]
+
+****** comparison: [[[429]]]
+
+/",1349,https://localhost:8443/ai/chat/,1195
+1780365507931,1,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-2,false,,766,https://localhost:8443/ai/chat/,1
+1780365507933,1,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-2,false,,766,https://localhost:8443/ai/chat/,1
+1780365507934,1,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-2,false,,766,https://localhost:8443/ai/chat/,1
+1780365507935,1,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-2,false,,766,https://localhost:8443/ai/chat/,1
+1780365507781,393,POST /ai/chat (burst),200,OK,2 - Rate Limit Burst 2-4,false,"Test failed: code expected to equal /
+
+****** received  : [[[200]]]
+
+****** comparison: [[[429]]]
+
+/",825,https://localhost:8443/ai/chat/,393
+1780365508175,1,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-4,false,,766,https://localhost:8443/ai/chat/,1
+1780365508177,1,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-4,false,,766,https://localhost:8443/ai/chat/,1
+1780365508178,2,POST /ai/chat (burst),429,Too Many Requests,2 - Rate Limit Burst 2-4,false,,766,https://localhost:8443/ai/chat/,2

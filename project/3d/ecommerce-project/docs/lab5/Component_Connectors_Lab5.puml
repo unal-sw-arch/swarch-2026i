@@ -1,0 +1,89 @@
+@startuml
+!theme plain
+skinparam componentStyle rectangle
+skinparam shadowing false
+left to right direction
+
+title Component and Connector View - Lab 5 Security Patterns (Jun 2026)
+
+actor "Web User" as User
+
+rectangle "subnet_a - Public Zone" #LightBlue {
+  component "Frontend Web\n(Next.js 14)" as Frontend
+  component "Reverse Proxy / API Gateway\n(Nginx)\n──────────────────\n• TLS termination (HTTPS :8443)\n• HTTP→HTTPS redirect (:8000→301)\n• Rate limiting zones:\n  general: 10r/s burst 20\n  ai_zone: 2r/s  burst 5\n• CORS + security headers\n• HSTS enforcement" as Gateway
+}
+
+rectangle "subnet_b - Private Zone" #LightYellow {
+  component "Auth Service\n(FastAPI)" as Auth
+  component "User Service\n(FastAPI)" as UserService
+  component "Product Service\n(FastAPI)" as Product
+  component "Order Service\n(FastAPI)" as Order
+  component "AI Service\n(FastAPI)\n────────────────\nRedis Rate Limiter\n10 req / 60s per user|IP\nSliding window" as AI
+
+  database "Auth PostgreSQL" as AuthDB
+  database "User PostgreSQL" as UserDB
+  database "Order PostgreSQL" as OrderDB
+  database "Product PostgreSQL" as ProductDB
+  database "Redis\n(cache + rate limit\ncounters)" as Redis
+  queue "RabbitMQ\n(event bus)" as MQ
+}
+
+User --> Frontend       : Browser HTTPS
+Frontend --> Gateway    : HTTPS (TLS)\n**[Secure Channel]**
+
+Gateway --> Auth        : HTTP /auth/*\n[Rate Limited]
+Gateway --> UserService : HTTP /users/* /internal/*\n[Rate Limited]
+Gateway --> Product     : HTTP /products/*\n[Rate Limited]
+Gateway --> Order       : HTTP /orders/*\n[Rate Limited]
+Gateway --> AI          : HTTP /ai/*\n[Rate Limited - strict]
+
+note on link
+  **Reverse Proxy Pattern**
+  Clients never reach
+  backend directly
+end note
+
+Auth --> AuthDB         : users
+Auth --> Redis          : token sessions + blacklist
+Auth --> MQ             : AUTH_USER_REGISTERED
+
+UserService --> UserDB  : profiles + addresses
+MQ --> UserService      : profile creation events
+
+Product --> ProductDB   : products + categories
+Product --> Redis       : cache
+Product --> UserService : seller profile lookup
+
+Order --> OrderDB       : orders + order_items
+Order --> Product       : /internal/products/*
+Order --> MQ            : ORDER_CREATED / UPDATED / CANCELLED
+
+AI --> Redis            : rate_limit:ai:<user|ip>\nsliding window counter
+AI --> Product          : product catalog
+AI --> UserService      : user context
+AI --> Order            : order history
+
+note top of Gateway
+  **[Pattern 1] Network Segmentation**
+  Gateway bridges subnet_a ↔ subnet_b.
+  No backend is reachable from subnet_a directly.
+  DBs and queues isolated in subnet_b only.
+end note
+
+note top of AI
+  **[Pattern 3] Rate Limiting**
+  Layer 1 → NGINX: 2r/s burst 5
+  Layer 2 → Redis middleware: 10r/60s
+  Returns 429 + Retry-After header
+  X-RateLimit-* headers on every response
+end note
+
+note bottom of Frontend
+  **[Pattern 2] Secure Channel**
+  All traffic encrypted via TLS 1.2/1.3
+  HTTP redirected to HTTPS (301)
+  HSTS: max-age=31536000
+  Self-signed cert (RSA 2048, CN=localhost)
+end note
+
+@enduml

@@ -7,6 +7,8 @@ const admin   = require('firebase-admin');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
 const authMiddleware = require('./middleware/auth.middleware');
+const { callAnalytics } = require('./services/analyticsCircuitBreaker');
+const { activityLoadBalancer, getLoadBalancerStats } = require('./services/activityLoadBalancer');
 
 const app    = express();
 const server = http.createServer(app);
@@ -32,7 +34,12 @@ app.use(morgan('dev'));
 
 // ─── Health check ─────────────────────────────────────────────────────────────
 app.get('/health', (_req, res) => {
-  res.json({ status: 'ok', service: 'gateway', timestamp: new Date().toISOString() });
+  res.json({
+    status: 'ok',
+    service: 'gateway',
+    timestamp: new Date().toISOString(),
+    activityLoadBalancer: getLoadBalancerStats(), 
+  });
 });
 
 // ─── Helper: crear proxy HTTP ─────────────────────────────────────────────────
@@ -91,11 +98,7 @@ const makeChatProxy = (target) =>
 
 // ─── Rutas protegidas (HTTP) ──────────────────────────────────────────────────
 
-app.use(
-  '/activity',
-  authMiddleware,
-  makeProxy(SERVICES.activity, { '^/activity': '' })
-);
+app.use('/activity', authMiddleware, activityLoadBalancer);
 
 app.use(
   '/notifications',
@@ -111,11 +114,18 @@ app.use(
 
 app.use('/chat', authMiddleware, makeChatProxy(SERVICES.chat));
 
-app.use(
-  '/analytics',
-  authMiddleware,
-  makeProxy(SERVICES.analytics, { '^/analytics': '' })
-);
+app.use('/analytics', authMiddleware, async (req, res) => {
+  const result = await callAnalytics({
+    method  : req.method,
+    path    : req.path,
+    body    : req.body,
+    headers : {
+      'x-user-uid'   : req.user?.uid   || '',
+      'x-user-email' : req.user?.email || '',
+    },
+  });
+  res.status(result.statusCode).send(result.body);
+});
 
 // ─── WebSocket upgrade ────────────────────────────────────────────────────────
 server.on('upgrade', async (req, socket, head) => {

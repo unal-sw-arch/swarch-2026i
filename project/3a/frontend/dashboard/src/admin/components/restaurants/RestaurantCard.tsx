@@ -1,4 +1,4 @@
-import { Bike, Clock3, Star } from "lucide-react";
+import { Bike, Clock3, Star, UtensilsCrossed } from "lucide-react";
 import type { Restaurant } from "@/lib/types";
 
 interface RestaurantCardProps {
@@ -51,6 +51,15 @@ export const RestaurantCard = ({ restaurant, onClick }: RestaurantCardProps) => 
             {restaurant.price}
           </span>
         </div>
+
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onClick?.(restaurant); }}
+          className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+        >
+          <UtensilsCrossed className="h-4 w-4" />
+          Ver menú y pedir
+        </button>
       </div>
     </article>
   );

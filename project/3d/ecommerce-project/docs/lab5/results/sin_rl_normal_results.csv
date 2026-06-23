@@ -1,0 +1,40 @@
+1780789228676,0,,Non HTTP response code: java.net.MalformedURLException,Non HTTP response message: Illegal character found in host: '{',5 - [SIN RL] Normal Traffic 1-1,false,,875,null,0
+1780789230677,0,,Non HTTP response code: java.net.MalformedURLException,Non HTTP response message: Illegal character found in host: '{',5 - [SIN RL] Normal Traffic 1-1,false,,875,null,0
+1780789231173,0,,Non HTTP response code: java.net.MalformedURLException,Non HTTP response message: Illegal character found in host: '{',5 - [SIN RL] Normal Traffic 1-2,false,,875,null,0
+1780789232679,0,,Non HTTP response code: java.net.MalformedURLException,Non HTTP response message: Illegal character found in host: '{',5 - [SIN RL] Normal Traffic 1-1,false,,875,null,0
+1780789233176,0,,Non HTTP response code: java.net.MalformedURLException,Non HTTP response message: Illegal character found in host: '{',5 - [SIN RL] Normal Traffic 1-2,false,,875,null,0
+1780789234680,0,,Non HTTP response code: java.net.MalformedURLException,Non HTTP response message: Illegal character found in host: '{',5 - [SIN RL] Normal Traffic 1-1,false,,875,null,0
+1780789235177,0,,Non HTTP response code: java.net.MalformedURLException,Non HTTP response message: Illegal character found in host: '{',5 - [SIN RL] Normal Traffic 1-2,false,,875,null,0
+1780789236679,0,,Non HTTP response code: java.net.MalformedURLException,Non HTTP response message: Illegal character found in host: '{',5 - [SIN RL] Normal Traffic 1-1,false,,875,null,0
+1780789237176,0,,Non HTTP response code: java.net.MalformedURLException,Non HTTP response message: Illegal character found in host: '{',5 - [SIN RL] Normal Traffic 1-2,false,,875,null,0
+1780789239179,0,,Non HTTP response code: java.net.MalformedURLException,Non HTTP response message: Illegal character found in host: '{',5 - [SIN RL] Normal Traffic 1-2,false,,875,null,0
+1780789403013,0,,Non HTTP response code: java.net.MalformedURLException,Non HTTP response message: Illegal character found in host: '{',5 - [SIN RL] Normal Traffic 1-1,false,,875,null,0
+1780789405014,0,,Non HTTP response code: java.net.MalformedURLException,Non HTTP response message: Illegal character found in host: '{',5 - [SIN RL] Normal Traffic 1-1,false,,875,null,0
+1780789405512,0,,Non HTTP response code: java.net.MalformedURLException,Non HTTP response message: Illegal character found in host: '{',5 - [SIN RL] Normal Traffic 1-2,false,,875,null,0
+1780789407016,0,,Non HTTP response code: java.net.MalformedURLException,Non HTTP response message: Illegal character found in host: '{',5 - [SIN RL] Normal Traffic 1-1,false,,875,null,0
+1780789407512,0,,Non HTTP response code: java.net.MalformedURLException,Non HTTP response message: Illegal character found in host: '{',5 - [SIN RL] Normal Traffic 1-2,false,,875,null,0
+1780789409016,0,,Non HTTP response code: java.net.MalformedURLException,Non HTTP response message: Illegal character found in host: '{',5 - [SIN RL] Normal Traffic 1-1,false,,875,null,0
+1780789409513,0,,Non HTTP response code: java.net.MalformedURLException,Non HTTP response message: Illegal character found in host: '{',5 - [SIN RL] Normal Traffic 1-2,false,,875,null,0
+1780789411018,0,,Non HTTP response code: java.net.MalformedURLException,Non HTTP response message: Illegal character found in host: '{',5 - [SIN RL] Normal Traffic 1-1,false,,875,null,0
+1780789411514,0,,Non HTTP response code: java.net.MalformedURLException,Non HTTP response message: Illegal character found in host: '{',5 - [SIN RL] Normal Traffic 1-2,false,,875,null,0
+1780789413515,0,,Non HTTP response code: java.net.MalformedURLException,Non HTTP response message: Illegal character found in host: '{',5 - [SIN RL] Normal Traffic 1-2,false,,875,null,0
+1780789636530,12,POST /ai/chat,429,Too Many Requests,5 - [SIN RL] Normal Traffic 1-1,false,,815,https://localhost:8443/ai/chat/,12
+1780789638543,3,POST /ai/chat,429,Too Many Requests,5 - [SIN RL] Normal Traffic 1-1,false,,815,https://localhost:8443/ai/chat/,3
+1780789639028,9,POST /ai/chat,429,Too Many Requests,5 - [SIN RL] Normal Traffic 1-2,false,,815,https://localhost:8443/ai/chat/,9
+1780789640548,4,POST /ai/chat,429,Too Many Requests,5 - [SIN RL] Normal Traffic 1-1,false,,815,https://localhost:8443/ai/chat/,4
+1780789641038,4,POST /ai/chat,429,Too Many Requests,5 - [SIN RL] Normal Traffic 1-2,false,,815,https://localhost:8443/ai/chat/,4
+1780789642553,3,POST /ai/chat,429,Too Many Requests,5 - [SIN RL] Normal Traffic 1-1,false,,815,https://localhost:8443/ai/chat/,3
+1780789643042,5,POST /ai/chat,429,Too Many Requests,5 - [SIN RL] Normal Traffic 1-2,false,,815,https://localhost:8443/ai/chat/,4
+1780789644557,4,POST /ai/chat,429,Too Many Requests,5 - [SIN RL] Normal Traffic 1-1,false,,815,https://localhost:8443/ai/chat/,4
+1780789645048,4,POST /ai/chat,429,Too Many Requests,5 - [SIN RL] Normal Traffic 1-2,false,,815,https://localhost:8443/ai/chat/,4
+1780789647052,5,POST /ai/chat,429,Too Many Requests,5 - [SIN RL] Normal Traffic 1-2,false,,815,https://localhost:8443/ai/chat/,5
+1780789828661,4685,POST /ai/chat,200,OK,5 - [SIN RL] Normal Traffic 1-1,true,,659,https://localhost:8443/ai/chat/,4685
+1780789831160,8471,POST /ai/chat,200,OK,5 - [SIN RL] Normal Traffic 1-2,true,,659,https://localhost:8443/ai/chat/,8471
+1780789835347,11483,POST /ai/chat,200,OK,5 - [SIN RL] Normal Traffic 1-1,true,,659,https://localhost:8443/ai/chat/,11483
+1780789841631,11514,POST /ai/chat,200,OK,5 - [SIN RL] Normal Traffic 1-2,true,,659,https://localhost:8443/ai/chat/,11514
+1780789848832,11491,POST /ai/chat,200,OK,5 - [SIN RL] Normal Traffic 1-1,true,,659,https://localhost:8443/ai/chat/,11491
+1780789855150,12639,POST /ai/chat,200,OK,5 - [SIN RL] Normal Traffic 1-2,true,,659,https://localhost:8443/ai/chat/,12639
+1780789862328,6509,POST /ai/chat,200,OK,5 - [SIN RL] Normal Traffic 1-1,true,,659,https://localhost:8443/ai/chat/,6509
+1780789869794,10524,POST /ai/chat,200,OK,5 - [SIN RL] Normal Traffic 1-2,true,,659,https://localhost:8443/ai/chat/,10524
+1780789870844,9610,POST /ai/chat,200,OK,5 - [SIN RL] Normal Traffic 1-1,true,,659,https://localhost:8443/ai/chat/,9609
+1780789882318,12547,POST /ai/chat,200,OK,5 - [SIN RL] Normal Traffic 1-2,true,,659,https://localhost:8443/ai/chat/,12547

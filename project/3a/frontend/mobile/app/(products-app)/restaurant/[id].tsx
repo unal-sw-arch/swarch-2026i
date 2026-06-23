@@ -234,7 +234,7 @@ export default function RestaurantScreen() {
             onPress={() => router.push('/(products-app)/cart')}
             icon="cart-outline"
           >
-            Ver carrito ({cartCount}) — ${useCartStore.getState().getTotal().toFixed(2)}
+            {`Ver carrito (${cartCount}) — $${useCartStore.getState().getTotal().toFixed(2)}`}
           </ThemedButton>
         </View>
       )}

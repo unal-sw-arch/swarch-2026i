@@ -6,6 +6,11 @@ export type RestaurantLoginRequest = {
   password: string;
 };
 
+export type RestaurantRegisterRequest = RestaurantLoginRequest & {
+  name: string;
+  restaurantId: ID;
+};
+
 export type RestaurantLoginResponse = {
   accessToken: string;
   role: Role;

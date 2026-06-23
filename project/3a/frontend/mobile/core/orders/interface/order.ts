@@ -17,9 +17,17 @@ export interface OrderItem {
 export interface Order {
     id: number;
     restaurantId: number;
+    customerId?: number | null;
+    customerName?: string | null;
     tableNumber: number;
     status: OrderStatus;
     notes: string | null;
+    totalAmount: number;
+    priority: number;
+    requestedArrivalTime?: string | null;
+    arrivalMessage?: string | null;
+    cancellationReason?: string | null;
+    cancelledAt?: string | null;
     createdAt: string;
     updatedAt: string;
     items: OrderItem[];
@@ -33,8 +41,20 @@ export interface CreateOrderItemInput {
 export interface CreateOrderInput {
     restaurantId: number;
     tableNumber: number;
+    customerId?: number | null;
+    customerName?: string | null;
+    totalAmount?: number | null;
     notes?: string | null;
     items: CreateOrderItemInput[];
+}
+
+export type EtaMode = 'WALKING' | 'DRIVING';
+
+export interface OrderEta {
+    orderId: number;
+    restaurantId: number;
+    mode: EtaMode;
+    etaMinutes: number | null;
 }
 
 export type KitchenEventType = 'ORDER_CREATED' | 'ORDER_STATUS_CHANGED';

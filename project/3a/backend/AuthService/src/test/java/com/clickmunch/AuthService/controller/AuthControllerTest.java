@@ -1,9 +1,5 @@
 package com.clickmunch.AuthService.controller;
 
-import com.clickmunch.AuthService.dto.LoginRequest;
-import com.clickmunch.AuthService.dto.RegisterRequest;
-import com.clickmunch.AuthService.dto.ApiResponse;
-import com.clickmunch.AuthService.service.AuthService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +7,13 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.clickmunch.AuthService.dto.ApiResponse;
+import com.clickmunch.AuthService.dto.LoginRequest;
+import com.clickmunch.AuthService.dto.RegisterRequest;
+import com.clickmunch.AuthService.service.AuthService;
 
 @WebMvcTest(AuthController.class)
 class AuthControllerTest {
@@ -27,7 +26,7 @@ class AuthControllerTest {
 
     @Test
     void register_returnsOk() throws Exception {
-        RegisterRequest req = new RegisterRequest("Plinio Rodolfo","plinio@example.com","plinieichon","123987","CUSTOMER");
+        RegisterRequest req = new RegisterRequest("Plinio Rodolfo","plinio@example.com","plinieichon","123987","CUSTOMER","3001234567","Calle 123","CC123987","https://example.com/avatar.png");
         Mockito.when(authService.register(Mockito.any())).thenReturn(new ApiResponse<>("User registered successfully", null));
 
         mockMvc.perform(post("/api/auth/register")

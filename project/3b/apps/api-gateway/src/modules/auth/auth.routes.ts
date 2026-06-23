@@ -6,6 +6,7 @@ import { ROUTES } from '../../shared/constants/routes';
 export const authRouter = Router();
 
 authRouter.post(ROUTES.authRegisterCustomer, authController.registerCustomer);
+authRouter.post(ROUTES.authRegisterRestaurant, authController.registerRestaurant);
 authRouter.post(ROUTES.authLoginCustomer, authController.loginCustomer);
 authRouter.post(ROUTES.authLoginRestaurant, authController.loginRestaurant);
 authRouter.get(ROUTES.authMe, authMiddleware, authController.me);

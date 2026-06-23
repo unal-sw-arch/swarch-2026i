@@ -11,6 +11,8 @@ node_modules
 dist
 dist-ssr
 *.local
+.env
+!.env.example
 
 # Editor directories and files
 .vscode/*
@@ -35,3 +37,6 @@ services/notification-service/__pycache__/
 apps/restaurant-dashboard/node_modules/
 **/node_modules/
 **/.next/
+
+# TLS self-signed certs (generated locally, never committed)
+infrastructure/edge/certs/

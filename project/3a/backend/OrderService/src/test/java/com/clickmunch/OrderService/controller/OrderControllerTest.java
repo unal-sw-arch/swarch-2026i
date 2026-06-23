@@ -11,6 +11,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -26,7 +27,8 @@ class OrderControllerTest {
     private OrderService orderService;
 
     private OrderResponse sampleOrder() {
-        return new OrderResponse(1L, 10L, 5, "PENDING", "No onions",
+        return new OrderResponse(1L, 10L, 18L, "Customer Demo", 5, 50L, "PENDING", "No onions",
+                BigDecimal.valueOf(25.50), 0, null, null, null, null,
                 LocalDateTime.now(), LocalDateTime.now(),
                 List.of(
                         new OrderItemResponse(1L, "Burger", "sin lechuga"),
@@ -45,6 +47,7 @@ class OrderControllerTest {
                                 {
                                   "restaurantId": 10,
                                   "tableNumber": 5,
+                                  "tableId": 50,
                                   "notes": "No onions",
                                   "items": [
                                     {"itemName": "Burger", "notes": "sin lechuga"},
@@ -55,6 +58,7 @@ class OrderControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.message").value("Order created successfully"))
                 .andExpect(jsonPath("$.data.tableNumber").value(5))
+                .andExpect(jsonPath("$.data.tableId").value(50))
                 .andExpect(jsonPath("$.data.items", org.hamcrest.Matchers.hasSize(2)));
     }
 
@@ -114,7 +118,8 @@ class OrderControllerTest {
 
     @Test
     void updateStatus_returns200() throws Exception {
-        OrderResponse updated = new OrderResponse(1L, 10L, 5, "IN_PREPARATION", null,
+        OrderResponse updated = new OrderResponse(1L, 10L, 18L, "Customer Demo", 5, 50L, "IN_PREPARATION", null,
+                BigDecimal.valueOf(25.50), 0, null, null, null, null,
                 LocalDateTime.now(), LocalDateTime.now(),
                 List.of(new OrderItemResponse(1L, "Burger", null)));
         Mockito.when(orderService.updateStatus(Mockito.eq(1L), Mockito.any(UpdateStatusRequest.class)))

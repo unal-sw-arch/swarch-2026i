@@ -1,17 +1,24 @@
 import { useEffect, useState } from 'react';
 import { Star, MessageSquare, Store, Info } from 'lucide-react';
 import { ratingService, type IndividualRating, type RatingSummary, type Restaurant } from '@/lib/services/ratingService';
+import { useAuth } from '@/contexts/AuthContext';
 
 export const AdminRatingsPage = () => {
+  const { restaurantId } = useAuth();
   const [ratings, setRatings] = useState<IndividualRating[]>([]);
   const [summary, setSummary] = useState<RatingSummary | null>(null);
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Supongamos que obtienes este ID del contexto o la URL
-  const restaurantId = 1001; 
-
   useEffect(() => {
+    if (!restaurantId) {
+      setLoading(false);
+      setSummary(null);
+      setRatings([]);
+      setRestaurant(null);
+      return;
+    }
+
     const loadData = async () => {
       setLoading(true);
       try {
@@ -35,6 +42,14 @@ export const AdminRatingsPage = () => {
   }, [restaurantId]);
 
   if (loading) return <div className="p-20 text-center animate-pulse text-slate-400">Cargando panel de feedback...</div>;
+
+  if (!restaurantId) {
+    return (
+      <div className="p-20 text-center flex flex-col items-center gap-4">
+        <p className="text-slate-500">No hay restaurante asociado a este usuario.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-8">

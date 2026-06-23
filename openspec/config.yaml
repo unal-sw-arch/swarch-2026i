@@ -1,0 +1,49 @@
+schema: spec-driven
+
+context:
+  project: Software Architecture Course Repository (2026-I)
+  description: Academic repo for iterative architecture prototypes developed by Santiago Suárez
+  stack: polyglot (no fixed tech stack; each prototype may use different languages/frameworks)
+  structure: project/ contains prototype subdirectories (3a–3f); each prototype is independently scoped
+  collaboration: GitHub-based; all changes via pull requests; one branch per prototype (e.g. prototype_1)
+  ci: GitHub Actions deadline check on PRs to prototype branches
+  documentation: architecture diagrams, C&C views, design decisions, ADRs, and source code per prototype
+  style: English commit messages; small focused PRs; no plagiarism
+  architecture_focus: quality attributes (security, performance, scalability, reliability, interoperability, evolvability)
+  references: Bass/Clements/Kazman, Cervantes/Kazman, Richards/Ford, Sam Newman
+
+rules:
+  proposal:
+    - Scope proposals to a single prototype or cross-cutting concern
+    - State the architectural style or pattern being applied and the quality attributes targeted
+    - Reference the relevant project subfolder (e.g. project/3a)
+
+  specs:
+    - Write requirements as testable acceptance criteria
+    - Include at least one quality attribute scenario per spec
+    - Distinguish functional requirements from architectural constraints
+
+  design:
+    - Document the architectural view(s) affected (e.g. component-and-connector, deployment, layered)
+    - Justify technology/framework choices against quality attribute trade-offs
+    - Include an ADR (Architecture Decision Record) for non-trivial decisions
+
+  tasks:
+    - Break work into prototype-scoped tasks aligned to a single PR
+    - Tag each task with the prototype it belongs to (e.g. [3a], [3b])
+    - Keep tasks small enough to review in under 30 minutes
+
+  apply:
+    - Place all implementation artifacts under the correct project/3x subdirectory
+    - Follow the existing directory conventions; do not restructure without a proposal
+    - Commit messages must be in English and reference the change being implemented
+
+  verify:
+    - Confirm each spec scenario is addressed in the implementation
+    - Check that architectural diagrams are updated if the structure changed
+    - Ensure the CI deadline workflow passes before merging
+
+  archive:
+    - Move completed change folders to openspec/changes/archive/
+    - Update the main spec in openspec/specs/ to reflect delivered capabilities
+    - Tag the merge commit with the prototype name (e.g. prototype_1)

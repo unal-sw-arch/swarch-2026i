@@ -9,9 +9,13 @@ export const pickForwardHeaders = (context?: RequestContext): HttpHeaders => {
     output[X_REQUEST_ID_HEADER] = context.requestId;
   }
 
+  if (context?.forwardedHeaders) {
+    Object.assign(output, context.forwardedHeaders);
+  }
+
   const authorization = context?.authorization ?? context?.forwardedHeaders?.[AUTHORIZATION_HEADER];
 
-  if (authorization) {
+  if (authorization && !output[AUTHORIZATION_HEADER]) {
     output[AUTHORIZATION_HEADER] = authorization;
   }
 

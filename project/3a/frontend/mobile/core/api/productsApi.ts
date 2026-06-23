@@ -4,12 +4,9 @@ import { Platform } from 'react-native';
 
 const STAGE = process.env.EXPO_PUBLIC_STAGE || 'dev';
 
-export const API_URL =
-    STAGE === 'prod'
-        ? process.env.EXPO_PUBLIC_API_URL
-        : Platform.OS === 'ios' || Platform.OS === 'web'
-        ? process.env.EXPO_PUBLIC_API_URL_IOS
-        : process.env.EXPO_PUBLIC_API_URL_ANDROID;
+import { resolveUrl } from './resolve-url';
+
+export const API_URL = resolveUrl('api');
 
 // console.log('productsApi - STAGE:', STAGE, 'Platform:', Platform.OS, 'API_URL:', API_URL);
 

@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Alert, FlatList, RefreshControl, StyleSheet, View } from 'react-native';
 import { useQueryClient } from '@tanstack/react-query';
+import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/presentation/theme/components/themed-text';
 import OrderCard from '@/presentation/waiter/components/OrderCard';
 import ConnectionBadge from '@/presentation/waiter/components/ConnectionBadge';
@@ -52,13 +53,26 @@ const ReadyOrdersScreen = () => {
                 onDismiss={() => banner && dismissReady(banner.id)}
             />
 
+            {/* ── Header ── */}
             <View style={styles.header}>
-                <ThemedText type='defaultSemiBold'>
-                    {readyOrders.length}{' '}
-                    {readyOrders.length === 1 ? 'orden lista' : 'órdenes listas'}
-                </ThemedText>
+                <View style={styles.headerLeft}>
+                    <Ionicons name='checkmark-circle-outline' size={20} color='#10b981' />
+                    <ThemedText style={styles.headerTitle}>
+                        {readyOrders.length}{' '}
+                        {readyOrders.length === 1 ? 'orden lista' : 'órdenes listas'}
+                    </ThemedText>
+                </View>
                 <ConnectionBadge connected={connected} />
             </View>
+
+            {readyOrders.length > 0 && (
+                <View style={styles.hintRow}>
+                    <Ionicons name='information-circle-outline' size={14} color='#9CA3AF' />
+                    <ThemedText style={styles.hintText}>
+                        Marca como entregada cuando llegue a la mesa
+                    </ThemedText>
+                </View>
+            )}
 
             <FlatList
                 data={readyOrders}
@@ -77,8 +91,12 @@ const ReadyOrdersScreen = () => {
                 )}
                 ListEmptyComponent={
                     <View style={styles.empty}>
+                        <Ionicons name='hourglass-outline' size={56} color='#D1D5DB' />
+                        <ThemedText style={styles.emptyTitle}>
+                            Esperando al chef
+                        </ThemedText>
                         <ThemedText style={styles.emptyText}>
-                            Ninguna orden lista por ahora. Te avisamos cuando el chef termine.
+                            Ninguna orden lista por ahora. Te avisamos cuando el chef termine un pedido.
                         </ThemedText>
                     </View>
                 }
@@ -92,25 +110,55 @@ export default ReadyOrdersScreen;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingHorizontal: 12,
-        paddingTop: 12,
+        backgroundColor: '#fff',
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: 8,
+        paddingHorizontal: 16,
+        paddingTop: 14,
+        paddingBottom: 6,
+    },
+    headerLeft: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    headerTitle: {
+        fontSize: 17,
+        fontWeight: '700',
+        color: '#111827',
+    },
+    hintRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingBottom: 12,
+        gap: 5,
+    },
+    hintText: {
+        fontSize: 12,
+        color: '#9CA3AF',
     },
     list: {
+        paddingHorizontal: 16,
         paddingBottom: 24,
     },
     empty: {
-        paddingVertical: 60,
+        paddingVertical: 72,
         alignItems: 'center',
-        paddingHorizontal: 24,
+        gap: 8,
+    },
+    emptyTitle: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: '#6B7280',
     },
     emptyText: {
-        color: '#6b7280',
+        color: '#9CA3AF',
         textAlign: 'center',
+        paddingHorizontal: 32,
+        fontSize: 14,
     },
 });

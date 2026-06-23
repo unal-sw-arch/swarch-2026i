@@ -12,6 +12,7 @@ from activities.infrastructure.container import (
     build_record_activity_event_use_case,
 )
 from activities.infrastructure.exceptions import InfrastructureError
+from activities.infrastructure.email_adapter import EmailNotificationAdapter
 
 from .errors import error_response
 from .serializers import ActivityEventSerializer
@@ -120,6 +121,12 @@ class CreateActivityView(APIView):
                 "sourceService": event.source_service,
             },
         )
+
+        # Apply Interoperability Pattern (Adapter) to send external emails
+        try:
+            EmailNotificationAdapter.send_order_status_email(event)
+        except Exception as e:
+            logger.error(f"Failed to dispatch email via adapter: {e}")
 
         return Response(result, status=status.HTTP_201_CREATED)
 

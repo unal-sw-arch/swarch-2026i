@@ -9,7 +9,24 @@ const WaiterTabsLayout = () => {
         <Tabs
             screenOptions={{
                 tabBarActiveTintColor: primaryColor,
+                tabBarInactiveTintColor: '#9CA3AF',
+                tabBarStyle: {
+                    borderTopColor: '#F3F4F6',
+                    backgroundColor: '#FFFFFF',
+                },
+                tabBarLabelStyle: {
+                    fontSize: 11,
+                    fontWeight: '600',
+                },
                 headerShown: true,
+                headerStyle: {
+                    backgroundColor: '#FFFFFF',
+                },
+                headerTitleStyle: {
+                    fontWeight: '700',
+                    fontSize: 18,
+                    color: '#111827',
+                },
             }}
         >
             <Tabs.Screen

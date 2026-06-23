@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: notificationservice
+  namespace: clickmunch
+  labels:
+    app: notificationservice
+spec:
+  type: ClusterIP                    # Solo accesible desde dentro del cluster (vía APIGateway)
+  selector:
+    app: notificationservice
+  ports:
+    - name: http
+      port: 8087
+      targetPort: 8087

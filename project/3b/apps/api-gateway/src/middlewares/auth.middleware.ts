@@ -28,14 +28,35 @@ export const authMiddleware: RequestHandler = (req, _res, next) => {
     forwardedHeaders: {},
   };
 
+  const forwardedHeaders: Record<string, string> = {
+    ...existingContext.forwardedHeaders,
+    [AUTHORIZATION_HEADER]: authorization,
+  };
+
+  try {
+    const payloadBase64 = token.split('.')[1];
+    if (payloadBase64) {
+      const payloadString = Buffer.from(payloadBase64, 'base64').toString('utf-8');
+      const payload = JSON.parse(payloadString);
+      if (payload.sub) {
+        forwardedHeaders['x-user-id'] = payload.sub.toString();
+      }
+      if (payload.role) {
+        forwardedHeaders['x-user-role'] = payload.role;
+      }
+      if (payload.restaurantId) {
+        forwardedHeaders['x-restaurant-id'] = payload.restaurantId.toString();
+      }
+    }
+  } catch (err) {
+    // Si el token no es un JWT válido, solo se envía el Bearer original
+  }
+
   req.context = {
     ...existingContext,
     authorization,
     token,
-    forwardedHeaders: {
-      ...existingContext.forwardedHeaders,
-      [AUTHORIZATION_HEADER]: authorization,
-    },
+    forwardedHeaders,
   };
 
   next();

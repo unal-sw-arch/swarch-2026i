@@ -17,29 +17,33 @@ const ThemedTextInput = ({ icon, ...rest } : Props) => {
 
     return (
         <View
-            style={{
-                ...styles.border,
-                borderColor: isActive ? primaryColor : '#ccc'
-            }}
+            style={[
+                styles.border,
+                {
+                    borderColor: isActive ? primaryColor : '#e5e7eb',
+                    backgroundColor: '#fafafa',
+                }
+            ]}
             onTouchStart={() => inputRef.current?.focus()}
         >
             {icon && (
                 <Ionicons
                     name={icon}
-                    size={24}
-                    color={textColor}
+                    size={20}
+                    color={isActive ? primaryColor : '#9ca3af'}
                     style={{ marginRight: 10 }}
                 />
             )}    
             <TextInput
                 ref={inputRef}
-                placeholderTextColor="#5c5c5c"
+                placeholderTextColor="#9ca3af"
                 onFocus={() => setIsActive(true)}
                 onBlur={() => setIsActive(false)}
                 style={{
                     color: textColor,
-                    marginRight: 10,
+                    fontSize: 15,
                     flex: 1,
+                    paddingVertical: 0, // Reset default Android padding
                 }}
                 {...rest}
             />
@@ -54,9 +58,10 @@ export default ThemedTextInput
 const styles = StyleSheet.create({
     border: {
         borderWidth: 1,
-        borderRadius: 5,
-        padding: 5,
-        marginBottom: 10,
+        borderRadius: 12,
+        paddingHorizontal: 14,
+        paddingVertical: 12,
+        marginBottom: 12,
         flexDirection: 'row',
         alignItems: 'center'
     }

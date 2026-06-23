@@ -45,8 +45,21 @@ const envSchema = z
     CACHE_TTL_MENU: z.coerce.number().int().positive().default(60),
     CACHE_TTL_PROMOTIONS: z.coerce.number().int().positive().default(60),
     USE_MOCK_SERVICES: booleanFromEnv.default(false),
-  })
-  .strict();
+    // WAF (Web Application Firewall) — input inspection at the edge.
+    WAF_ENABLED: booleanFromEnv.default(true),
+    WAF_MODE: z.enum(['detect', 'block']).default('block'),
+    WAF_MAX_BODY_BYTES: z.coerce.number().int().positive().default(1048576),
+    // Throttling / Rate Limiting (per-IP, Redis-backed).
+    THROTTLE_ENABLED: booleanFromEnv.default(true),
+    THROTTLE_LIMIT: z.coerce.number().int().positive().default(100),
+    THROTTLE_WINDOW_SECONDS: z.coerce.number().int().positive().default(60),
+    // Resilience (Retry + Circuit Breaker) towards upstream services.
+    RESILIENCE_ENABLED: booleanFromEnv.default(true),
+    RETRY_MAX_ATTEMPTS: z.coerce.number().int().min(0).default(2),
+    RETRY_BASE_DELAY_MS: z.coerce.number().int().positive().default(100),
+    BREAKER_FAILURE_THRESHOLD: z.coerce.number().int().positive().default(5),
+    BREAKER_RESET_TIMEOUT_MS: z.coerce.number().int().positive().default(10000),
+  });
 
 export type EnvConfig = Readonly<z.infer<typeof envSchema>>;
 

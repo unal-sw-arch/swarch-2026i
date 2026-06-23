@@ -17,4 +17,13 @@ export const authMockRepository: AuthRepository = {
 
     return AUTH_MOCK_RESPONSE;
   },
+  async registerRestaurant(payload) {
+    await delay(AUTH_MOCK_DELAY_MS);
+
+    return {
+      ...AUTH_MOCK_RESPONSE,
+      restaurantId: payload.restaurantId,
+      userId: Date.now(),
+    };
+  },
 };

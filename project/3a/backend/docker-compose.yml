@@ -5,14 +5,14 @@ services:
     restart: always
     environment:
       POSTGRES_DB: auth_db
-      POSTGRES_USER: mike
-      POSTGRES_PASSWORD: secret
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5433:5432"
     volumes:
       - auth_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U mike -d auth_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d auth_db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -26,14 +26,14 @@ services:
     restart: always
     environment:
       POSTGRES_DB: restaurant_db
-      POSTGRES_USER: mike
-      POSTGRES_PASSWORD: secret
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5434:5432"
     volumes:
       - restaurant_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U mike -d restaurant_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d restaurant_db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -47,14 +47,14 @@ services:
     restart: always
     environment:
       POSTGRES_DB: geo_db
-      POSTGRES_USER: mike
-      POSTGRES_PASSWORD: secret
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5435:5432"
     volumes:
       - geo_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U mike -d geo_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d geo_db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -67,15 +67,15 @@ services:
     container_name: menu-db
     restart: always
     environment:
-      MONGO_INITDB_ROOT_USERNAME: mike
-      MONGO_INITDB_ROOT_PASSWORD: secret
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
       MONGO_INITDB_DATABASE: menu_db
     ports:
       - "27018:27017"
     volumes:
       - menu_data:/data/db
     healthcheck:
-      test: ["CMD-SHELL", "echo 'db.runCommand({ ping: 1 }).ok' | mongosh mongodb://mike:secret@localhost:27017/admin --quiet"]
+      test: ["CMD-SHELL", "echo 'db.runCommand({ ping: 1 }).ok' | mongosh mongodb://${MONGO_USER}:${MONGO_PASSWORD}@localhost:27017/admin --quiet"]
       interval: 10s
       timeout: 10s
       retries: 5
@@ -88,8 +88,8 @@ services:
     container_name: rabbitmq
     restart: always
     environment:
-      RABBITMQ_DEFAULT_USER: mike
-      RABBITMQ_DEFAULT_PASS: secret
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -108,24 +108,36 @@ services:
     # The gateway is the ONLY public entry point for the microservices.
     # REST and STOMP/WebSocket traffic both enter here on 8080; backend
     # services are reachable only inside the `appnet` Docker network.
+    # Secure Channel: the edge speaks HTTPS/WSS (TLS terminated here), so
+    # clients connect via https://<host>:8080 and wss://<host>:8080/...
     ports:
       - "8080:8080"
     environment:
       SERVICES_AUTH_URL: http://authservice:8081
       SERVICES_RESTAURANT_URL: http://restaurantservice:8082
-      SERVICES_MENU_URL: http://menuservice:8084
+      SERVICES_MENU_URL: http://nginx-menu
       SERVICES_ORDER_URL: http://orderservice:8085
       SERVICES_ORDER_WS_URL: ws://orderservice:8085
       SERVICES_RESERVATION_URL: http://reservationservice:8086
       SERVICES_CHECKOUT_URL: http://checkoutservice:8089
       SERVICES_RATING_URL: http://ratingservice:8088
       SERVICES_NOTIFICATION_URL: http://notificationservice:8087
+      JWT_SECRET: ${JWT_SECRET}
+      # Secure Channel (TLS). The keystore is baked into the image at build
+      # time; override the password here (and mount a CA-issued keystore via
+      # SSL_KEYSTORE for production). Set SSL_ENABLED=false to serve plain HTTP.
+      SSL_ENABLED: ${SSL_ENABLED:-true}
+      SSL_KEYSTORE: ${SSL_KEYSTORE:-file:/app/certs/keystore.p12}
+      SSL_KEYSTORE_PASSWORD: ${SSL_KEYSTORE_PASSWORD:-changeit}
+      SSL_KEY_ALIAS: ${SSL_KEY_ALIAS:-apigateway}
     depends_on:
       authservice:
         condition: service_healthy
       restaurantservice:
         condition: service_healthy
       menuservice:
+        condition: service_healthy
+      nginx-menu:
         condition: service_healthy
       orderservice:
         condition: service_healthy
@@ -148,8 +160,12 @@ services:
       - "8081"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://auth-db:5432/auth_db
-      SPRING_DATASOURCE_USERNAME: mike
-      SPRING_DATASOURCE_PASSWORD: secret
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      # Dev/QA data preloading (idempotent, opt-in). Seeds one approved user per role.
+      APP_SEED_ENABLED: ${APP_SEED_ENABLED:-true}
+      APP_SEED_PASSWORD: ${APP_SEED_PASSWORD:-Password123!}
     depends_on:
       auth-db:
         condition: service_healthy
@@ -164,8 +180,8 @@ services:
       - "8082"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://restaurant-db:5432/restaurant_db
-      SPRING_DATASOURCE_USERNAME: mike
-      SPRING_DATASOURCE_PASSWORD: secret
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       AUTH_SERVICE_URL: http://authservice:8081
       GEO_SERVICE_URL: http://geoservice:8083
     depends_on:
@@ -186,8 +202,8 @@ services:
       - "8083"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://geo-db:5432/geo_db
-      SPRING_DATASOURCE_USERNAME: mike
-      SPRING_DATASOURCE_PASSWORD: secret
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
     depends_on:
       geo-db:
         condition: service_healthy
@@ -196,14 +212,20 @@ services:
 
   menuservice:
     build: ./MenuService
-    container_name: menuservice
+    # container_name: menuservice
     # Internal only: reach via apigateway:/menu/**.
+    # Scaled to 3 replicas behind nginx-menu (see nginx/menu.conf upstream).
+    # Compose names them backend-menuservice-1/2/3 on appnet.
+    deploy:
+      replicas: 3
     expose:
       - "8084"
     environment:
-      SPRING_MONGODB_URI: mongodb://mike:secret@menu-db:27017/menu_db?authSource=admin
+      SPRING_MONGODB_URI: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@menu-db:27017/menu_db?authSource=admin
       SPRING_MONGODB_DATABASE: menu_db
       RESTAURANT_SERVICE_URL: http://restaurantservice:8082
+      # Dev/QA data preloading (idempotent, opt-in). Seeds demo menus per restaurant.
+      APP_SEED_ENABLED: ${APP_SEED_ENABLED:-true}
     depends_on:
       menu-db:
         condition: service_healthy
@@ -218,14 +240,14 @@ services:
     restart: always
     environment:
       POSTGRES_DB: order_db
-      POSTGRES_USER: mike
-      POSTGRES_PASSWORD: secret
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5436:5432"
     volumes:
       - order_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U mike -d order_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d order_db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -239,14 +261,14 @@ services:
     restart: always
     environment:
       POSTGRES_DB: reservation_db
-      POSTGRES_USER: mike
-      POSTGRES_PASSWORD: secret
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5437:5432"
     volumes:
       - reservation_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U mike -d reservation_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d reservation_db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -260,14 +282,14 @@ services:
     restart: always
     environment:
       POSTGRES_DB: rating_db
-      POSTGRES_USER: mike
-      POSTGRES_PASSWORD: secret
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5438:5432"
     volumes:
       - rating_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U mike -d rating_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d rating_db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -281,14 +303,14 @@ services:
     restart: always
     environment:
       POSTGRES_DB: notification_db
-      POSTGRES_USER: mike
-      POSTGRES_PASSWORD: secret
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5439:5432"
     volumes:
       - notification_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U mike -d notification_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d notification_db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -305,16 +327,22 @@ services:
       - "8085"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://order-db:5432/order_db
-      SPRING_DATASOURCE_USERNAME: mike
-      SPRING_DATASOURCE_PASSWORD: secret
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: 5672
-      SPRING_RABBITMQ_USERNAME: mike
-      SPRING_RABBITMQ_PASSWORD: secret
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      GEO_SERVICE_URL: http://geoservice:8083
+      RESTAURANT_SERVICE_URL: http://restaurantservice:8082
     depends_on:
       order-db:
         condition: service_healthy
       rabbitmq:
+        condition: service_healthy
+      geoservice:
+        condition: service_healthy
+      restaurantservice:
         condition: service_healthy
     networks:
       - appnet
@@ -327,12 +355,12 @@ services:
       - "8086"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://reservation-db:5432/reservation_db
-      SPRING_DATASOURCE_USERNAME: mike
-      SPRING_DATASOURCE_PASSWORD: secret
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: 5672
-      SPRING_RABBITMQ_USERNAME: mike
-      SPRING_RABBITMQ_PASSWORD: secret
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
       RESTAURANT_SERVICE_URL: http://restaurantservice:8082
     depends_on:
       reservation-db:
@@ -352,8 +380,8 @@ services:
       - "8088"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://rating-db:5432/rating_db
-      SPRING_DATASOURCE_USERNAME: mike
-      SPRING_DATASOURCE_PASSWORD: secret
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
     depends_on:
       rating-db:
         condition: service_healthy
@@ -368,16 +396,40 @@ services:
       - "8087"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://notification-db:5432/notification_db
-      SPRING_DATASOURCE_USERNAME: mike
-      SPRING_DATASOURCE_PASSWORD: secret
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: 5672
-      SPRING_RABBITMQ_USERNAME: mike
-      SPRING_RABBITMQ_PASSWORD: secret
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      AUTH_SERVICE_URL: http://authservice:8081
     depends_on:
       notification-db:
         condition: service_healthy
       rabbitmq:
+        condition: service_healthy
+      authservice:
+        condition: service_healthy
+    networks:
+      - appnet
+
+
+  nginx-menu:
+    image: nginx:alpine
+    container_name: nginx-menu
+    ports:
+      - "8084:80"   # optional (only for debugging, can remove later)
+    volumes:
+      - ./nginx/menu.conf:/etc/nginx/nginx.conf:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    depends_on:
+      menuservice:
         condition: service_healthy
     networks:
       - appnet

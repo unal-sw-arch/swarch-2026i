@@ -16,17 +16,19 @@ import org.springframework.web.bind.annotation.RestController;
 import com.clickmunch.RestaurantService.client.AuthClient;
 import com.clickmunch.RestaurantService.dto.CreateRestaurantRequest;
 import com.clickmunch.RestaurantService.dto.CreateTableRequest;
-import com.clickmunch.RestaurantService.dto.NearbySearchRequest;
 import com.clickmunch.RestaurantService.dto.OperatingHoursRequest;
 import com.clickmunch.RestaurantService.dto.OperatingHoursResponse;
 import com.clickmunch.RestaurantService.dto.RestaurantAdminRequest;
 import com.clickmunch.RestaurantService.dto.RestaurantAdminResponse;
 import com.clickmunch.RestaurantService.dto.RestaurantCardResponse;
 import com.clickmunch.RestaurantService.dto.RestaurantDetailsResponse;
+import com.clickmunch.RestaurantService.dto.RestaurantLayoutRequest;
 import com.clickmunch.RestaurantService.dto.RestaurantResponse;
 import com.clickmunch.RestaurantService.dto.StaffAssignmentRequest;
 import com.clickmunch.RestaurantService.dto.StaffAssignmentResponse;
 import com.clickmunch.RestaurantService.dto.TableResponse;
+import com.clickmunch.RestaurantService.dto.UpdateTableLayoutRequest;
+import com.clickmunch.RestaurantService.dto.UpdateTableRequest;
 import com.clickmunch.RestaurantService.service.RestaurantService;
 
 import jakarta.validation.Valid;
@@ -66,23 +68,34 @@ public class RestaurantController {
     }
 
     @GetMapping("/cards")
-    public ResponseEntity<List<RestaurantCardResponse>> getRestaurantCards() {
-        return ResponseEntity.ok(restaurantService.listRestaurantCards());
+    public ResponseEntity<List<RestaurantCardResponse>> getRestaurantCards(
+            @RequestParam(required = false) Double lat,
+            @RequestParam(required = false) Double lng) {
+        return ResponseEntity.ok(restaurantService.listRestaurantCards(lat, lng));
     }
 
     @GetMapping("/nearby")
     public ResponseEntity<List<RestaurantResponse>> getNearbyRestaurants(
-            @RequestBody NearbySearchRequest nearbySearchRequest) {
+            @RequestParam Double latitude,
+            @RequestParam Double longitude,
+            @RequestParam(defaultValue = "5") Double radiusInKm) {
         var restaurants = restaurantService.findNearby(
-                nearbySearchRequest.latitude(),
-                nearbySearchRequest.longitude(),
-                nearbySearchRequest.radiusInKm());
+                latitude,
+                longitude,
+                radiusInKm);
         return ResponseEntity.ok(restaurants);
     }
 
     @GetMapping("/{id}/details")
     public ResponseEntity<RestaurantDetailsResponse> getRestaurantDetails(@PathVariable Long id) {
         return ResponseEntity.ok(restaurantService.getRestaurantDetails(id));
+    }
+
+    @PutMapping("/{id}/layout")
+    public ResponseEntity<RestaurantResponse> updateRestaurantLayout(
+            @PathVariable Long id,
+            @Valid @RequestBody RestaurantLayoutRequest request) {
+        return ResponseEntity.ok(restaurantService.updateRestaurantLayout(id, request));
     }
 
     // ─── Restaurant Admin Management ───
@@ -138,6 +151,20 @@ public class RestaurantController {
             @PathVariable Long tableId,
             @RequestParam String status) {
         return ResponseEntity.ok(restaurantService.updateTableStatus(tableId, status));
+    }
+
+    @PutMapping("/tables/{tableId}")
+    public ResponseEntity<TableResponse> updateTable(
+            @PathVariable Long tableId,
+            @Valid @RequestBody UpdateTableRequest request) {
+        return ResponseEntity.ok(restaurantService.updateTable(tableId, request));
+    }
+
+    @PutMapping("/tables/{tableId}/layout")
+    public ResponseEntity<TableResponse> updateTableLayout(
+            @PathVariable Long tableId,
+            @Valid @RequestBody UpdateTableLayoutRequest request) {
+        return ResponseEntity.ok(restaurantService.updateTableLayout(tableId, request));
     }
 
     @DeleteMapping("/tables/{tableId}")

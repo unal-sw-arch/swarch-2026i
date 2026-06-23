@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -13,8 +14,11 @@ import com.clickmunch.RestaurantService.dto.LocationDto;
 public class GeoClient {
 
     private final RestTemplate restTemplate = new RestTemplate();
-    private static final String GEO_URL = "http://localhost:8083/api/geo";
+    private final String geoUrl;
 
+    public GeoClient(@Value("${geo.service.url}") String geoServiceUrl) {
+        this.geoUrl = geoServiceUrl + "/api/geo";
+    }
 
     public Long createLocation(String name, Double latitude, Double longitude, String placeType) {
         Map<String, Object> request = Map.of(
@@ -24,7 +28,7 @@ public class GeoClient {
                 "longitude", longitude
         );
 
-        Map response = restTemplate.postForObject(GEO_URL + "/locations", request, Map.class);
+        Map response = restTemplate.postForObject(geoUrl + "/locations", request, Map.class);
         assert response != null;
         return Long.valueOf(response.get("id").toString());
     }
@@ -36,13 +40,13 @@ public class GeoClient {
                 "radiusInKm", radiusInKm
         );
 
-        LocationDto[] response = restTemplate.postForObject(GEO_URL + "/nearby", request, LocationDto[].class);
+        LocationDto[] response = restTemplate.postForObject(geoUrl + "/nearby", request, LocationDto[].class);
         assert response != null;
         return Arrays.asList(response);
     }
 
     public LocationDto getLocationById(Long locationId) {
-        return restTemplate.getForObject(GEO_URL + "/locations/" + locationId, LocationDto.class);
+        return restTemplate.getForObject(geoUrl + "/locations/" + locationId, LocationDto.class);
     }
 
     public String getAddressById(Long locationId) {

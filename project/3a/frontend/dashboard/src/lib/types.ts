@@ -57,6 +57,15 @@ export interface UpdateOrderDTO {
 // RESTAURANTE
 // =======================
 
+export interface RestaurantMenuItem {
+  id: string;
+  name: string;
+  description: string;
+  price: string;
+  priceNumber?: number;
+  image: string;
+}
+
 export interface Restaurant {
   id: string;
   name: string;
@@ -65,11 +74,15 @@ export interface Restaurant {
   deliveryTime: string;
   price: string;
   badge?: string;
+  freeShipping?: boolean;
   category?: string;
   city?: string;
   status?: 'Activo' | 'Inactivo';
   latitude: number;
   longitude: number;
+  distanceKm?: number;
+  layoutCols?: number;
+  layoutRows?: number;
 }
 
 // =======================
@@ -77,6 +90,7 @@ export interface Restaurant {
 // =======================
 
 export const PRODUCT_CATEGORIES = [
+  'Entrada',
   'Bebidas',
   'Ensaladas',
   'Platos fuertes',
@@ -87,6 +101,7 @@ export const PRODUCT_CATEGORIES = [
   'Pescados',
   'Vegetariano',
   'Vegano',
+  'Adicional'
 ] as const;
 
 export type ProductCategory = typeof PRODUCT_CATEGORIES[number];
@@ -101,6 +116,24 @@ export interface Table {
   tableNumber: string;
   seats: number;
   status: 'AVAILABLE' | 'OCCUPIED' | 'RESERVED' | 'CLEANING';
+  layoutX: number;
+  layoutY: number;
+  layoutWidth: number;
+  layoutHeight: number;
+  layoutShape: string | null;
+}
+
+export interface TableApiResponse {
+  id: number;
+  restaurantId: number;
+  tableNumber: string;
+  seats: number;
+  status: string;
+  layoutX?: number;
+  layoutY?: number;
+  layoutWidth?: number;
+  layoutHeight?: number;
+  layoutShape?: string | null;
 }
 
 export interface OperatingHours {
@@ -109,6 +142,35 @@ export interface OperatingHours {
   openTime: string;
   closeTime: string;
   isOpen: boolean;
+}
+
+// =======================
+// RESERVAS
+// =======================
+
+export type ReservationStatus =
+  | "Pendiente"
+  | "Confirmada"
+  | "CheckedIn"
+  | "Cancelada"
+  | "Completada"
+  | "NoShow";
+
+export interface Reservation {
+  id: number;
+  customerId: number;
+  customerName: string;
+  restaurantId: number;
+  restaurantName: string;
+  reservationDate: string;
+  reservationTime: string;
+  partySize: number;
+  status: ReservationStatus;
+  notes: string | null;
+  orderId: number | null;
+  tableId: number | null;
+  checkedInAt: string | null;
+  createdAt: string | null;
 }
 
 // =======================
@@ -131,7 +193,7 @@ export interface BackendMenuItem {
 export interface BackendMenuCategory {
   id: string;
   restaurantId: number;
-  category: "ENTRADA" | "PLATO" | "POSTRE" | "BEBIDA" | "ENSALADA" | "ADICIONAL";
+  category: "ENTRADA" | "PLATO_FUERTE" | "SOPA" | "POSTRE" | "BEBIDA" | "ENSALADA" | "APERITIVO" | "CARNE" | "PESCADO" | "VEGETARIANO" | "VEGANO" | "ADICIONAL";
 }
 
 export interface MenuRestaurantResponse {
@@ -187,13 +249,11 @@ export interface IndividualRating {
 // =======================
 
 export type OrderStatus =
-  | "Pending"
-  | "SentToKitchen"
-  | "Preparing"
-  | "Ready"
-  | "Served"
-  | "Delivered"
-  | "Cancelled";
+  | "PENDING"
+  | "IN_PREPARATION"
+  | "READY"
+  | "DELIVERED"
+  | "CANCELLED";
 
 export type OrderItem = {
   id: number;
@@ -206,20 +266,26 @@ export type OrderItem = {
 
 export type Order = {
   id: number;
-  customerId: number;
-  customerName: string;
+  customerId: number | null;
+  customerName: string | null;
   restaurantId: number;
-  restaurantName: string;
+  restaurantName?: string;
   status: OrderStatus;
-  channel: string;
-  notes: string;
-  eta: string;
+  notes: string | null;
+  eta?: string;
   total: number;
+  totalAmount: number;
+  priority: number;
+  tableNumber: number;
   tableId: number | null;
   waiterId: number | null;
   tipAmount: number | null;
   waiterComment: string | null;
-  preparationMinutes: number;
+  preparationMinutes?: number;
+  requestedArrivalTime?: string | null;
+  arrivalMessage?: string | null;
+  cancellationReason?: string | null;
+  cancelledAt?: string | null;
   items: OrderItem[];
   createdAt: string;
   updatedAt: string;
@@ -246,6 +312,7 @@ export interface KitchenOrder {
   id: number;
   restaurantId: number;
   tableNumber: number;
+  tableId: number | null;
   status: KitchenOrderStatus;
   notes: string | null;
   createdAt: string;

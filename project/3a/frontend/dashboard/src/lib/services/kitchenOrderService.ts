@@ -1,7 +1,7 @@
 import type { KitchenOrder } from '@/lib/types';
 import { getSession } from '@/lib/auth';
 
-const GATEWAY_URL = import.meta.env.VITE_GATEWAY_URL ?? 'http://localhost:8080';
+const GATEWAY_URL = import.meta.env.VITE_GATEWAY_URL ?? '';
 const ORDER_PREFIX = `${GATEWAY_URL}/order`;
 
 interface ApiResponse<T> {

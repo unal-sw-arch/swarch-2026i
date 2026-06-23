@@ -22,71 +22,75 @@ import ProtectedRoute from './components/ProtectedRoute'
 
 const AuthLayout = lazy(() => import('./auth/layouts/AuthLayout'))
 const AdminLayout = lazy( () => import('./admin/layouts/AdminLayout')) 
+const adminRoles = ['ADMIN', 'RESTAURANT_MANAGER']
+const waiterRoles = ['ADMIN', 'RESTAURANT_MANAGER', 'WAITER']
+const chefRoles = ['ADMIN', 'RESTAURANT_MANAGER', 'CHEF']
+const staffRoles = ['ADMIN', 'RESTAURANT_MANAGER', 'WAITER', 'CHEF']
 
 export const appRouter = createBrowserRouter([
     {
         path: '/',
-        element: <ProtectedRoute><AdminLayout/></ProtectedRoute>,
+        element: <ProtectedRoute allowedRoles={staffRoles}><AdminLayout/></ProtectedRoute>,
         children: [
             {
                 index: true,
-                element: <DashboardPage/>
+                element: <ProtectedRoute allowedRoles={adminRoles}><DashboardPage/></ProtectedRoute>
             },
             {
                 path: 'products',
-                element: <AdminProductsPage/>
+                element: <ProtectedRoute allowedRoles={adminRoles}><AdminProductsPage/></ProtectedRoute>
             },
             {
                 path: 'products/:idSlug',
-                element: <AdminProductPage/>
+                element: <ProtectedRoute allowedRoles={adminRoles}><AdminProductPage/></ProtectedRoute>
             },
             {
                 path: 'users',
-                element: <AdminUsersPage/>
+                element: <ProtectedRoute allowedRoles={['ADMIN']}><AdminUsersPage/></ProtectedRoute>
             },
             {
                 path: 'orders',
-                element: <AdminOrdersPage/>
+                element: <ProtectedRoute allowedRoles={waiterRoles}><AdminOrdersPage/></ProtectedRoute>
             },
             {
                 path: 'kitchen',
-                element: <ChefKitchenPage/>
+                element: <ProtectedRoute allowedRoles={chefRoles}><ChefKitchenPage/></ProtectedRoute>
             },
             {
                 path: 'reservations',
-                element: <AdminReservationsPage/>
+                element: <ProtectedRoute allowedRoles={waiterRoles}><AdminReservationsPage/></ProtectedRoute>
             },
             {
                 path: 'restaurants',
-                element: <AdminRestaurantsPage/>
+                element: <ProtectedRoute allowedRoles={['ADMIN']}><AdminRestaurantsPage/></ProtectedRoute>
             },
             {
                 path: 'ratings',
-                element: <AdminRatingsPage/>
+                element: <ProtectedRoute allowedRoles={adminRoles}><AdminRatingsPage/></ProtectedRoute>
             },
             {
                 path: 'reports',
-                element: <AdminReportsPage/>
+                element: <ProtectedRoute allowedRoles={adminRoles}><AdminReportsPage/></ProtectedRoute>
             },
             {
                 path: 'notifications',
-                element: <AdminNotificationsPage/>
+                element: <ProtectedRoute allowedRoles={adminRoles}><AdminNotificationsPage/></ProtectedRoute>
             },
             {
                 path: 'settings',
-                element: <AdminSettingsPage/>
+                element: <ProtectedRoute allowedRoles={['ADMIN']}><AdminSettingsPage/></ProtectedRoute>
             },
             {
                 path: 'help',
-                element: <AdminHelpPage/>
+                element: <ProtectedRoute allowedRoles={['ADMIN']}><AdminHelpPage/></ProtectedRoute>
             },
             {
                 path: 'tables',
-                element: <TablesPage/>
+                element: <ProtectedRoute allowedRoles={waiterRoles}><TablesPage/></ProtectedRoute>
             },
             {
                 path: 'hours',
-                element: <HoursPage/>
+                element: <ProtectedRoute allowedRoles={adminRoles}><HoursPage/></ProtectedRoute>
             },
             
 
@@ -96,7 +100,7 @@ export const appRouter = createBrowserRouter([
 
     {
         path: '/customer',
-        element: <ProtectedRoute><CustomerLayout/></ProtectedRoute>
+        element: <ProtectedRoute allowedRoles={['CUSTOMER']}><CustomerLayout/></ProtectedRoute>
     },
 
     {

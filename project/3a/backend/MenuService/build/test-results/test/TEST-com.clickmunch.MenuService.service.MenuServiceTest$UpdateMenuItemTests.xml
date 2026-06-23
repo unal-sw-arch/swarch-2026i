@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="updateMenuItem Tests" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-06-10T04:02:37.058Z" hostname="Mikes-MacBook-Pro.local" time="0.03">
+  <properties/>
+  <testcase name="Should update item with all fields" classname="com.clickmunch.MenuService.service.MenuServiceTest$UpdateMenuItemTests" time="0.028"/>
+  <testcase name="Should preserve existing values when request fields are null" classname="com.clickmunch.MenuService.service.MenuServiceTest$UpdateMenuItemTests" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

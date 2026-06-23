@@ -38,7 +38,7 @@ export function adaptLoginResponse(payload: unknown): RestaurantLoginResponse {
 
   const source = payload as ApiLoginResponse;
   const accessToken = typeof source.accessToken === "string" ? source.accessToken : source.token;
-  const role = source.role;
+  const role = typeof source.role === "string" ? source.role.toUpperCase() : source.role;
   const restaurantId = source.restaurantId ?? source.restaurant_id;
   const userId = source.userId ?? source.user_id;
 

@@ -41,6 +41,7 @@ dependencies {
 	// dedicated starter; the core starter-test no longer ships them.
 	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	testRuntimeOnly 'com.h2database:h2'
 
 	// Docs
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.14'

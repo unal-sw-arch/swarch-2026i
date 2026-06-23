@@ -63,7 +63,9 @@ func JWTAuth(secret string) func(http.Handler) http.Handler {
 			// Inject claims into context — the handler will use restaurant_id to enforce ownership.
 			ctx := r.Context()
 
-			if restaurantID, ok := claims["restaurant_id"]; ok {
+			if restaurantID, ok := claims["restaurantId"]; ok {
+				ctx = context.WithValue(ctx, ContextKeyRestaurantID, fmt.Sprintf("%v", restaurantID))
+			} else if restaurantID, ok := claims["restaurant_id"]; ok {
 				ctx = context.WithValue(ctx, ContextKeyRestaurantID, fmt.Sprintf("%v", restaurantID))
 			}
 			if sub, ok := claims["sub"]; ok {

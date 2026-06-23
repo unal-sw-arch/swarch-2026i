@@ -6,6 +6,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 import java.util.List;
 
 @RestController
@@ -77,8 +79,29 @@ public class AuthController {
         return ResponseEntity.ok(authService.updateProfile(userId, request));
     }
 
+    @PutMapping("/users/{userId}/password")
+    public ResponseEntity<ApiResponse<String>> changePassword(
+            @PathVariable Long userId,
+            @Valid @RequestBody ChangePasswordRequest request) {
+        var response = authService.changePassword(userId, request);
+        if (response.data() == null && !"Password updated successfully".equals(response.message())) {
+            return ResponseEntity.badRequest().body(response);
+        }
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/users/role/{role}")
     public ResponseEntity<List<UserInfoResponse>> getUsersByRole(@PathVariable Role role) {
         return ResponseEntity.ok(authService.getUsersByRole(role));
+    }
+
+    @PatchMapping("/users/{userId}/telegram")
+    public ResponseEntity<UserInfoResponse> linkTelegram(
+            @PathVariable Long userId,
+            @RequestBody Map<String, String> body) {
+        String chatId = body.get("telegramChatId");
+        UserInfoResponse response = authService.updateProfile(userId,
+                new UpdateProfileRequest(null, null, null, null, null, chatId));
+        return ResponseEntity.ok(response);
     }
 }

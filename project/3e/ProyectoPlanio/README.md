@@ -488,9 +488,15 @@ docker compose up --build
 ```
 
 6. Open the application in your browser:
-```
-http://localhost:80/
-```
+=======
+- https://localhost:80/
+
+#### 📱 Mobile (Flutter)
+
+**Option 1: With Docker (Recommended)**
+```bash
+# From ProyectoPlanio folder
+docker-compose up -d
 
 ---
 

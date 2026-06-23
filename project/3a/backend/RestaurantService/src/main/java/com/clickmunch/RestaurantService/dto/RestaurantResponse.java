@@ -8,6 +8,8 @@ public record RestaurantResponse(
         String email,
         String imageUrl,
         String placeType,
-        Long locationId
+        Long locationId,
+        Integer layoutCols,
+        Integer layoutRows
 ) {
 }

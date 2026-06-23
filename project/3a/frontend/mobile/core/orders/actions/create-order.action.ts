@@ -10,6 +10,9 @@ export const createOrder = async (input: CreateOrderInput): Promise<Order> => {
     const { data } = await gatewayApi.post<ApiEnvelope<Order>>('/order', {
         restaurantId: input.restaurantId,
         tableNumber: input.tableNumber,
+        customerId: input.customerId ?? null,
+        customerName: input.customerName ?? null,
+        totalAmount: input.totalAmount ?? null,
         notes: input.notes ?? null,
         items: input.items.map((item) => ({
             itemName: item.itemName,

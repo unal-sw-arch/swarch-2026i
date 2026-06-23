@@ -6,15 +6,15 @@ spring:
 
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5436/order_db}
-    username: ${SPRING_DATASOURCE_USERNAME:mike}
-    password: ${SPRING_DATASOURCE_PASSWORD:secret}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   rabbitmq:
     host: ${SPRING_RABBITMQ_HOST:localhost}
     port: ${SPRING_RABBITMQ_PORT:5672}
-    username: ${SPRING_RABBITMQ_USERNAME:mike}
-    password: ${SPRING_RABBITMQ_PASSWORD:secret}
+    username: ${SPRING_RABBITMQ_USERNAME}
+    password: ${SPRING_RABBITMQ_PASSWORD}
 
   sql:
     init:
@@ -31,6 +31,10 @@ server:
 logging:
   level:
     root: INFO
+
+geo:
+  service:
+    url: ${GEO_SERVICE_URL:http://localhost:8083}
 
 management:
   endpoints:

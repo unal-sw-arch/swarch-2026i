@@ -54,9 +54,10 @@ El gateway reescribe las rutas entrantes hacia la API interna de cada servicio. 
 - Inyección de Dependencias: Componentes gestionados por Spring (`@Service`, `@RestController`, `@Bean`).
 - Patrón de Integración/Cliente: `RestaurantService` usa `AuthClient` para consultar datos de usuarios; los servicios se comunican entre sí vía HTTP. `CheckoutService` implementa una orquestación ligera en Python/FastAPI para coordinar ReservationService y OrderService.
 - Mensajería Asíncrona (Event-Driven): OrderService y ReservationService publican eventos de dominio a un exchange de tipo topic en RabbitMQ (`clickmunch.events`). NotificationService consume estos eventos de forma asíncrona para generar notificaciones automáticas. Esto desacopla los productores de los consumidores y mejora la resiliencia del sistema.
-  - Routing keys: `order.created`, `order.status.changed`, `reservation.confirmed`, `reservation.cancelled`
-  - Colas: `notification.order.queue`, `notification.reservation.queue`
+  - Routing keys: `order.created`, `order.status.changed`, `reservation.confirmed`, `reservation.cancelled`, `notification.send`
+  - Colas: `notification.order.queue`, `notification.reservation.queue`, `notification.telegram.queue`
   - Serialización: Jackson2JsonMessageConverter (JSON)
+- Patrón Mediator (Interoperabilidad con Telegram): NotificationService implementa un Worker (`TelegramWorker`) que consume la cola `notification.telegram.queue` y entrega mensajes a la API de Telegram. El flujo es completamente automático: cuando el usuario vincula su cuenta de Telegram (voluntariamente via `PATCH /auth/users/{id}/telegram`), `NotificationEventConsumer` consulta el `telegramChatId` en AuthService al procesar cada evento y lo pasa al Worker. `OrderService` y `ReservationService` no tienen conocimiento de Telegram. Requiere la variable de entorno `TELEGRAM_BOT_TOKEN`.
 
 ## API Gateway (Punto Único de Acceso)
 

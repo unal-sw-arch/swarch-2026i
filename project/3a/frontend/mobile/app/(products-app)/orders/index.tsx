@@ -17,19 +17,19 @@ import { useOrders } from '@/presentation/orders/hooks/useOrders';
 import type { Order, OrderStatus } from '@/core/orders/interface/order';
 
 const statusColors: Record<OrderStatus, string> = {
-  Preparing: '#f39c12',
-  Ready: '#3498db',
-  Served: '#2ecc71',
-  Delivered: '#27ae60',
-  Cancelled: '#e74c3c',
+  PENDING: '#f39c12',
+  IN_PREPARATION: '#f39c12',
+  READY: '#3498db',
+  DELIVERED: '#27ae60',
+  CANCELLED: '#e74c3c',
 };
 
 const statusLabels: Record<OrderStatus, string> = {
-  Preparing: 'Preparando',
-  Ready: 'Listo',
-  Served: 'Servido',
-  Delivered: 'Entregado',
-  Cancelled: 'Cancelado',
+  PENDING: 'Pendiente',
+  IN_PREPARATION: 'Preparando',
+  READY: 'Listo',
+  DELIVERED: 'Entregado',
+  CANCELLED: 'Cancelado',
 };
 
 function OrderCard({ order }: { order: Order }) {
@@ -72,11 +72,17 @@ function OrderCard({ order }: { order: Order }) {
             {order.items?.length ?? 0} artículo{(order.items?.length ?? 0) !== 1 ? 's' : ''}
           </ThemedText>
         </View>
+        <View style={styles.infoRow}>
+          <Ionicons name="cash-outline" size={16} color="#999" />
+          <ThemedText style={styles.infoText}>
+            ${Number(order.totalAmount ?? 0).toFixed(2)}
+          </ThemedText>
+        </View>
       </View>
 
       <View style={styles.cardFooter}>
-        <ThemedText type="defaultSemiBold" style={{ fontSize: 18 }}>
-          ${order.total?.toFixed(2)}
+        <ThemedText type="defaultSemiBold" style={{ fontSize: 14, color: statusColor }}>
+          {statusLabels[order.status] || order.status}
         </ThemedText>
         <Ionicons name="chevron-forward" size={20} color="#ccc" />
       </View>

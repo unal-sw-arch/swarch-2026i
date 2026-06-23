@@ -1,4 +1,4 @@
-import { View, Text, KeyboardAvoidingView, ScrollView, useWindowDimensions, Alert } from 'react-native'
+import { View, KeyboardAvoidingView, ScrollView, useWindowDimensions, Alert, TouchableOpacity, StyleSheet } from 'react-native'
 import React, { useState } from 'react'
 import { ThemedText } from '@/presentation/theme/components/themed-text'
 import ThemedTextInput from '@/presentation/theme/components/themed-text-input';
@@ -7,16 +7,19 @@ import ThemedLink from '@/presentation/theme/components/themed-link';
 import { authRegister } from '@/core/auth/actions/auth-actions';
 import { useAuthStore } from '@/presentation/auth/store/useAuthStore';
 import { useRouter } from 'expo-router';
+import { useThemeColor } from '@/presentation/theme/hooks/use-theme-color';
 
 const RegisterScreen = () => {
 
   const { height } = useWindowDimensions();
+  const primaryColor = useThemeColor({}, 'primary');
   const router = useRouter();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [accountType, setAccountType] = useState<'CUSTOMER' | 'RESTAURANT_MANAGER'>('CUSTOMER');
   const [loading, setLoading] = useState(false);
 
   const onSubmit = async () => {
@@ -26,7 +29,7 @@ const RegisterScreen = () => {
     }
 
     setLoading(true);
-    const res = await authRegister(name, email, username, password, 'CUSTOMER');
+    const res = await authRegister(name, email, username, password, accountType);
     setLoading(false);
 
     if ('success' in res && res.success === false) {
@@ -36,6 +39,11 @@ const RegisterScreen = () => {
 
     // res contains { user, message }
     Alert.alert('Registro', res.message || 'Usuario creado');
+
+    if (accountType === 'RESTAURANT_MANAGER') {
+      router.push('/auth/login');
+      return;
+    }
 
     // Try to auto-login the user after successful registration
     try {
@@ -64,17 +72,38 @@ const RegisterScreen = () => {
         >
           <View
             style={{
-              paddingTop: height * 0.12,
+              paddingTop: height * 0.08,
+              alignItems: 'center',
+              marginBottom: 24,
             }}
           >
-            <ThemedText type='title'>Crear cuenta</ThemedText>
-            <ThemedText style={{ color: 'grey', paddingTop: 10, paddingBottom: 20 }}>Por favor crea una cuenta para continuar</ThemedText>
+            <ThemedText style={{ fontSize: 36, fontFamily: 'KanitBold', color: primaryColor }}>Click & Munch</ThemedText>
+            <ThemedText style={{ color: 'grey', paddingTop: 6, fontSize: 16 }}>Por favor crea una cuenta para continuar</ThemedText>
           </View>
 
           
           <View>
+            <View style={styles.accountTypeGroup}>
+              <TouchableOpacity
+                style={[styles.accountTypeButton, accountType === 'CUSTOMER' && styles.accountTypeButtonActive]}
+                onPress={() => setAccountType('CUSTOMER')}
+              >
+                <ThemedText style={[styles.accountTypeText, accountType === 'CUSTOMER' && styles.accountTypeTextActive]}>
+                  Usuario
+                </ThemedText>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.accountTypeButton, accountType === 'RESTAURANT_MANAGER' && styles.accountTypeButtonActive]}
+                onPress={() => setAccountType('RESTAURANT_MANAGER')}
+              >
+                <ThemedText style={[styles.accountTypeText, accountType === 'RESTAURANT_MANAGER' && styles.accountTypeTextActive]}>
+                  Restaurante
+                </ThemedText>
+              </TouchableOpacity>
+            </View>
+
             <ThemedTextInput
-              placeholder='Nombre completo'
+              placeholder={accountType === 'CUSTOMER' ? 'Nombre completo' : 'Nombre del representante'}
               autoCapitalize='words'
               icon='person-outline'
               value={name}
@@ -110,7 +139,9 @@ const RegisterScreen = () => {
 
           <View style={{ marginTop: 10 }} />
 
-          <ThemedButton onPress={onSubmit}>{loading ? 'Creando...' : 'Crear cuenta'}</ThemedButton>
+          <ThemedButton onPress={onSubmit}>
+            {loading ? 'Creando...' : accountType === 'CUSTOMER' ? 'Crear cuenta' : 'Enviar solicitud'}
+          </ThemedButton>
 
           <View style={{ marginTop: 50 }} />
 
@@ -133,3 +164,31 @@ const RegisterScreen = () => {
 }
 
 export default RegisterScreen;
+
+const styles = StyleSheet.create({
+  accountTypeGroup: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 12,
+  },
+  accountTypeButton: {
+    flex: 1,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#d4d4d8',
+    borderRadius: 12,
+    paddingVertical: 12,
+    backgroundColor: '#fff',
+  },
+  accountTypeButtonActive: {
+    borderColor: '#2563eb',
+    backgroundColor: '#eff6ff',
+  },
+  accountTypeText: {
+    fontWeight: '600',
+    color: '#52525b',
+  },
+  accountTypeTextActive: {
+    color: '#2563eb',
+  },
+});

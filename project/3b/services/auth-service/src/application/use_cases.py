@@ -16,6 +16,17 @@ class AuthUseCase:
         password_hash = get_password_hash(password)
         return await self.repository.create_customer(name, email, password_hash)
 
+    async def register_restaurant(self, name: str, email: str, password: str, restaurant_id: int) -> User:
+        existing_user = await self.repository.get_by_email(email)
+        if existing_user:
+            raise ValidationException("Email already registered")
+
+        if restaurant_id <= 0:
+            raise ValidationException("Restaurant id must be greater than zero")
+
+        password_hash = get_password_hash(password)
+        return await self.repository.create_restaurant(name, email, password_hash, restaurant_id)
+
     async def login_customer(self, email: str, password: str) -> Dict[str, Any]:
         user = await self.repository.get_by_email(email)
         

@@ -1,6 +1,7 @@
 package com.clickmunch.RestaurantService.service;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -129,19 +130,26 @@ public class RestaurantService {
         );
     }
 
-    public List<RestaurantCardResponse> listRestaurantCards() {
+    @Transactional
+    public RestaurantResponse updateRestaurantLayout(Long id, RestaurantLayoutRequest request) {
+        Restaurant restaurant = restaurantRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Restaurant not found"));
+        restaurant.setLayoutCols(request.layoutCols());
+        restaurant.setLayoutRows(request.layoutRows());
+        return toResponse(restaurantRepository.save(restaurant));
+    }
+
+    public List<RestaurantCardResponse> listRestaurantCards(Double userLat, Double userLng) {
         List<Restaurant> restaurants = restaurantRepository.findAll();
-        if (restaurants.isEmpty()) {
-            return List.of();
-        }
+        if (restaurants.isEmpty()) return List.of();
 
         List<Long> restaurantIds = restaurants.stream().map(Restaurant::getId).toList();
         Map<Long, RestaurantProfile> profilesByRestaurantId = restaurantProfileRepository
                 .findByRestaurantIdIn(restaurantIds)
                 .stream()
-                .collect(Collectors.toMap(RestaurantProfile::getRestaurantId, profile -> profile));
+                .collect(Collectors.toMap(RestaurantProfile::getRestaurantId, p -> p));
 
-        return restaurants.stream().map(restaurant -> {
+        List<RestaurantCardResponse> cards = restaurants.stream().map(restaurant -> {
             RestaurantProfile profile = profilesByRestaurantId.get(restaurant.getId());
 
             String category = profile != null && profile.getCategory() != null ? profile.getCategory() : "General";
@@ -152,21 +160,32 @@ public class RestaurantService {
             String badge = profile != null ? profile.getBadge() : null;
             Double latitude = profile != null && profile.getLatitude() != null ? profile.getLatitude() : 4.711;
             Double longitude = profile != null && profile.getLongitude() != null ? profile.getLongitude() : -74.0721;
+            Boolean freeShipping = profile != null && Boolean.TRUE.equals(profile.getFreeShipping());
+            Double distanceKm = (userLat != null && userLng != null)
+                    ? haversine(userLat, userLng, latitude, longitude)
+                    : null;
 
             return new RestaurantCardResponse(
-                    restaurant.getId(),
-                    restaurant.getName(),
-                    restaurant.getImageUrl(),
-                    rating,
-                    deliveryTime,
-                    price,
-                    badge,
-                    category,
-                    city,
-                    latitude,
-                    longitude
-            );
-        }).toList();
+                    restaurant.getId(), restaurant.getName(), restaurant.getImageUrl(),
+                    rating, deliveryTime, price, badge, category, city,
+                    latitude, longitude, freeShipping, distanceKm);
+        }).collect(Collectors.toList());
+
+        if (userLat != null && userLng != null) {
+            cards.sort(Comparator.comparingDouble(RestaurantCardResponse::distanceKm));
+        }
+
+        return cards;
+    }
+
+    private static double haversine(double lat1, double lon1, double lat2, double lon2) {
+        final double R = 6371.0;
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
 
     // ─── Table Management ───
@@ -175,11 +194,24 @@ public class RestaurantService {
     public TableResponse createTable(Long restaurantId, CreateTableRequest request) {
         restaurantRepository.findById(restaurantId)
                 .orElseThrow(() -> new RuntimeException("Restaurant not found"));
+
+        Integer layoutX = request.layoutX() != null ? request.layoutX() : 0;
+        Integer layoutY = request.layoutY() != null ? request.layoutY() : 0;
+        Integer layoutWidth = request.layoutWidth() != null ? request.layoutWidth() : request.seats();
+        Integer layoutHeight = request.layoutHeight() != null ? request.layoutHeight() : 1;
+        validateTableLayout(request.seats(), layoutWidth, layoutHeight);
+        validateLayoutShape(request.seats(), request.layoutShape());
+
         RestaurantTable table = RestaurantTable.builder()
                 .restaurantId(restaurantId)
                 .tableNumber(request.tableNumber())
                 .seats(request.seats())
                 .status("AVAILABLE")
+                .layoutX(layoutX)
+                .layoutY(layoutY)
+                .layoutWidth(layoutWidth)
+                .layoutHeight(layoutHeight)
+                .layoutShape(request.layoutShape())
                 .build();
         RestaurantTable saved = tableRepository.save(table);
         return toTableResponse(saved);
@@ -200,6 +232,39 @@ public class RestaurantService {
         RestaurantTable table = tableRepository.findById(tableId)
                 .orElseThrow(() -> new RuntimeException("Table not found"));
         table.setStatus(status);
+        return toTableResponse(tableRepository.save(table));
+    }
+
+    @Transactional
+    public TableResponse updateTable(Long tableId, UpdateTableRequest request) {
+        RestaurantTable table = tableRepository.findById(tableId)
+                .orElseThrow(() -> new RuntimeException("Table not found"));
+        validateTableLayout(request.seats(), request.layoutWidth(), request.layoutHeight());
+        validateLayoutShape(request.seats(), request.layoutShape());
+
+        table.setTableNumber(request.tableNumber());
+        table.setSeats(request.seats());
+        table.setStatus(request.status());
+        table.setLayoutX(request.layoutX());
+        table.setLayoutY(request.layoutY());
+        table.setLayoutWidth(request.layoutWidth());
+        table.setLayoutHeight(request.layoutHeight());
+        table.setLayoutShape(request.layoutShape());
+        return toTableResponse(tableRepository.save(table));
+    }
+
+    @Transactional
+    public TableResponse updateTableLayout(Long tableId, UpdateTableLayoutRequest request) {
+        RestaurantTable table = tableRepository.findById(tableId)
+                .orElseThrow(() -> new RuntimeException("Table not found"));
+        validateTableLayout(table.getSeats(), request.layoutWidth(), request.layoutHeight());
+        validateLayoutShape(table.getSeats(), request.layoutShape());
+
+        table.setLayoutX(request.layoutX());
+        table.setLayoutY(request.layoutY());
+        table.setLayoutWidth(request.layoutWidth());
+        table.setLayoutHeight(request.layoutHeight());
+        table.setLayoutShape(request.layoutShape());
         return toTableResponse(tableRepository.save(table));
     }
 
@@ -318,11 +383,40 @@ public class RestaurantService {
 
     private RestaurantResponse toResponse(Restaurant r) {
         return new RestaurantResponse(r.getId(), r.getName(), r.getDescription(),
-                r.getPhone(), r.getEmail(), r.getImageUrl(), r.getPlaceType(), r.getLocationId());
+                r.getPhone(), r.getEmail(), r.getImageUrl(), r.getPlaceType(), r.getLocationId(),
+                r.getLayoutCols() != null ? r.getLayoutCols() : 16,
+                r.getLayoutRows() != null ? r.getLayoutRows() : 12);
     }
 
     private TableResponse toTableResponse(RestaurantTable t) {
-        return new TableResponse(t.getId(), t.getRestaurantId(), t.getTableNumber(), t.getSeats(), t.getStatus());
+        return new TableResponse(
+                t.getId(),
+                t.getRestaurantId(),
+                t.getTableNumber(),
+                t.getSeats(),
+                t.getStatus(),
+                t.getLayoutX() != null ? t.getLayoutX() : 0,
+                t.getLayoutY() != null ? t.getLayoutY() : 0,
+                t.getLayoutWidth() != null ? t.getLayoutWidth() : Math.max(1, t.getSeats()),
+                t.getLayoutHeight() != null ? t.getLayoutHeight() : 1,
+                t.getLayoutShape()
+        );
+    }
+
+    private void validateTableLayout(Integer seats, Integer layoutWidth, Integer layoutHeight) {
+        if (layoutWidth * layoutHeight < seats) {
+            throw new IllegalArgumentException("Table layout area must be greater than or equal to seats");
+        }
+    }
+
+    private void validateLayoutShape(Integer seats, String layoutShape) {
+        if (layoutShape == null || layoutShape.isBlank()) {
+            return;
+        }
+        int seatCells = layoutShape.split("\"type\"\\s*:\\s*\"SEAT\"", -1).length - 1;
+        if (seatCells < seats) {
+            throw new IllegalArgumentException("Table layout shape must contain at least one SEAT cell per seat");
+        }
     }
 
     private OperatingHoursResponse toHoursResponse(OperatingHours h) {
@@ -337,4 +431,3 @@ public class RestaurantService {
         return new RestaurantAdminResponse(a.getId(), a.getRestaurantId(), a.getUserId(), a.getAssignedAt());
     }
 }
-

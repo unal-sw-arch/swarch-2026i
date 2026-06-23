@@ -5,5 +5,10 @@ public record TableResponse(
         Long restaurantId,
         String tableNumber,
         Integer seats,
-        String status
+        String status,
+        Integer layoutX,
+        Integer layoutY,
+        Integer layoutWidth,
+        Integer layoutHeight,
+        String layoutShape
 ) {}

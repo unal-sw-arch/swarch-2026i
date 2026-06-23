@@ -18,5 +18,6 @@ public class RestaurantProfile {
     private Double rating;
     private Double latitude;
     private Double longitude;
+    private Boolean freeShipping;
 }
 

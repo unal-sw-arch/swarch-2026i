@@ -96,7 +96,7 @@ export const AdminProductsPage = () => {
 
     try {
       if (editingProduct) {
-        await productService.update({ id: editingProduct.id, ...formData });
+        await productService.update({ id: editingProduct.id, ...formData }, Number(restaurantId) );
       } else if (restaurantId) {
         await productService.create(formData, Number(restaurantId));
       }
